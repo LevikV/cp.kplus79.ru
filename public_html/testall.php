@@ -13,11 +13,11 @@ echo '<br>';
 
 $result = load_alldata();
 echo "Количество элементов вернувшихся методом GetItems: ";
-echo count($data->GetItemsResult->ItemDto);
+echo count($result->GetItemsResult->ItemDto);
 echo '<br>';
 
 echo "<pre>";
-print_r($result);
+//print_r($result);
 echo "</pre>";
 //
 $fp = fopen('vtt_price_all.csv', 'w');
@@ -59,6 +59,10 @@ foreach ($items as $item) {
     fputcsv($fp, $iteminfo, ';', '"');
 }
 fclose($fp);
+//
+echo "<br>";
+echo "Общее количество выгруженных товаров: " . $countitems;
+echo "<br>";
 //
 /*
 for ($i=0; $i < count($data->GetItemsResult->ItemDto); $i++) {
