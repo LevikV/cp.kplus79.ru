@@ -42,9 +42,15 @@ foreach ($items as $item) {
     $iteminfo['Group0'] = "ЗИП для оргтехники";
     $iteminfo['Group1'] = $item->RootGroup;
     //Исключаем из выборки ненужные категории
-    if ($iteminfo['Group1'] == '') continue;
-    if ($iteminfo['Group1'] == '') continue;
-
+    if ($iteminfo['Group1'] == 'Маркетинговые материалы'){
+        $countitems--;
+        continue;
+    }
+    if ($iteminfo['Group1'] == 'Компьютер. запчасти и аксессуары') {
+        $countitems--;
+        continue;
+    }
+    //Идем дальше
     $iteminfo['Group2'] = $item->Group;
     $iteminfo['Quantity'] = substr($item->MainOfficeQuantity, 0, 5);
     //Преобразовываем цену, если отрицательная (т.е. по запросу), то ставим 0
@@ -68,50 +74,6 @@ echo "<br>";
 echo "Общее количество выгруженных товаров: " . $countitems;
 echo "<br>";
 //
-/*
-for ($i=0; $i < count($data->GetItemsResult->ItemDto); $i++) {
-        //Преобразование SOAP объекта в массив PHP
-        $items = is_array($result->GetCategoryItemsResult->ItemDto)
-            ? $result->GetCategoryItemsResult->ItemDto
-            : array($result->GetCategoryItemsResult->ItemDto);
-        foreach ($items as $item) {
-            $countitems++;
-            $iteminfo['Artikul'] = $item->Id;
-            $iteminfo['Name'] = $item->Name;
-            $iteminfo['Manafacture'] = $item->Brand;
-            $iteminfo['Description'] = $item->Description;
-            $iteminfo['Group0'] = "ЗИП для оргтехники";
-            $iteminfo['Group1'] = $item->RootGroup;
-            $iteminfo['Group2'] = $item->Group;
-            $iteminfo['Quantity'] = substr($item->MainOfficeQuantity, 0, 5);
-            //Преобразовываем цену, если отрицательная (т.е. по запросу), то ставим 0
-            $price = substr($item->Price, 0, 5);
-            if ($price<0) {$price = 0;}
-            $iteminfo['Price'] = $price;
-            $iteminfo['Width'] = substr($item->Width, 0, 5);
-            $iteminfo['Height'] = substr($item->Height, 0, 5);
-            $iteminfo['Depth'] = substr($item->Depth, 0, 5);
-            $iteminfo['Weight'] = substr($item->Weight, 0, 5);
-            $iteminfo['PhotoUrl'] = $item->PhotoUrl;
-            $iteminfo['PartNumber'] = $item->OriginalNumber;
-            $iteminfo['Vendor'] = $item->Vendor;
-            $iteminfo['Compatibility'] = str_replace(array("\r\n", "\r", "\n"), '', $item->Compatibility);
-            $iteminfo['ColorName'] = $item->ColorName;
-            fputcsv($fp, $iteminfo, ';', '"');
-        }
-}
-fclose($fp);
-
-
-//$result = load_datacategory($categories[4][0]);
-
-
-
-echo "<br>";
-echo "Общее количество выгруженных товаров: " . $countitems;
-echo "<br>";
-
-*/
 
 
 

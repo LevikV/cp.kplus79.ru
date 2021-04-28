@@ -51,7 +51,9 @@ for ($i=0; $i < count($categories); $i++) {
 }
 */
 echo "<br>";
+echo '<pre>';
 print_r($categories);
+echo '</pre>';
 
 
 
