@@ -20,7 +20,7 @@ echo "<pre>";
 //print_r($result);
 echo "</pre>";
 //
-$fp = fopen('vtt_price_all.csv', 'w');
+$fp = fopen('vtt_price_all_new.csv', 'w');
 //Записываем строку заголовков
 $caption = array("Artikul", "Name", "Manafacture", "Description", "Group0", "Group1", "Group2", "Quantity", "Price", "Width",
     "Height", "Depth", "Weight", "PhotoUrl", "PartNumber", "Vendor", "Compatibility", "ColorName");
@@ -41,6 +41,10 @@ foreach ($items as $item) {
     $iteminfo['Description'] = $item->Description;
     $iteminfo['Group0'] = "ЗИП для оргтехники";
     $iteminfo['Group1'] = $item->RootGroup;
+    //Исключаем из выборки ненужные категории
+    if ($iteminfo['Group1'] == '') continue;
+    if ($iteminfo['Group1'] == '') continue;
+
     $iteminfo['Group2'] = $item->Group;
     $iteminfo['Quantity'] = substr($item->MainOfficeQuantity, 0, 5);
     //Преобразовываем цену, если отрицательная (т.е. по запросу), то ставим 0

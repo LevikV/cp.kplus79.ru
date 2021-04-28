@@ -40,6 +40,7 @@ foreach ($categoryall as $category) {
 }
 echo "<br>";
 //
+/*
 for ($i=0; $i < count($categories); $i++) {
     $result = load_datacategory($categories[$i][0]);
     //Преобразование SOAP объекта в массив PHP
@@ -48,8 +49,9 @@ for ($i=0; $i < count($categories); $i++) {
         : array($result->GetCategoryItemsResult->ItemDto);
     echo "Количество товаров в категории " . $categories[$i][0] . ": " . count($result->GetCategoryItemsResult->ItemDto) . "<br>";
 }
+*/
 echo "<br>";
-print_r($categoryall);
+print_r($categories);
 
 
 
