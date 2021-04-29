@@ -19,7 +19,7 @@ $caption = array("Artikul", "Name", "Manafacture", "Description", "Group0", "Gro
 fputcsv($fIm, $caption, ';', '"');
 $i = 0;
 while (($data = fgetcsv($fVtt, 1000, ';', '"')) !== FALSE) {
-    if ($i==1) {
+    if ($i>0) {
         //Накрутка цены, в зависимости оригинал или нет
         if ((stripos($data[1], '(o)')===false) AND (stripos($data[1], '( o )')===false) AND (stripos($data[1], '(О)')===false) AND (stripos($data[1], '( о )')===false)) {
             $price = $data[8];
@@ -31,16 +31,16 @@ while (($data = fgetcsv($fVtt, 1000, ';', '"')) !== FALSE) {
             $price = $price*$kurs+$price*$kurs*0.1;
             if ($price === 0) $price = '';
             $data[8] = $price;
-            echo $data[0] . "  " . $data[1] . "<br>";
         }
         //Записываем прайс лист для ИМ
         fputcsv($fIm, $data, ';', '"');
         //Проверяем новый это товар или уже есть в базе, по артиклу
         if (!in_array ($data[0], $artikulOld)) {
+            echo "Строка в прайс листе: " . $i . " Артикул: " . $data[0] . " Наименование: " . $data[1] . "<br>";
             fputs($fNew, $data[0]."\r\n");
         }
     }
-    $i = 1;
+    $i++;
 }
 fclose($fIm);
 fclose($fVtt);
