@@ -18,7 +18,7 @@ $caption = array("Artikul", "Name", "Manafacture", "Description", "Group0", "Gro
     "Height", "Depth", "Weight", "PhotoUrl", "PartNumber", "Vendor", "Compatibility", "ColorName");
 fputcsv($fIm, $caption, ';', '"');
 $i = 0;
-while (($data = fgetcsv($fVtt, 1000, ';', '"')) !== FALSE) {
+while (($data = fgetcsv($fVtt, 0, ';', '"')) !== FALSE) {
     if ($i>0) {
         //Накрутка цены, в зависимости оригинал или нет
         if ((stripos($data[1], '(o)')===false) AND (stripos($data[1], '( o )')===false) AND (stripos($data[1], '(О)')===false) AND (stripos($data[1], '( о )')===false)) {
@@ -32,6 +32,8 @@ while (($data = fgetcsv($fVtt, 1000, ';', '"')) !== FALSE) {
             if ($price === 0) $price = '';
             $data[8] = $price;
         }
+        //
+        //$data[16] = str_replace(array("\r\n", "\r", "\n"), '', $data[16]);
         //Записываем прайс лист для ИМ
         fputcsv($fIm, $data, ';', '"');
         //Проверяем новый это товар или уже есть в базе, по артиклу
