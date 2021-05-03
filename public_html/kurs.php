@@ -6,9 +6,14 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);//для возврата резул�
 $returned = curl_exec($ch);
 curl_close ($ch);
 //
-$temp = substr($returned, strpos($returned, "_dollar"), 100);
-$temp = substr($temp,75,7);
-$temp[2] = '.';
-$kurs = ceil($temp);
+if ($returned == false) {
+    $kurs = 77;
+} else {
+    $temp = substr($returned, strpos($returned, "_dollar"), 100);
+    $temp = substr($temp,75,7);
+    $temp[2] = '.';
+    $kurs = ceil($temp);
+}
+
 echo $kurs;
 ?>
