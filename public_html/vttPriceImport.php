@@ -13,7 +13,6 @@ $kurs = get_kurs();
 //Устанавливаем цену по курсу и делаем разную наценку на ориги и совместимку
 process_price($kurs);
 //
-echo "Работа скрипта по формированию прайс листа успешно завершена!";
 
 //
 //Функция загрузки всех товаров с портала ВТТ
@@ -141,11 +140,13 @@ function process_price($kurs) {
             if ((stripos($data[1], '(o)')===false) AND (stripos($data[1], '( o )')===false) AND (stripos($data[1], '(О)')===false) AND (stripos($data[1], '( о )')===false)) {
                 $price = $data[8];
                 $price = $price*$kurs+$price*$kurs*0.4;
+                $price = ceil($price);
                 if ($price === 0) $price = '';
                 $data[8] = $price;
             } else {
                 $price = $data[8];
                 $price = $price*$kurs+$price*$kurs*0.1;
+                $price = ceil($price);
                 if ($price === 0) $price = '';
                 $data[8] = $price;
             }
@@ -161,7 +162,7 @@ function process_price($kurs) {
                     $subject = "Интернет магазин Картридж+ - НОВЫЕ ПОЗИЦИИ";
                     $t = 1;
                 }
-                fputs($fNew, $data[0]."\r\n");
+                fputs($fNew, $data[0] . $data[1] . "\r\n");
                 $message = $message . $data[0] . " - " . $data[1] . "\r\n";
             }
         }
@@ -171,13 +172,15 @@ function process_price($kurs) {
     fclose($fVtt);
     if ($t == 1) {
         fclose($fNew);
+        write_to_log("В базу добавлены новые позиции.");
         send_mail($subject, $message);
     }
+    write_to_log("Формирование прайса успешно завершено. Итого позиций: " . $i);
 }
 //Функция отправки электронной почты для уведомления
 function send_mail($subject, $message) {
     $to      = "<alex@kplus79.ru>, ";
-    $to      .= "<info@kplus79.ru>";
+    $to      .= "<dima.zhirov@kplus79.ru>";
     //$subject = 'the subject';
     //$message = "hello\r\n";
     //$message .= "test\r\n";
