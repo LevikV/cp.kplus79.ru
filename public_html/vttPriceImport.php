@@ -12,7 +12,10 @@ whrite_price($result);
 $kurs = get_kurs();
 //Устанавливаем цену по курсу и делаем разную наценку на ориги и совместимку
 process_price($kurs);
+//
+echo "Работа скрипта по формированию прайс листа успешно завершена!";
 
+//
 //Функция загрузки всех товаров с портала ВТТ
 function load_alldata()
 {
@@ -22,15 +25,16 @@ function load_alldata()
     {
         $client = new SoapClient($wsdl_url, $params);
         $dates = $client->GetItems($params);
+        write_to_log("Данные с портала ВТТ успешно получены.");
         return $dates;
     }
     catch (SoapFault $E)
     {
-        //write_to_log("Ошибка: ".$E->faultstring);
-        echo "Error";
-        echo '<br>';
-        echo $E->faultstring;
-        echo '<br>';
+        write_to_log("Ошибка получения данных с портала ВТТ: ".$E->faultstring);
+        $subject = "Интернет магазин Картридж+ - ОШИБКА получения прайса с ВТТ";
+        $message = "Произошла ошибка при получении данных с портала ВТТ \r\n";
+        $message = $message . "Ошибка: " . $E->faultstring;
+        send_mail($subject, $message);
         die;
     }
 }
@@ -85,6 +89,7 @@ function whrite_price($result) {
         fputcsv($fp, $iteminfo, ';', '"');
     }
     fclose($fp);
+    write_to_log("Запись первичных данных завершена успешно. Итого: " . $countitems);
 }
 //Функция получения курса доллара с сайта центробанка РФ
 function get_kurs() {
@@ -97,11 +102,17 @@ function get_kurs() {
 //
     if ($returned == false) { //Если произошла ошибка при получении курса, то возвращаем курс по умолчанию и пишем лог
         $kurs = 77;
+        write_to_log("Ошибка получения курса доллара");
+        $subject = "Интернет магазин Картридж+ - ОШИБКА получения курса доллара";
+        $message = "Произошла ошибка при получении данных курса доллара с сайта ЦРБ РФ. \r\n";
+        $message = $message . "Установлен курс по умолчанию.\r\n";
+        send_mail($subject, $message);
     } else {
         $temp = substr($returned, strpos($returned, "_dollar"), 100);
         $temp = substr($temp,75,7);
         $temp[2] = '.';
         $kurs = ceil($temp);
+        write_to_log("Данные курса успешно получены: " . $kurs);
     }
     return $kurs;
 }
@@ -118,12 +129,12 @@ function process_price($kurs) {
 //
     $fVtt = fopen('vtt_price_all_new.csv','r');
     $fIm = fopen('vtt_price_im.csv', 'w');
-    $fNew = fopen('new_goods.txt', 'w');
 //Записываем строку заголовков
     $caption = array("Artikul", "Name", "Manafacture", "Description", "Group0", "Group1", "Group2", "Quantity", "Price", "Width",
         "Height", "Depth", "Weight", "PhotoUrl", "PartNumber", "Vendor", "Compatibility", "ColorName");
     fputcsv($fIm, $caption, ';', '"');
     $i = 0;
+    $t = 0;
     while (($data = fgetcsv($fVtt, 0, ';', '"')) !== FALSE) {
         if ($i>0) {
             //Накрутка цены, в зависимости оригинал или нет
@@ -139,22 +150,53 @@ function process_price($kurs) {
                 $data[8] = $price;
             }
             //
-            //$data[16] = str_replace(array("\r\n", "\r", "\n"), '', $data[16]);
             //Записываем прайс лист для ИМ
             fputcsv($fIm, $data, ';', '"');
             //Проверяем новый это товар или уже есть в базе, по артиклу
             if (!in_array ($data[0], $artikulOld)) {
-                echo "Строка в прайс листе: " . $i . " Артикул: " . $data[0] . " Наименование: " . $data[1] . "<br>";
+                if ($t == 0) {
+                    $fNew = fopen('log/newGoods' . date("mdY") . '.log', 'w');
+                    fputs($fNew, "В базу были добавлены новые товары: \r\n");
+                    $message = "В базу были добавлены новые товары: \r\n";
+                    $subject = "Интернет магазин Картридж+ - НОВЫЕ ПОЗИЦИИ";
+                    $t = 1;
+                }
                 fputs($fNew, $data[0]."\r\n");
+                $message = $message . $data[0] . " - " . $data[1] . "\r\n";
             }
         }
         $i++;
     }
     fclose($fIm);
     fclose($fVtt);
-    fclose($fNew);
+    if ($t == 1) {
+        fclose($fNew);
+        send_mail($subject, $message);
+    }
 }
+//Функция отправки электронной почты для уведомления
+function send_mail($subject, $message) {
+    $to      = "<alex@kplus79.ru>, ";
+    $to      .= "<info@kplus79.ru>";
+    //$subject = 'the subject';
+    //$message = "hello\r\n";
+    //$message .= "test\r\n";
+    $headers = 'From: noreply@kplus79.ru' . "\r\n" .
+        'X-Mailer: PHP/' . phpversion();
 
-
+    mail($to, $subject, $message, $headers);
+}
+//Функция записи данных об ошибках и работе скрипта в лог файл
+function write_to_log($logdata) {
+    if (file_exists('log/logs.log')) {
+        $f = fopen('log/logs.log', a);
+        fputs($f, date("mdY: ") . $logdata . "\r\n");
+        fclose($f);
+    } else {
+        $f = fopen('log/logs.log', w);
+        fputs($f, date("mdY: ") . $logdata . "\r\n");
+        fclose($f);
+    }
+}
 
 ?>
