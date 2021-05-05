@@ -16,4 +16,7 @@ if ($returned == false) {
 }
 
 echo $kurs;
+echo "<br>";
+echo "Текущее дата и время на сервере: ";
+echo date('d-m-Y H:i:s');
 ?>
