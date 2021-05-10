@@ -152,7 +152,7 @@ function process_price($kurs) {
                 $price = $price*$kurs+$price*$kurs*0.4;
                 $price = ceil($price);
                 //Если цена равна нулю, то проверяем, не заполнена ли уже цена в ИМ
-                if ($price === 0) {
+                if ($price == 0) {
                     for ($k = 0; $k < count($imVttPriceNotNull); $k++) {
                         if ($data[0] == $imVttPriceNotNull[$k][0]) {
                             $price = $imVttPriceNotNull[$k][1];
@@ -160,14 +160,14 @@ function process_price($kurs) {
                         }
                     }
                 }
-                if ($price === 0) $price = '';
+                if ($price == 0) $price = '';
                 $data[8] = $price;
             } else {
                 $price = $data[8];
                 $price = $price*$kurs+$price*$kurs*0.1;
                 $price = ceil($price);
                 //Если цена равна нулю, то проверяем, не заполнена ли уже цена в ИМ
-                if ($price === 0) {
+                if ($price == 0) {
                     for ($k = 0; $k < count($imVttPriceNotNull); $k++) {
                         if ($data[0] == $imVttPriceNotNull[$k][0]) {
                             $price = $imVttPriceNotNull[$k][1];
@@ -175,7 +175,7 @@ function process_price($kurs) {
                         }
                     }
                 }
-                if ($price === 0) $price = '';
+                if ($price == 0) $price = '';
                 $data[8] = $price;
             }
             //
