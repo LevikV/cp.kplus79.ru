@@ -4,10 +4,13 @@ spl_autoload_register(function ($class) {
     include 'price/classes/' . $class . '.php';
 });
 
-
-
 $my_db = new Db;
-$my_db->getThink();
+
+if ($my_db->status) {
+    $my_db->getThink();
+} else {
+    echo 'Ошибка подключения';
+}
 //Глобальные переменные
 $wsdl_url = 'http://api.vtt.ru:8048/Portal.svc?singleWsdl'; //ссылка для обращения к API
 $login = 'am-072'; // логин
