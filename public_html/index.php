@@ -3,18 +3,25 @@
 spl_autoload_register(function ($class) {
     include 'price/classes/' . $class . '.php';
 });
+// Загружаем глобальные настройки
+require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php');
+
 
 $my_db = new Db;
+$my_vtt = new Vtt;
 
 if ($my_db->status) {
     $my_db->getThink();
 } else {
-    echo 'Ошибка подключения';
+    echo 'Ошибка подключения Db';
 }
-//Глобальные переменные
-$wsdl_url = 'http://api.vtt.ru:8048/Portal.svc?singleWsdl'; //ссылка для обращения к API
-$login = 'am-072'; // логин
-$password = '211212'; // пароль
+
+if ($my_vtt->status) {
+    echo 'ThinkVtt';
+} else {
+    echo 'Ошибка подключения Vtt';
+}
+
 
 
 

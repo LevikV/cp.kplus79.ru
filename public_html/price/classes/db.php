@@ -2,24 +2,26 @@
 
 class Db {
     public $status;
+    private $link;
 
     function __construct()
     {
-        require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php');
         mysqli_report(MYSQLI_REPORT_ALL);
 
         try {
-            $link = mysqli_connect($db_server, $db_user, $db_pswd, $db_name);
-            if ($link != false) {
+            $this->link = mysqli_connect(DB_SERVER, DB_USER, DB_PSWD, DB_NAME);
+            if ($this->link != false) {
                 $this->status = true;
             }
         } catch (Exception $e) {
             $this->status = false;
         }
+    }
 
+    public function addProduct($data) {
+        if ($this->status) {
 
-
-
+        }
     }
 
     public function getThink () {
