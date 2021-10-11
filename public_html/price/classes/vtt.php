@@ -22,7 +22,29 @@ class Vtt {
 
     }
 
-    public function getMainCategories () {
+    public function checkMainCategory() {
 
+    }
+
+    public function getMainCategories () {
+        if ($this->status) {
+            $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD);
+            $main_categories = array();
+            $result = $this->client->GetCategories($params);
+            $items = is_array($result->GetCategoriesResult->CategoryDto)
+                ? $result->GetCategoriesResult->CategoryDto
+                : array($result->GetCategoriesResult->CategorysDto);
+            foreach ($items as $category) {
+                if ($category['ParentId'] == null) {
+                    $main_categories[] = array(
+                        'name' => $category['Name'],
+                        'id' => $category['Id']
+                    );
+                }
+            }
+            return $main_categories;
+        } else {
+            return false;
+        }
     }
 }

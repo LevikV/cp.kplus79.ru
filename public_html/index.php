@@ -6,23 +6,14 @@ spl_autoload_register(function ($class) {
 // Загружаем глобальные настройки
 require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php');
 
+loadPriceVtt();
 
-$my_db = new Db;
-$my_vtt = new Vtt;
+function loadPriceVtt () {
+    $vtt = new Vtt;
+    $vtt_main_category = $vtt->getMainCategories();
+    print_r($vtt_main_category);
 
-if ($my_db->status) {
-    $my_db->getThink();
-} else {
-    echo 'Ошибка подключения Db';
 }
-
-if ($my_vtt->status) {
-    echo 'ThinkVtt';
-} else {
-    echo 'Ошибка подключения Vtt';
-}
-
-
 
 
 function load_alldata()
