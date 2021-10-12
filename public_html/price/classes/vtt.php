@@ -79,19 +79,38 @@ class Vtt {
     public function createCategory () {
         if ($this->status) {
             $categories = $this->getAllCategories();
+            echo '<pre>';
             foreach ($categories as $category) {
-                echo '111';
+                if (!$this->isCategoryExcept($categories, $category)) {
+                    print_r($category);
+                }
             }
+            echo '</pre>';
 
 
         }
     }
 
-    public function isCategoryExcept ($category_id) {
-        if (in_array($category_id, VTT_CATEGORY_ID_EXCEPT)) {
+    public function isCategoryExcept ($categories, $category) {
+        if (in_array($category->Id, VTT_CATEGORY_ID_EXCEPT)) {
             return true;
-        } else {
+        } elseif ($category->ParentId != null) {
+            foreach ($categories as $parent_cat) {
+                if ($parent_cat->Id == $category->ParentId) {
+                    if ($this->isCategoryExcept($categories, $parent_cat)) {
+                        return true;
+                    } else {
+                        $this->isCategoryExcept($categories, $parent_cat);
+                    }
+                }
+            }
 
+        } else {
+            return false;
         }
+    }
+
+    private function getVttCategoryByVttId($vtt_cat_id) {
+
     }
 }

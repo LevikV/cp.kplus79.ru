@@ -9,5 +9,10 @@ define('DB_PSWD', 'root');
 define('VTT_WSDL_URL', 'http://api.vtt.ru:8048/Portal.svc?singleWsdl');
 define('VTT_LOGIN', 'am-072');
 define('VTT_PASSWORD', '211212');
+// Категории исключения для загрузки
+define('VTT_CATEGORY_ID_EXCEPT', array(
+    'MARKETING',
+    'PARTSPC'
+));
 
 ?>

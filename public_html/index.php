@@ -10,10 +10,11 @@ loadPriceVtt();
 
 function loadPriceVtt () {
     $vtt = new Vtt;
-    $vtt_main_category = $vtt->getMainCategories();
-    echo '<pre>';
-    print_r($vtt_main_category);
-    echo '</pre>';
+    //$vtt_main_category = $vtt->getMainCategories();
+    //echo '<pre>';
+    //print_r($vtt_main_category);
+    //echo '</pre>';
+    $vtt->createCategory();
 
 }
 
