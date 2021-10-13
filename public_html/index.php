@@ -8,24 +8,23 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php')
 // Объявляем глобальный массив ошибок
 $ERROR = array();
 
-if (loadPriceVtt()) {
-    echo 'ThinkDo';
-} else {
-    echo 'Error';
-};
+loadPriceVtt();
+
 
 function loadPriceVtt () {
     global $ERROR;
     $vtt = new Vtt;
-    //$vtt_main_category = $vtt->getMainCategories();
-    //echo '<pre>';
-    //print_r($vtt_main_category);
-    //echo '</pre>';
     $vtt->createCategory();
     if (empty($ERROR)) {
         return true;
     } else {
-        return false;
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
     }
 
 }

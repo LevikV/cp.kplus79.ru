@@ -4,12 +4,11 @@ class Vtt {
     private $client;
 
     function __construct() {
-
+        global $ERROR;
         $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD);
         try
         {
             $this->client = new SoapClient(VTT_WSDL_URL, $params);
-
             if ($this->client != false) {
                 $this->status = true;
             }
@@ -17,6 +16,7 @@ class Vtt {
         catch (SoapFault $E)
         {
             //write_to_log("Ошибка получения данных с портала ВТТ: ".$E->faultstring);
+            $ERROR['VTT'][] = 'Ошибка создания SoapClient подключения к ВТТ';
             $this->status = false;
         }
 
@@ -79,29 +79,43 @@ class Vtt {
     }
 
     public function createCategory () {
+        global $ERROR;
         if ($this->status) {
             $categories = $this->getAllCategories();
             if ($categories) {
                 $db = new Db;
-                $data = array();
-                echo '<pre>';
+                if ($db == false) {
+                    return false;
+                }
                 foreach ($categories as $category) {
                     if (!$this->isCategoryExcept($categories, $category)) {
+                        // Добавляем категорию в таблицу категорий поставщиков
+                        $data = array();
+                        $data['provider_id'] = 1;
+                        $data['provider_category_id'] = $category->Id;
+                        $data['provider_category_name'] = $category->Name;
+                        $data['provider_category_parent_id'] = $category->ParentId;
+                        $our_provider_cat_id = $db->addProviderCategory($data);
+
+                        // Добавляем категорию в нашу базу категорий
+                        $data = array();
                         $data['name'] = $category->Name;
                         $data['parent_id'] = $category->ParentId;
-                        // Добавляем в нашу базу категорию
                         $our_cat_id = $db->addCategory($data);
-                        // Проверяем, добавилась ли категория (вернулось ли id добавленной категории)
-                        // и сразу добавляем запись в таблицу соответствия
-                        if ($our_cat_id) {
 
+                        // Добавляем запись в таблицу сопоставления категорий
+                        if ($our_cat_id AND $our_provider_cat_id) {
+                            $cat_map_id = $db->addCategoryMap($our_cat_id, $our_provider_cat_id);
                         }
+
                     }
                 }
-                echo '</pre>';
+                return true;
+            } else {
+                return false;
             }
-
-
+        } else {
+            return false;
         }
     }
 
