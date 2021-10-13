@@ -53,12 +53,14 @@ class Vtt {
     }
 
     public function getAllCategories () {
+        global $ERROR;
         if ($this->status) {
             $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD);
             try {
                 $result = $this->client->GetCategories($params);
             } catch (SoapFault $E) {
-                echo $E->faultstring;
+                //echo $E->faultstring;
+                $ERROR['VTT'][] = 'Ошибка получения всех категорий с портала VTT <br>' . $E->faultstring;
                 return false;
             }
 
@@ -79,18 +81,39 @@ class Vtt {
     public function createCategory () {
         if ($this->status) {
             $categories = $this->getAllCategories();
-            echo '<pre>';
-            foreach ($categories as $category) {
-                if (!$this->isCategoryExcept($categories, $category)) {
-                    print_r($category);
+            if ($categories) {
+                $db = new Db;
+                $data = array();
+                echo '<pre>';
+                foreach ($categories as $category) {
+                    if (!$this->isCategoryExcept($categories, $category)) {
+                        $data['name'] = $category->Name;
+                        $data['parent_id'] = $category->ParentId;
+                        // Добавляем в нашу базу категорию
+                        $our_cat_id = $db->addCategory($data);
+                        // Проверяем, добавилась ли категория (вернулось ли id добавленной категории)
+                        // и сразу добавляем запись в таблицу соответствия
+                        if ($our_cat_id) {
+
+                        }
+                    }
                 }
+                echo '</pre>';
             }
-            echo '</pre>';
 
 
         }
     }
 
+
+    // Функция проверки категории на исключение из загрузки
+    // Исключения задаются в конфигурационном файле указанием ID категорий
+    // поставщика
+    // Рекурсивно проверяем все вышестоящие категории (категории-родители)
+    // на исключение
+    // Функция принимает два значения:
+    // 1) $categories - массив из категорий (Std объектов)
+    // 2) $category - проверяемая категория (Std объект)
     public function isCategoryExcept ($categories, $category) {
         if (in_array($category->Id, VTT_CATEGORY_ID_EXCEPT)) {
             return true;
@@ -110,7 +133,5 @@ class Vtt {
         }
     }
 
-    private function getVttCategoryByVttId($vtt_cat_id) {
 
-    }
 }

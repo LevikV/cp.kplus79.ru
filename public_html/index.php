@@ -5,16 +5,28 @@ spl_autoload_register(function ($class) {
 });
 // Загружаем глобальные настройки
 require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php');
+// Объявляем глобальный массив ошибок
+$ERROR = array();
 
-loadPriceVtt();
+if (loadPriceVtt()) {
+    echo 'ThinkDo';
+} else {
+    echo 'Error';
+};
 
 function loadPriceVtt () {
+    global $ERROR;
     $vtt = new Vtt;
     //$vtt_main_category = $vtt->getMainCategories();
     //echo '<pre>';
     //print_r($vtt_main_category);
     //echo '</pre>';
     $vtt->createCategory();
+    if (empty($ERROR)) {
+        return true;
+    } else {
+        return false;
+    }
 
 }
 
