@@ -8,7 +8,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php')
 // Объявляем глобальный массив ошибок
 $ERROR = array();
 
-loadPriceVtt();
+//loadPriceVtt();
 
 
 function loadPriceVtt () {

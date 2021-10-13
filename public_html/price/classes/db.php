@@ -19,6 +19,29 @@ class Db {
         }
     }
 
+    public function getOurCatIdByProvCatId($prov_cat_id) {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'INSERT INTO category_map (our_category_id, provider_category_id) VALUES ("' .
+                (int)$our_cat_id . '", "' .
+                (int)$our_provider_cat_id . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления записи в таблицу сопоставления категорий' .
+                    '<br>our_cat_id: ' . $our_cat_id .
+                    '<br>our_provider_cat_id: ' . $our_provider_cat_id;
+                return false;
+            }
+            if ($result != false) {
+                $category_id = mysqli_insert_id($this->link);
+                return $category_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProduct($data) {
         if ($this->status) {
 
@@ -144,9 +167,6 @@ class Db {
         return true;
     }
 
-    public function getThink () {
-        echo 'ThinkDo';
-    }
 }
 
 ?>
