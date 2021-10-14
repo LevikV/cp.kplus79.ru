@@ -9,6 +9,9 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php')
 $ERROR = array();
 
 //loadPriceVtt();
+$my_db = new Db;
+$vtt_cat_id = 'OTHER';
+echo $my_db->getOurCatIdByProvCatId($vtt_cat_id);
 
 
 function loadPriceVtt () {
