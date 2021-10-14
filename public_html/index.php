@@ -9,10 +9,10 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php')
 $ERROR = array();
 
 //loadPriceVtt();
-$my_db = new Db;
-$vtt_cat_id = 'OTHER';
-echo $my_db->getOurCatIdByProvCatId($vtt_cat_id);
-print_r($my_db->getCategories());
+//$my_db = new Db;
+//$vtt_cat_id = 'OTHER';
+//echo $my_db->getOurCatIdByProvCatId($vtt_cat_id);
+//print_r($my_db->getCategories());
 
 
 function loadPriceVtt () {
@@ -20,6 +20,7 @@ function loadPriceVtt () {
     $vtt = new Vtt;
     $vtt->createCategory();
     if (empty($ERROR)) {
+        echo 'Загрузка успешно завершена!';
         return true;
     } else {
         foreach ($ERROR as $key => $value) {

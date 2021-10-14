@@ -78,9 +78,10 @@ class Vtt {
 
     }
 
-    // Функция создает новые категории в чистой базе для формирования прайса
-    // Создает карту категорий, категории поставщика и категории в нашей базе
     public function createCategory () {
+        // Функция создает новые категории в чистой базе для формирования прайса
+        // Создает карту категорий, категории поставщика и категории в нашей базе
+
         global $ERROR;
         if ($this->status) {
             $categories = $this->getAllCategories();
@@ -109,9 +110,33 @@ class Vtt {
                         if ($our_cat_id AND $our_provider_cat_id) {
                             $cat_map_id = $db->addCategoryMap($our_cat_id, $our_provider_cat_id);
                         }
-
                     }
                 }
+                // Обновляем родительские категории в нашей БД на id наших категорий
+                foreach ($categories as $category) {
+                    if (!$this->isCategoryExcept($categories, $category)) {
+                        if ($category->ParentId != null) {
+                            $our_cat_id = $db->getOurCatIdByProvCatId($category->Id);
+                            $our_parent_cat_id = $db->getOurCatIdByProvCatId($category->ParentId);
+                            if ($our_cat_id AND $our_parent_cat_id) {
+                                $data = array();
+                                $data['name'] = $category->Name;
+                                $data['parent_id'] = $our_parent_cat_id;
+                                $db->editCategory($our_cat_id, $data);
+                            }
+                        } else {
+                            // Помещаем все родительские категории в подкатегорию нашей базы
+                            $our_cat_id = $db->getOurCatIdByProvCatId($category->Id);
+                            if ($our_cat_id) {
+                                $data['name'] = $category->Name;
+                                $data['parent_id'] = 542;
+                                $db->editCategory($our_cat_id, $data);
+                            }
+                        }
+                    }
+                }
+
+
                 return true;
             } else {
                 return false;
@@ -122,15 +147,17 @@ class Vtt {
     }
 
 
-    // Функция проверки категории на исключение из загрузки
-    // Исключения задаются в конфигурационном файле указанием ID категорий
-    // поставщика
-    // Рекурсивно проверяем все вышестоящие категории (категории-родители)
-    // на исключение
-    // Функция принимает два значения:
-    // 1) $categories - массив из категорий (Std объектов)
-    // 2) $category - проверяемая категория (Std объект)
+
     public function isCategoryExcept ($categories, $category) {
+        // Функция проверки категории на исключение из загрузки
+        // Исключения задаются в конфигурационном файле указанием ID категорий
+        // поставщика
+        // Рекурсивно проверяем все вышестоящие категории (категории-родители)
+        // на исключение
+        // Функция принимает два значения:
+        // 1) $categories - массив из категорий (Std объектов)
+        // 2) $category - проверяемая категория (Std объект)
+
         if (in_array($category->Id, VTT_CATEGORY_ID_EXCEPT)) {
             return true;
         } elseif ($category->ParentId != null) {
