@@ -69,6 +69,28 @@ class Db {
         }
     }
 
+    public function getOurCatIdByProvCatName($prov_cat_name, $prov_id) {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT our_category_id FROM category_map WHERE provider_category_id IN (SELECT id FROM provider_category WHERE provider_category_name = "' . $prov_cat_name . '" AND provider_id = ' . (int)$prov_id .')';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска категории для сопоставления.' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>prov_cat_name: ' . $prov_cat_name;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $our_cat_id = $row[0];
+                return $our_cat_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProduct($data) {
         if ($this->status) {
 

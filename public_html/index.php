@@ -9,15 +9,19 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php')
 $ERROR = array();
 
 
-//$my_db = new Db;
-$vtt_cat_id = 'OTHER';
+$my_db = new Db;
+$prov_id = 1;
+$prov_cat_name = 'Картридж-пленки';
 //echo $my_db->getOurCatIdByProvCatId($vtt_cat_id);
-//print_r($my_db->getCategories());
+print_r($my_db->getOurCatIdByProvCatName($prov_cat_name, $prov_id));
 
-$vtt = new Vtt;
-$vtt_product_portion = $vtt->getProductPortion(10, 15);
-print_r($vtt_product_portion);
+
+//$vtt = new Vtt;
+//$vtt_cat_id = 'CARTBLT';
+//$vtt_product_portion = $vtt->getProductPortion(2, 50);
 //$vtt_product_portion = $vtt->getProductByCategory($vtt_cat_id);
+//print_r($vtt_product_portion);
+
 
 
 function loadCategoryVtt () {
