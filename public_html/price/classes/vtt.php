@@ -53,6 +53,8 @@ class Vtt {
     }
 
     public function getAllCategories () {
+        // Функция получения списка категорий с портала ВТТ
+
         global $ERROR;
         if ($this->status) {
             $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD);
@@ -74,13 +76,60 @@ class Vtt {
         }
     }
 
-    public function checkMainCategories($categories) {
+    public function getProductPortion($from, $to) {
+        // Функция получения порции товаров с портала ВТТ
 
+        global $ERROR;
+        if ($this->status) {
+            $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD, "from" => $from, "to" => $to);
+            try {
+                $result = $this->client->GetItemPortion($params);
+            } catch (SoapFault $E) {
+                //echo $E->faultstring;
+                $ERROR['VTT'][] = 'Ошибка получения всех категорий с портала VTT <br>' . $E->faultstring;
+                return false;
+            }
+            $data['total'] = $result->GetItemPortionResult->TotalCount;
+            $data['products'] = is_array($result->GetItemPortionResult->Items->ItemDto)
+                ? $result->GetItemPortionResult->Items->ItemDto
+                : array($result->GetItemPortionResult->Items->ItemDto);
+
+            return $data;
+        } else {
+            return false;
+        }
+    }
+
+    public function getProductByCategory($cat_id) {
+        // Функция получения товаров из указанной категории и всех подкатегорий с портала ВТТ
+
+        global $ERROR;
+        if ($this->status) {
+            $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD, "categoryId" => $cat_id);
+            try {
+                $result = $this->client->GetCategoryItems($params);
+            } catch (SoapFault $E) {
+                //echo $E->faultstring;
+                $ERROR['VTT'][] = 'Ошибка получения всех категорий с портала VTT <br>' . $E->faultstring;
+                return false;
+            }
+
+            $products = is_array($result->GetCategoryItemsResult->ItemDto)
+                ? $result->GetCategoryItemsResult->ItemDto
+                : array($result->GetCategoryItemsResult->ItemDto);
+
+            return $products;
+        } else {
+            return false;
+        }
     }
 
     public function createCategory () {
         // Функция создает новые категории в чистой базе для формирования прайса
         // Создает карту категорий, категории поставщика и категории в нашей базе
+        // Затем функция обновляет родительские категории и устанавливает главным
+        // категориям поставшика категорию нашего прайса id = 542 (ЗИП для Оргтехники),
+        // делая их дочерними.
 
         global $ERROR;
         if ($this->status) {
