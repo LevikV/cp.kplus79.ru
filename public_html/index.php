@@ -12,6 +12,7 @@ $ERROR = array();
 $my_db = new Db;
 $vtt_cat_id = 'OTHER';
 echo $my_db->getOurCatIdByProvCatId($vtt_cat_id);
+print_r($my_db->getCategories());
 
 
 function loadPriceVtt () {

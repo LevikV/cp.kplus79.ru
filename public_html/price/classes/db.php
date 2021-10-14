@@ -20,6 +20,34 @@ class Db {
         }
     }
 
+    public function getCategories() {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT * FROM category ';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка получения всех наших категорий';
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'parent_id' => $row["parent_id"],
+                        'image' => $row["image"]
+                    );
+                }
+                return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getOurCatIdByProvCatId($prov_cat_id) {
         global $ERROR;
         if ($this->status) {
@@ -118,6 +146,29 @@ class Db {
             if ($result != false) {
                 $category_id = mysqli_insert_id($this->link);
                 return $category_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function editCategory($cat_id, $data) {
+        global $ERROR;
+        if ($this->status AND $this->checkCategoryData($data)) {
+            $sql = 'UPDATE category SET name = "'. $data['name'] .
+                '", description="' . $data['description'] .
+                '", parent_id = "' . $data['parent_id'] .
+                '", image = "' . $data['image'] .
+                '" WHERE id = ' . (int)$cat_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка обновления записи в таблице' .
+                    '<br>cat_id: ' . $cat_id;
+                return false;
+            }
+            if ($result != false) {
+                return true;
             }
         } else {
             return false;
