@@ -22,6 +22,52 @@ class Vtt {
 
     }
 
+    public function getTotalProductByCategoryId($cat_id) {
+        // Функция получения количества товаров по Id категории с портала ВТТ
+
+        global $ERROR;
+        if ($this->status) {
+            $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD, "categoryId" => $cat_id);
+            try {
+                $result = $this->client->GetCategoryItems($params);
+            } catch (SoapFault $E) {
+                //echo $E->faultstring;
+                $ERROR['VTT'][] = 'Ошибка получения всех категорий  для получения количества товаров с портала VTT <br>' . $E->faultstring;
+                return false;
+            }
+
+            $products = is_array($result->GetCategoryItemsResult->ItemDto)
+                ? $result->GetCategoryItemsResult->ItemDto
+                : array($result->GetCategoryItemsResult->ItemDto);
+
+            return count($products);
+        } else {
+            return false;
+        }
+    }
+
+    public function getTotalProductByProdPortion() {
+        // Функция получения количества товаров по Id категории с портала ВТТ
+
+        global $ERROR;
+        if ($this->status) {
+            $from = 2;
+            $to = 4;
+            $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD, "from" => $from, "to" => $to);
+            try {
+                $result = $this->client->GetItemPortion($params);
+            } catch (SoapFault $E) {
+                //echo $E->faultstring;
+                $ERROR['VTT'][] = 'Ошибка получения всех категорий с портала VTT <br>' . $E->faultstring;
+                return false;
+            }
+            $data['total'] = $result->GetItemPortionResult->TotalCount;
+
+            return $data['total'];
+        } else {
+            return false;
+        }
+    }
 
     public function getMainCategories () {
         if ($this->status) {
