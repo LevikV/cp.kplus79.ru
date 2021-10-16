@@ -115,8 +115,15 @@ class Vtt {
             $all_categories = is_array($result->GetCategoriesResult->CategoryDto)
                 ? $result->GetCategoriesResult->CategoryDto
                 : array($result->GetCategoriesResult->CategoryDto);
-
-            return $all_categories;
+            $result = array();
+            foreach ($all_categories as $category) {
+                $result[] = array(
+                    'name' => $category->Name,
+                    'id' => $category->Id,
+                    'parent_id' => $category->ParentId
+                );
+            }
+            return $result;
         } else {
             return false;
         }
