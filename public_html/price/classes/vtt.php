@@ -178,7 +178,7 @@ class Vtt {
     }
 
     public function createCategory () {
-        // Функция создает новые категории в чистой базе для формирования прайса
+        // Функция создает новые категории в ПУСТОЙ базе для формирования прайса
         // Создает карту категорий, категории поставщика и категории в нашей базе
         // Затем функция обновляет родительские категории и устанавливает главным
         // категориям поставшика категорию нашего прайса id = 542 (ЗИП для Оргтехники),
@@ -193,44 +193,45 @@ class Vtt {
                     return false;
                 }
                 foreach ($categories as $category) {
+                    // Если категория не входит в исключение из загрузки
                     if (!$this->isCategoryExcept($categories, $category)) {
                         // Добавляем категорию в таблицу категорий поставщиков
                         $data = array();
                         $data['provider_id'] = 1;
-                        $data['provider_category_id'] = $category->Id;
-                        $data['provider_category_name'] = $category->Name;
-                        $data['provider_category_parent_id'] = $category->ParentId;
+                        $data['provider_category_id'] = $category['id'];
+                        $data['provider_category_name'] = $category['name'];
+                        $data['provider_category_parent_id'] = $category['parent_id'];
                         $our_provider_cat_id = $db->addProviderCategory($data);
 
                         // Добавляем категорию в нашу базу категорий
                         $data = array();
-                        $data['name'] = $category->Name;
-                        $data['parent_id'] = $category->ParentId;
+                        $data['name'] = $category['name'];
+                        $data['parent_id'] = $category['parent_id'];
                         $our_cat_id = $db->addCategory($data);
 
                         // Добавляем запись в таблицу сопоставления категорий
                         if ($our_cat_id AND $our_provider_cat_id) {
-                            $cat_map_id = $db->addCategoryMap($our_cat_id, $our_provider_cat_id);
+                            $cat_map_id = $db->addMap('category', $our_cat_id, $our_provider_cat_id);
                         }
                     }
                 }
                 // Обновляем родительские категории в нашей БД на id наших категорий
                 foreach ($categories as $category) {
                     if (!$this->isCategoryExcept($categories, $category)) {
-                        if ($category->ParentId != null) {
-                            $our_cat_id = $db->getOurCatIdByProvCatId($category->Id);
-                            $our_parent_cat_id = $db->getOurCatIdByProvCatId($category->ParentId);
+                        if ($category['parent_id'] != '') {
+                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
+                            $our_parent_cat_id = $db->getOurItemIdByProvItemId('category', $category['parent_id'], 1);
                             if ($our_cat_id AND $our_parent_cat_id) {
                                 $data = array();
-                                $data['name'] = $category->Name;
+                                $data['name'] = $category['name'];
                                 $data['parent_id'] = $our_parent_cat_id;
                                 $db->editCategory($our_cat_id, $data);
                             }
                         } else {
                             // Помещаем все родительские категории в подкатегорию нашей базы
-                            $our_cat_id = $db->getOurCatIdByProvCatId($category->Id);
+                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
                             if ($our_cat_id) {
-                                $data['name'] = $category->Name;
+                                $data['name'] = $category['name'];
                                 $data['parent_id'] = 542;
                                 $db->editCategory($our_cat_id, $data);
                             }
@@ -260,11 +261,11 @@ class Vtt {
         // 1) $categories - массив из категорий (Std объектов)
         // 2) $category - проверяемая категория (Std объект)
 
-        if (in_array($category->Id, VTT_CATEGORY_ID_EXCEPT)) {
+        if (in_array($category['id'], VTT_CATEGORY_ID_EXCEPT)) {
             return true;
-        } elseif ($category->ParentId != null) {
+        } elseif ($category['parent_id'] != '') {
             foreach ($categories as $parent_cat) {
-                if ($parent_cat->Id == $category->ParentId) {
+                if ($parent_cat['id'] == $category['parent_id']) {
                     if ($this->isCategoryExcept($categories, $parent_cat)) {
                         return true;
                     } else {

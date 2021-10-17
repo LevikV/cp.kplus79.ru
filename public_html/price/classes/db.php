@@ -48,14 +48,20 @@ class Db {
         }
     }
 
-    public function getOurCatIdByProvCatId($prov_cat_id) {
+    public function getOurItemIdByProvItemId($code, $prov_item_id, $prov_id) {
         global $ERROR;
         if ($this->status) {
-            $sql = 'SELECT our_category_id FROM category_map WHERE provider_category_id = (SELECT id FROM provider_category WHERE provider_category_id = "' . $prov_cat_id . '")';
+            switch ($code) {
+                case 'category': {
+                    $sql = 'SELECT our_id FROM map WHERE code = "'. $code . '" AND provider_id = (SELECT id FROM provider_category WHERE provider_category_id = "' . $prov_item_id . '" AND provider_id = ' . (int)$prov_id .')';
+                }
+            }
+
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 $ERROR['Db'][] = 'Ошибка поиска категории для сопоставления.' .
+                    '<br>prov_id: ' . $prov_id .
                     '<br>prov_cat_id: ' . $prov_cat_id;
                 return false;
             }
@@ -72,7 +78,7 @@ class Db {
     public function getOurCatIdByProvCatName($prov_cat_name, $prov_id) {
         global $ERROR;
         if ($this->status) {
-            $sql = 'SELECT our_category_id FROM category_map WHERE provider_category_id IN (SELECT id FROM provider_category WHERE provider_category_name = "' . $prov_cat_name . '" AND provider_id = ' . (int)$prov_id .')';
+            $sql = 'SELECT our_category_id FROM category_map WHERE provider_category_id IN (SELECT id FROM provider_category WHERE name = "' . $prov_cat_name . '" AND provider_id = ' . (int)$prov_id .')';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -127,11 +133,12 @@ class Db {
     public function addProviderCategory($data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderCategoryData($data)) {
-            $sql = 'INSERT INTO provider_category (provider_id, provider_category_id, provider_category_name, provider_category_parent_id) VALUES ("' .
-                $data['provider_id'] . '", "' .
+            $sql = 'INSERT INTO provider_category (provider_id, provider_category_id, name, provider_parent_id, provider_parent_cat_name) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
                 $data['provider_category_id'] . '", "' .
                 $data['provider_category_name'] . '", "' .
-                $data['provider_category_parent_id'] . '")';
+                $data['provider_category_parent_id'] . '", "' .
+                $data['provider_parent_cat_name'] . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -151,18 +158,20 @@ class Db {
         }
     }
 
-    public function addCategoryMap($our_cat_id, $our_provider_cat_id) {
+    public function addMap($code, $our_id, $provider_id) {
         global $ERROR;
         if ($this->status) {
-            $sql = 'INSERT INTO category_map (our_category_id, provider_category_id) VALUES ("' .
-                (int)$our_cat_id . '", "' .
-                (int)$our_provider_cat_id . '")';
+            $sql = 'INSERT INTO map (code, our_id, provider_id) VALUES ("' .
+                $code . '", "' .
+                (int)$our_id . '", "' .
+                (int)$provider_id . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления записи в таблицу сопоставления категорий' .
-                    '<br>our_cat_id: ' . $our_cat_id .
-                    '<br>our_provider_cat_id: ' . $our_provider_cat_id;
+                $ERROR['Db'][] = 'Ошибка добавления записи в таблицу сопоставления' .
+                    '<br>code: ' . $code .
+                    '<br>our_item_id: ' . $our_id .
+                    '<br>our_provider_item_id: ' . $provider_id;
                 return false;
             }
             if ($result != false) {
@@ -186,6 +195,30 @@ class Db {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 $ERROR['Db'][] = 'Ошибка обновления записи в таблице' .
+                    '<br>cat_id: ' . $cat_id;
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function editProviderCategory($cat_id, $data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderCategoryData($data)) {
+            $sql = 'UPDATE provider_category SET provider_id = "'. $data['provider_id'] .
+                '", provider_category_id = "' . $data['provider_category_id'] .
+                '", name = "' . $data['provider_category_name'] .
+                '", provider_parent_id = "' . $data['provider_category_parent_id'] .
+                '", provider_parent_cat_name = "' . $data['provider_parent_cat_name'] .
+                '" WHERE id = ' . (int)$cat_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка обновления записи в таблице категорий поставщиков' .
                     '<br>cat_id: ' . $cat_id;
                 return false;
             }
@@ -236,6 +269,10 @@ class Db {
         if (!isset($data['provider_category_parent_id'])) {
             $data['provider_category_parent_id'] = '';
         }
+        if (!isset($data['provider_parent_cat_name'])) {
+            $data['provider_parent_cat_name'] = '';
+        }
+
         return true;
     }
 
