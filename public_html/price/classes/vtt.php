@@ -163,7 +163,7 @@ class Vtt {
                 $result = $this->client->GetCategoryItems($params);
             } catch (SoapFault $E) {
                 //echo $E->faultstring;
-                $ERROR['VTT'][] = 'Ошибка получения всех категорий с портала VTT <br>' . $E->faultstring;
+                $ERROR['VTT'][] = 'Ошибка получения товаров по категориям с портала VTT: ' . $cat_id;
                 return false;
             }
 
@@ -172,6 +172,89 @@ class Vtt {
                 : array($result->GetCategoryItemsResult->ItemDto);
 
             return $products;
+        } else {
+            return false;
+        }
+    }
+
+    public function getAllProductByCategory() {
+        // Функция получения товаров с портала ВТТ через метод получения товаров по категориям
+        // Получение товаров происходит методом получения товаров по главным подкатегориям главных категорий
+        // чтобы уменьшить нагрузку на сервер и получать товары более меньшими порциями
+
+        global $ERROR;
+
+        $main_cat = $this->getMainCategories();
+        $main_cat_array = array();
+        foreach ($main_cat as $cat) {
+            $main_cat_array[] = $cat['id'];
+        }
+        $all_categories = $this->getAllCategories();
+        $products = array();
+        $error_cats = array();
+        foreach ($all_categories as $category) {
+            if (!$this->isCategoryExcept($all_categories, $category)) {
+                if (in_array($category['parent_id'], $main_cat_array)) {
+                    $result  = $this->getProductByCategory($category['id']);
+                    if ($result) {
+                        foreach ($result as $product) {
+                            $products[] = $product;
+                        }
+                    } else {
+                        $error_cats[] = $category['id'];
+                    }
+
+                }
+            }
+        }
+        // Проверяем, остались ли категории, по которым не удалось получить товары и пробуем их получить
+        // Количество попыток определяется переменной $steps
+        $steps = 10;
+        $step = 0;
+        while ($step < $steps) {
+            if (!empty($error_cats)) {
+                foreach ($error_cats as $key => $cat) {
+                    $result  = $this->getProductByCategory($cat);
+                    if ($result) {
+                        foreach ($result as $product) {
+                            $products[] = $product;
+                        }
+                        unset($error_cats[$key]);
+                    }
+                }
+            }
+            $step++;
+        }
+
+        //
+        if (empty($error_cats)) {
+            $prod_array = array();
+            foreach ($products as &$product) {
+                $prod_array[] = array(
+                    'available_quantity' => $product->AvailableQuantity,
+                    'brand' => $product->Brand,
+                    'color_name' => $product->ColorName,
+                    'compatibility' => $product->Compatibility,
+                    'depth' => $product->Depth,
+                    'description' => $product->Description,
+                    'group' => $product->Group,
+                    'height' => $product->Height,
+                    'id' => $product->Id,
+                    'item_life_time' => $product->ItemLifeTime,
+                    'main_office_quantity' => $product->MainOfficeQuantity,
+                    'name' => $product->Name,
+                    'original_number' => $product->OriginalNumber,
+                    'photo_url' => $product->PhotoUrl,
+                    'price' => $product->Price,
+                    'root_group' => $product->RootGroup,
+                    'transit_date' => $product->TransitDate,
+                    'transit_quantity' => $product->TransitQuantity,
+                    'vendor' => $product->Vendor,
+                    'weight' => $product->Weight,
+                    'width' => $product->Width
+                );
+            }
+            return $prod_array;
         } else {
             return false;
         }
@@ -249,6 +332,100 @@ class Vtt {
         }
     }
 
+    public function createManufacturer ($products) {
+        // Функция формирует новых производителей в ПУСТОЙ базе на основе входного параметра
+        // массива $products в формате поставщика (ВТТ)
+        // Создает карту производителей, производителей поставщика и производителей в нашей базе
+        //
+
+        global $ERROR;
+        if ($this->status) {
+            $categories = $this->getAllCategories();
+            if ($categories) {
+                $db = new Db;
+                if ($db == false) {
+                    return false;
+                }
+                foreach ($categories as $category) {
+                    // Если категория не входит в исключение из загрузки
+                    if (!$this->isCategoryExcept($categories, $category)) {
+                        // Добавляем категорию в таблицу категорий поставщиков
+                        $data = array();
+                        $data['provider_id'] = 1;
+                        $data['provider_category_id'] = $category['id'];
+                        $data['provider_category_name'] = $category['name'];
+                        $data['provider_category_parent_id'] = $category['parent_id'];
+                        $our_provider_cat_id = $db->addProviderCategory($data);
+
+                        // Добавляем категорию в нашу базу категорий
+                        $data = array();
+                        $data['name'] = $category['name'];
+                        $data['parent_id'] = $category['parent_id'];
+                        $our_cat_id = $db->addCategory($data);
+
+                        // Добавляем запись в таблицу сопоставления категорий
+                        if ($our_cat_id AND $our_provider_cat_id) {
+                            $cat_map_id = $db->addMap('category', $our_cat_id, $our_provider_cat_id);
+                        }
+                    }
+                }
+                // Обновляем родительские категории в нашей БД на id наших категорий
+                foreach ($categories as $category) {
+                    if (!$this->isCategoryExcept($categories, $category)) {
+                        if ($category['parent_id'] != '') {
+                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
+                            $our_parent_cat_id = $db->getOurItemIdByProvItemId('category', $category['parent_id'], 1);
+                            if ($our_cat_id AND $our_parent_cat_id) {
+                                $data = array();
+                                $data['name'] = $category['name'];
+                                $data['parent_id'] = $our_parent_cat_id;
+                                $db->editCategory($our_cat_id, $data);
+                            }
+                        } else {
+                            // Помещаем все родительские категории в подкатегорию нашей базы
+                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
+                            if ($our_cat_id) {
+                                $data['name'] = $category['name'];
+                                $data['parent_id'] = 542;
+                                $db->editCategory($our_cat_id, $data);
+                            }
+                        }
+                    }
+                }
+
+
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function checkTotalProductByVtt($my_total) {
+        // Функция проверки количества товаров на портале ВТТ с количеством переданным в виде параметра
+        // Функция возвращает истину или количество товаров в запросе с портала ВТТ
+        // Функция считает общее количество товаров минус количество товаров исключений, и это же значение
+        // возвращается, если оно отличается от переданного значения для проверки
+        $total = $this->getTotalProductByProdPortion();
+        $total_except = 0;
+        if (!empty(VTT_CATEGORY_ID_EXCEPT)) {
+            foreach (VTT_CATEGORY_ID_EXCEPT as $cat) {
+                $count = 0;
+                $count = $this->getTotalProductByCategoryId($cat);
+                if ($count) {
+                    $total_except += $count;
+                }
+            }
+        }
+        if ($my_total == ($total - $total_except)) {
+            return true;
+        } else {
+            $total = $total - $total_except;
+            return $total;
+        }
+    }
 
 
     public function isCategoryExcept ($categories, $category) {

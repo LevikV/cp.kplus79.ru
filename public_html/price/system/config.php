@@ -12,6 +12,7 @@ define('VTT_PASSWORD', '211212');
 // Категории исключения для загрузки
 define('VTT_CATEGORY_ID_EXCEPT', array(
     'MARKETING',
+    'PARTSPRINT_APPLE',
     'PARTSPC'
 ));
 

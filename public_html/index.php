@@ -17,7 +17,15 @@ $ERROR = array();
 //print_r($my_db->getOurCatIdByProvCatName($prov_cat_name, $prov_id));
 
 
-//$vtt = new Vtt;
+$vtt = new Vtt;
+$total = $vtt->getTotalProductByProdPortion();
+$total_except = 0;
+foreach (VTT_CATEGORY_ID_EXCEPT as $cat) {
+    $total_except += $vtt->getTotalProductByCategoryId($cat);
+}
+echo $total;
+echo '<br>';
+echo $total_except;
 //$vtt_cat_id = 'CARTBLT';
 //$vtt_product_portion = $vtt->getProductPortion(15358, 15369);
 //$vtt_product_portion = $vtt->getProductByCategory($vtt_cat_id);
@@ -44,13 +52,45 @@ $ERROR = array();
 //echo '<br>';
 //echo 'Всего по категориям позиций: ' . $total;
 
+//loadManufacturertVtt();
 
 function loadCategoryVtt () {
     global $ERROR;
     $vtt = new Vtt;
     $vtt->createCategory();
     if (empty($ERROR)) {
-        echo 'Загрузка успешно завершена!';
+        echo 'Загрузка категорий успешно завершена!';
+        return true;
+    } else {
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
+    }
+
+}
+
+function loadManufacturertVtt () {
+    // Функция загрузки и создания производителей в Пустой БД
+    global $ERROR;
+    $vtt = new Vtt;
+    // Получаем все продукты с портала методом Категорий
+    $products = $vtt->getAllProductByCategory();
+    if ($products == false) {
+        echo 'Не удалось получить все товары с портала ВТТ.';
+        return false;
+    } else {
+        // Производим загрузку производителей
+        $manufacturer = $vtt->createManufacturer($products);
+
+
+        echo 'Загрузка выполнена успешно!';
+    }
+    if (empty($ERROR)) {
+        echo 'При загрузка производителей не было ошибок!';
         return true;
     } else {
         foreach ($ERROR as $key => $value) {
