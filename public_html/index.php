@@ -17,15 +17,16 @@ $ERROR = array();
 //print_r($my_db->getOurCatIdByProvCatName($prov_cat_name, $prov_id));
 
 
-$vtt = new Vtt;
-$total = $vtt->getTotalProductByProdPortion();
-$total_except = 0;
-foreach (VTT_CATEGORY_ID_EXCEPT as $cat) {
-    $total_except += $vtt->getTotalProductByCategoryId($cat);
-}
-echo $total;
-echo '<br>';
-echo $total_except;
+//$vtt = new Vtt;
+//$total = $vtt->getTotalProductByProdPortion();
+//$total_except = 0;
+//foreach (VTT_CATEGORY_ID_EXCEPT as $cat) {
+//    $total_except += $vtt->getTotalProductByCategoryId($cat);
+//}
+//echo $total;
+//echo '<br>';
+//echo $total_except;
+
 //$vtt_cat_id = 'CARTBLT';
 //$vtt_product_portion = $vtt->getProductPortion(15358, 15369);
 //$vtt_product_portion = $vtt->getProductByCategory($vtt_cat_id);
@@ -52,7 +53,7 @@ echo $total_except;
 //echo '<br>';
 //echo 'Всего по категориям позиций: ' . $total;
 
-//loadManufacturertVtt();
+loadManufacturertVtt();
 
 function loadCategoryVtt () {
     global $ERROR;
@@ -84,7 +85,7 @@ function loadManufacturertVtt () {
         return false;
     } else {
         // Производим загрузку производителей
-        $manufacturer = $vtt->createManufacturer($products);
+        //$manufacturer = $vtt->createManufacturer($products);
 
 
         echo 'Загрузка выполнена успешно!';

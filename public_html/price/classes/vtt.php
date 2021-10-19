@@ -337,6 +337,35 @@ class Vtt {
         // массива $products в формате поставщика (ВТТ)
         // Создает карту производителей, производителей поставщика и производителей в нашей базе
         //
+        if ($this->status) {
+            $prov_id = 1; // устанавливаем id поставщика
+            $manufacturers = array();
+            $db = new Db;
+            if ($db == false) {
+                return false;
+            }
+            // Формируем массив имен производителей
+            foreach ($products as &$product) {
+                if ($product['brand'] != '') {
+                    if (!in_array($product['brand'], $manufacturers)) {
+                        $manufacturers[] = $product['brand'];
+                    }
+                }
+            }
+
+            if (!empty($manufacturers)) {
+                foreach ($manufacturers as $manufacturer) {
+                    // Добавляем производителей в таблицу поставщиков
+                    $data = array();
+                    $data['provider_id'] = $prov_id;
+                    $data['name'] = $manufacturer;
+
+
+
+                }
+            }
+        }
+
 
         global $ERROR;
         if ($this->status) {

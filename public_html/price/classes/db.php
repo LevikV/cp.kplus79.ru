@@ -158,6 +158,33 @@ class Db {
         }
     }
 
+    public function addProviderManufacturer($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderManufacturerData($data)) {
+            $sql = 'INSERT INTO provider_manufacturer (provider_id, name, description, image) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
+                $data['name'] . '", "' .
+                $data['description'] . '", "' .
+                $data['image'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления категории в таблицу категорий поставщиков' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>provider_category_id: ' . $data['provider_category_id'] .
+                    '<br>provider_category_name: ' . $data['provider_category_name'] .
+                    '<br>provider_category_parent_id: ' . $data['provider_category_parent_id'];
+                return false;
+            }
+            if ($result != false) {
+                $category_id = mysqli_insert_id($this->link);
+                return $category_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addMap($code, $our_id, $provider_id) {
         global $ERROR;
         if ($this->status) {
@@ -273,6 +300,31 @@ class Db {
             $data['provider_parent_cat_name'] = '';
         }
 
+        return true;
+    }
+
+    private function checkProviderManufacturerData(&$data) {
+        if (isset($data['provider_id'])) {
+            if ($data['provider_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (!isset($data['description'])) {
+            $data['description'] = '';
+        }
+        if (!isset($data['image'])) {
+            $data['image'] = '';
+        }
         return true;
     }
 
