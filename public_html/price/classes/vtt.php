@@ -512,22 +512,33 @@ class Vtt {
             $data['name'] = $default_attr_group_name;
             $our_attrib_group_id = $db->addAttributeGroup($data);
 
-            // Добавляем запись в таблицу сопоставления
-            if ($our_attrib_group_id AND $our_attrib_group_id) {
-                $attrib_group_id = $db->addMap('attribute_group', $our_attrib_group_id, $our_prov_attrib_group_id);
-            } else {
-                return false;
+            // Создаем аттрибуты
+            foreach ($default_attr_names as $attribute_name) {
+                // Добавляем аттрибуты в таблицу поставщиков
+                $data = array();
+                $data['provider_id'] = $prov_id;
+                $data['name'] = $attribute_name;
+                $data['group_id'] = $our_prov_attrib_group_id;
+                $our_prov_attrib_id = $db->addProviderAttribute($data);
+
+                // Добавляем аттрибуты в таблицу нашей БД
+                $data = array();
+                $data['name'] = $attribute_name;
+                $data['group_id'] = $our_attrib_group_id;
+                $our_attrib_id = $db->addAttribute($data);
             }
 
-            // Создаем аттрибуты поставщика по умолчанию
-
-
-            // Формируем массив имен вендоров
+            // Формируем значения аттрибутов и заносим их в карту сопоставлений
             foreach ($products as &$product) {
-                if ($product['vendor'] != '') {
-                    if (!in_array($product['vendor'], $vendors)) {
-                        $vendors[] = $product['vendor'];
-                    }
+                // Проверяем аттрибут "цвет"
+                if ($product['color_name'] != '') {
+
+
+
+
+
+
+
                 }
             }
             // Если массив вендоров сформирован, записываем модели

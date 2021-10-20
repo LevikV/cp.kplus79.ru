@@ -222,6 +222,29 @@ class Db {
         }
     }
 
+    public function addAttribute($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkAttributeGroupData($data)) {
+            $sql = 'INSERT INTO attribute (name, group_id) VALUES ("' .
+                $data['name'] . '", "' .
+                (int)$data['group_id'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления аттрибута в таблицу нашей БД' .
+                    '<br>name: ' . $data['name'] .
+                    '<br>group_id: ' . $data['group_id'];
+                return false;
+            }
+            if ($result != false) {
+                $attribute_id = mysqli_insert_id($this->link);
+                return $attribute_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProviderCategory($data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderCategoryData($data)) {
@@ -344,6 +367,31 @@ class Db {
             if ($result != false) {
                 $attribute_group_id = mysqli_insert_id($this->link);
                 return $attribute_group_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function addProviderAttribute($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderAttributeGroupData($data)) {
+            $sql = 'INSERT INTO provider_attribute (provider_id, name, group_id) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
+                $data['name'] . '", "' .
+                (int)$data['group_id'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления аттрибута в таблицу поставщиков' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>name: ' . $data['name'] .
+                    '<br>group_id: ' . $data['group_id'];
+                return false;
+            }
+            if ($result != false) {
+                $attribute_id = mysqli_insert_id($this->link);
+                return $attribute_id;
             }
         } else {
             return false;
@@ -514,6 +562,25 @@ class Db {
 
     }
 
+    private function checkAttributeData(&$data) {
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+        if (!isset($data['group_id'])) {
+            $data['group_id'] = '';
+        }
+        return true;
+
+
+    }
+
     private function checkProviderCategoryData(&$data) {
         if (isset($data['provider_id'])) {
             if ($data['provider_id'] == '') {
@@ -636,6 +703,33 @@ class Db {
 
         if (!isset($data['parent_id'])) {
             $data['parent_id'] = '';
+        }
+        return true;
+
+
+    }
+
+    private function checkProviderAttributeData(&$data) {
+        if (isset($data['provider_id'])) {
+            if ($data['provider_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+        if (!isset($data['group_id'])) {
+            $data['group_id'] = '';
         }
         return true;
 
