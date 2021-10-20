@@ -352,77 +352,27 @@ class Vtt {
                     }
                 }
             }
-
+            // Если массив производителей сформирован, записываем производителей
             if (!empty($manufacturers)) {
                 foreach ($manufacturers as $manufacturer) {
                     // Добавляем производителей в таблицу поставщиков
                     $data = array();
                     $data['provider_id'] = $prov_id;
                     $data['name'] = $manufacturer;
+                    $our_prov_manuf_id = $db->addProviderManufacturer($data);
 
+                    // Добавляем производителей в нашу таблицу БД
+                    $data = array();
+                    $data['name'] = $manufacturer;
+                    $our_manuf_id = $db->addManufacturer($data);
 
-
-                }
-            }
-        }
-
-
-        global $ERROR;
-        if ($this->status) {
-            $categories = $this->getAllCategories();
-            if ($categories) {
-                $db = new Db;
-                if ($db == false) {
-                    return false;
-                }
-                foreach ($categories as $category) {
-                    // Если категория не входит в исключение из загрузки
-                    if (!$this->isCategoryExcept($categories, $category)) {
-                        // Добавляем категорию в таблицу категорий поставщиков
-                        $data = array();
-                        $data['provider_id'] = 1;
-                        $data['provider_category_id'] = $category['id'];
-                        $data['provider_category_name'] = $category['name'];
-                        $data['provider_category_parent_id'] = $category['parent_id'];
-                        $our_provider_cat_id = $db->addProviderCategory($data);
-
-                        // Добавляем категорию в нашу базу категорий
-                        $data = array();
-                        $data['name'] = $category['name'];
-                        $data['parent_id'] = $category['parent_id'];
-                        $our_cat_id = $db->addCategory($data);
-
-                        // Добавляем запись в таблицу сопоставления категорий
-                        if ($our_cat_id AND $our_provider_cat_id) {
-                            $cat_map_id = $db->addMap('category', $our_cat_id, $our_provider_cat_id);
-                        }
+                    // Добавляем запись в таблицу сопоставления категорий
+                    if ($our_manuf_id AND $our_prov_manuf_id) {
+                        $manuf_map_id = $db->addMap('manufacturer', $our_manuf_id, $our_prov_manuf_id);
+                    } else {
+                        return false;
                     }
                 }
-                // Обновляем родительские категории в нашей БД на id наших категорий
-                foreach ($categories as $category) {
-                    if (!$this->isCategoryExcept($categories, $category)) {
-                        if ($category['parent_id'] != '') {
-                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
-                            $our_parent_cat_id = $db->getOurItemIdByProvItemId('category', $category['parent_id'], 1);
-                            if ($our_cat_id AND $our_parent_cat_id) {
-                                $data = array();
-                                $data['name'] = $category['name'];
-                                $data['parent_id'] = $our_parent_cat_id;
-                                $db->editCategory($our_cat_id, $data);
-                            }
-                        } else {
-                            // Помещаем все родительские категории в подкатегорию нашей базы
-                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
-                            if ($our_cat_id) {
-                                $data['name'] = $category['name'];
-                                $data['parent_id'] = 542;
-                                $db->editCategory($our_cat_id, $data);
-                            }
-                        }
-                    }
-                }
-
-
                 return true;
             } else {
                 return false;
@@ -430,6 +380,58 @@ class Vtt {
         } else {
             return false;
         }
+
+    }
+
+    public function createModel ($products) {
+        // Функция формирует новые модели продуктов в ПУСТОЙ базе на основе входного параметра
+        // массива $products в формате имен ключей поставщика (ВТТ)
+        // Создает карту моделей, моделей поставщика и моделей в нашей базе
+        //
+        if ($this->status) {
+            $prov_id = 1; // устанавливаем id поставщика
+            $models = array();
+            $db = new Db;
+            if ($db == false) {
+                return false;
+            }
+            // Формируем массив имен моделей
+            foreach ($products as &$product) {
+                if ($product['original_number'] != '') {
+                    if (!in_array($product['original_number'], $models)) {
+                        $models[] = $product['original_number'];
+                    }
+                }
+            }
+            // Если массив моделей сформирован, записываем модели
+            if (!empty($models)) {
+                foreach ($models as $model) {
+                    // Добавляем модели в таблицу поставщиков
+                    $data = array();
+                    $data['provider_id'] = $prov_id;
+                    $data['name'] = $model;
+                    $our_prov_model_id = $db->addProviderModel($data);
+
+                    // Добавляем модели в нашу таблицу БД
+                    $data = array();
+                    $data['name'] = $model;
+                    $our_model_id = $db->addModel($data);
+
+                    // Добавляем запись в таблицу сопоставления категорий
+                    if ($our_model_id AND $our_prov_model_id) {
+                        $model_map_id = $db->addMap('model', $our_model_id, $our_prov_model_id);
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
     }
 
     public function checkTotalProductByVtt($my_total) {

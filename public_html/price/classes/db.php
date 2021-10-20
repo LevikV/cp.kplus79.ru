@@ -130,6 +130,52 @@ class Db {
         }
     }
 
+    public function addManufacturer($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkManufacturerData($data)) {
+            $sql = 'INSERT INTO manufacturer (name, description, image) VALUES ("' .
+                $data['name'] . '", "' .
+                $data['description'] . '", "' .
+                $data['image'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления производителя в нашу таблицу производителей' .
+                    '<br>name: ' . $data['name'] .
+                    '<br>description: ' . $data['description'] .
+                    '<br>image: ' . $data['image'];
+                return false;
+            }
+            if ($result != false) {
+                $manufacturer_id = mysqli_insert_id($this->link);
+                return $manufacturer_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function addModel($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkModelData($data)) {
+            $sql = 'INSERT INTO model (name) VALUES ("' .
+                $data['name'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления модели в нашу таблицу моделей' .
+                    '<br>name: ' . $data['name'];
+                return false;
+            }
+            if ($result != false) {
+                $model_id = mysqli_insert_id($this->link);
+                return $model_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProviderCategory($data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderCategoryData($data)) {
@@ -169,16 +215,39 @@ class Db {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления категории в таблицу категорий поставщиков' .
+                $ERROR['Db'][] = 'Ошибка добавления производителя в таблицу производителей поставщиков' .
                     '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>provider_category_id: ' . $data['provider_category_id'] .
-                    '<br>provider_category_name: ' . $data['provider_category_name'] .
-                    '<br>provider_category_parent_id: ' . $data['provider_category_parent_id'];
+                    '<br>name: ' . $data['name'] .
+                    '<br>description: ' . $data['description'] .
+                    '<br>image: ' . $data['image'];
                 return false;
             }
             if ($result != false) {
-                $category_id = mysqli_insert_id($this->link);
-                return $category_id;
+                $manufacturer_id = mysqli_insert_id($this->link);
+                return $manufacturer_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function addProviderModel($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderModelData($data)) {
+            $sql = 'INSERT INTO provider_model (provider_id, name) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
+                $data['name'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления модели в таблицу моделей поставщиков' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>name: ' . $data['name'];
+                return false;
+            }
+            if ($result != false) {
+                $model_id = mysqli_insert_id($this->link);
+                return $model_id;
             }
         } else {
             return false;
@@ -277,6 +346,38 @@ class Db {
         return true;
     }
 
+    private function checkManufacturerData(&$data) {
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (!isset($data['description'])) {
+            $data['description'] = '';
+        }
+
+        if (!isset($data['image'])) {
+            $data['image'] = '';
+        }
+
+        return true;
+    }
+
+    private function checkModelData(&$data) {
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     private function checkProviderCategoryData(&$data) {
         if (isset($data['provider_id'])) {
             if ($data['provider_id'] == '') {
@@ -327,6 +428,27 @@ class Db {
         }
         return true;
     }
+
+    private function checkProviderModelData(&$data) {
+        if (isset($data['provider_id'])) {
+            if ($data['provider_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
 
 }
 

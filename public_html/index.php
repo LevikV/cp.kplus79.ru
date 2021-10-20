@@ -9,6 +9,9 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php')
 $ERROR = array();
 
 //loadCategoryVtt();
+//loadManufacturertVtt();
+loadModeltVtt();
+
 
 //$my_db = new Db;
 //$prov_id = 1;
@@ -53,7 +56,6 @@ $ERROR = array();
 //echo '<br>';
 //echo 'Всего по категориям позиций: ' . $total;
 
-loadManufacturertVtt();
 
 function loadCategoryVtt () {
     global $ERROR;
@@ -85,13 +87,46 @@ function loadManufacturertVtt () {
         return false;
     } else {
         // Производим загрузку производителей
-        //$manufacturer = $vtt->createManufacturer($products);
+        $manufacturer = $vtt->createManufacturer($products);
 
-
-        echo 'Загрузка выполнена успешно!';
+        if ($manufacturer) {
+            echo 'Загрузка выполнена успешно!';
+        }
     }
     if (empty($ERROR)) {
         echo 'При загрузка производителей не было ошибок!';
+        return true;
+    } else {
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
+    }
+
+}
+
+function loadModeltVtt () {
+    // Функция загрузки и создания моделей в Пустой БД
+    global $ERROR;
+    $vtt = new Vtt;
+    // Получаем все продукты с портала методом Категорий
+    $products = $vtt->getAllProductByCategory();
+    if ($products == false) {
+        echo '<br>Не удалось получить все товары с портала ВТТ.';
+        return false;
+    } else {
+        // Производим загрузку моделей
+        $model = $vtt->createModel($products);
+
+        if ($model) {
+            echo '<br>Загрузка моделей выполнена успешно!';
+        }
+    }
+    if (empty($ERROR)) {
+        echo '<br>При загрузка моделей не было ошибок!';
         return true;
     } else {
         foreach ($ERROR as $key => $value) {
