@@ -434,6 +434,133 @@ class Vtt {
 
     }
 
+    public function createVendor ($products) {
+        // Функция формирует новых Вендоров в ПУСТОЙ базе на основе входного параметра
+        // массива $products в формате имен ключей поставщика (ВТТ)
+        // Создает карту вендоров, вендоров поставщика и вендоров в нашей базе
+        //
+        if ($this->status) {
+            $prov_id = 1; // устанавливаем id поставщика
+            $vendors = array();
+            $db = new Db;
+            if ($db == false) {
+                return false;
+            }
+            // Формируем массив имен вендоров
+            foreach ($products as &$product) {
+                if ($product['vendor'] != '') {
+                    if (!in_array($product['vendor'], $vendors)) {
+                        $vendors[] = $product['vendor'];
+                    }
+                }
+            }
+            // Если массив вендоров сформирован, записываем модели
+            if (!empty($vendors)) {
+                foreach ($vendors as $vendor) {
+                    // Добавляем вендоров в таблицу поставщиков
+                    $data = array();
+                    $data['provider_id'] = $prov_id;
+                    $data['name'] = $vendor;
+                    $our_prov_vendor_id = $db->addProviderVendor($data);
+
+                    // Добавляем вендоров в нашу таблицу БД
+                    $data = array();
+                    $data['name'] = $vendor;
+                    $our_vendor_id = $db->addVendor($data);
+
+                    // Добавляем запись в таблицу сопоставления
+                    if ($our_vendor_id AND $our_prov_vendor_id) {
+                        $vendor_map_id = $db->addMap('vendor', $our_vendor_id, $our_prov_vendor_id);
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+    }
+
+    public function createAttribute ($products) {
+        // Функция формирует значения аттрибутов в ПУСТОЙ базе
+        // (цвет и ресурс) на основе входного параметра
+        // массива $products в формате имен ключей поставщика (ВТТ)
+        // Создает карту значений аттрибутов, группы атрибутов, аттрибуты
+        // и значения в таблицах поставщика и нашей базы
+        //
+        if ($this->status) {
+            $prov_id = 1; // устанавливаем id поставщика
+            $default_attr_group_name = 'Основные';
+            $default_attr_names = array('Цвет', 'Ресурс');
+            $vendors = array();
+            $db = new Db;
+            if ($db == false) {
+                return false;
+            }
+            // Создаем группу аттрибутов поставщика по умолчанию
+            $data = array();
+            $data['provider_id'] = $prov_id;
+            $data['name'] = $default_attr_group_name;
+            $our_prov_attrib_group_id = $db->addProviderAttributeGroup($data);
+
+            // Создаем группу аттрибутов в нашей базе по умолчанию
+            $data = array();
+            $data['name'] = $default_attr_group_name;
+            $our_attrib_group_id = $db->addAttributeGroup($data);
+
+            // Добавляем запись в таблицу сопоставления
+            if ($our_attrib_group_id AND $our_attrib_group_id) {
+                $attrib_group_id = $db->addMap('attribute_group', $our_attrib_group_id, $our_prov_attrib_group_id);
+            } else {
+                return false;
+            }
+
+            // Создаем аттрибуты поставщика по умолчанию
+
+
+            // Формируем массив имен вендоров
+            foreach ($products as &$product) {
+                if ($product['vendor'] != '') {
+                    if (!in_array($product['vendor'], $vendors)) {
+                        $vendors[] = $product['vendor'];
+                    }
+                }
+            }
+            // Если массив вендоров сформирован, записываем модели
+            if (!empty($vendors)) {
+                foreach ($vendors as $vendor) {
+                    // Добавляем вендоров в таблицу поставщиков
+                    $data = array();
+                    $data['provider_id'] = $prov_id;
+                    $data['name'] = $vendor;
+                    $our_prov_vendor_id = $db->addProviderVendor($data);
+
+                    // Добавляем вендоров в нашу таблицу БД
+                    $data = array();
+                    $data['name'] = $vendor;
+                    $our_vendor_id = $db->addVendor($data);
+
+                    // Добавляем запись в таблицу сопоставления
+                    if ($our_vendor_id AND $our_prov_vendor_id) {
+                        $vendor_map_id = $db->addMap('vendor', $our_vendor_id, $our_prov_vendor_id);
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+    }
+
     public function checkTotalProductByVtt($my_total) {
         // Функция проверки количества товаров на портале ВТТ с количеством переданным в виде параметра
         // Функция возвращает истину или количество товаров в запросе с портала ВТТ
@@ -453,11 +580,10 @@ class Vtt {
         if ($my_total == ($total - $total_except)) {
             return true;
         } else {
-            $total = $total - $total_except;
-            return $total;
+            //$total = $total - $total_except;
+            return false;
         }
     }
-
 
     public function isCategoryExcept ($categories, $category) {
         // Функция проверки категории на исключение из загрузки

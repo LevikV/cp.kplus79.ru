@@ -10,7 +10,8 @@ $ERROR = array();
 
 //loadCategoryVtt();
 //loadManufacturertVtt();
-loadModeltVtt();
+//loadModeltVtt();
+//loadVendorVtt();
 
 
 //$my_db = new Db;
@@ -86,8 +87,15 @@ function loadManufacturertVtt () {
         echo 'Не удалось получить все товары с портала ВТТ.';
         return false;
     } else {
-        // Производим загрузку производителей
-        $manufacturer = $vtt->createManufacturer($products);
+        // Сравниваем количество полученных товаров для выборки опций с количеством
+        // товаров отдаваемых запросами о количестве с ВТТ
+        if ($vtt->checkTotalProductByVtt(count($products))) {
+            // Производим загрузку производителей
+            $manufacturer = $vtt->createManufacturer($products);
+        } else {
+            echo '<br>Количество полученных товаров не сходится с количеством товаров отдваваемым запросом с ВТТ';
+            return false;
+        }
 
         if ($manufacturer) {
             echo 'Загрузка выполнена успешно!';
@@ -118,9 +126,15 @@ function loadModeltVtt () {
         echo '<br>Не удалось получить все товары с портала ВТТ.';
         return false;
     } else {
-        // Производим загрузку моделей
-        $model = $vtt->createModel($products);
-
+        // Сравниваем количество полученных товаров для выборки опций с количеством
+        // товаров отдаваемых запросами о количестве с ВТТ
+        if ($vtt->checkTotalProductByVtt(count($products))) {
+            // Производим загрузку моделей
+            $model = $vtt->createModel($products);
+        } else {
+            echo '<br>Количество полученных товаров не сходится с количеством товаров отдваваемым запросом с ВТТ';
+            return false;
+        }
         if ($model) {
             echo '<br>Загрузка моделей выполнена успешно!';
         }
@@ -129,6 +143,86 @@ function loadModeltVtt () {
         echo '<br>При загрузка моделей не было ошибок!';
         return true;
     } else {
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
+    }
+
+}
+
+function loadVendorVtt () {
+    // Функция загрузки и создания Вендоров в Пустой БД
+    global $ERROR;
+    $vtt = new Vtt;
+    // Получаем все продукты с портала методом Категорий
+    $products = $vtt->getAllProductByCategory();
+    if ($products == false) {
+        echo '<br>Не удалось получить все товары с портала ВТТ.';
+        return false;
+    } else {
+        // Сравниваем количество полученных товаров для выборки опций с количеством
+        // товаров отдаваемых запросами о количестве с ВТТ
+        if ($vtt->checkTotalProductByVtt(count($products))) {
+            // Производим загрузку вендоров
+            $vendor = $vtt->createVendor($products);
+        } else {
+            echo '<br>Количество полученных товаров не сходится с количеством товаров отдваваемым запросом с ВТТ';
+            return false;
+        }
+
+        if ($vendor) {
+            echo '<br>Загрузка Вендоров выполнена успешно!';
+        }
+    }
+    if (empty($ERROR)) {
+        echo '<br>При загрузка Вендоров не было ошибок!';
+        return true;
+    } else {
+        echo '<br>';
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
+    }
+
+}
+
+function loadAttributeVtt () {
+    // Функция загрузки и создания аттрибутов в Пустой БД
+    global $ERROR;
+    $vtt = new Vtt;
+    // Получаем все продукты с портала методом Категорий
+    $products = $vtt->getAllProductByCategory();
+    if ($products == false) {
+        echo '<br>Не удалось получить все товары с портала ВТТ.';
+        return false;
+    } else {
+        // Сравниваем количество полученных товаров для выборки опций с количеством
+        // товаров отдаваемых запросами о количестве с ВТТ
+        if ($vtt->checkTotalProductByVtt(count($products))) {
+            // Производим загрузку аттрибутов
+            $attribute = $vtt->createAttribute($products);
+        } else {
+            echo '<br>Количество полученных товаров не сходится с количеством товаров отдваваемым запросом с ВТТ';
+            return false;
+        }
+
+        if ($attribute) {
+            echo '<br>Загрузка аттрибутов выполнена успешно!';
+        }
+    }
+    if (empty($ERROR)) {
+        echo '<br>При загрузка аттрибутов не было ошибок!';
+        return true;
+    } else {
+        echo '<br>';
         foreach ($ERROR as $key => $value) {
             echo 'Error - ' . $key . ': <br>';
             foreach ($value as $item) {
