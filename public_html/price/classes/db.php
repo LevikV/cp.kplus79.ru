@@ -48,6 +48,30 @@ class Db {
         }
     }
 
+    public function getAttributeIdByName($attribute_name, $attribute_group_name) {
+        // Функция поиска id аттрибута в нашей базе по имени и имени группы атрибута
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM attribute WHERE name = "' . $attribute_name .
+                '", group_id = (SELECT id FROM attribute_group WHERE name = "' . $attribute_group_name . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска аттрибута по имени в нашей базе.' .
+                    '<br>attribute_name: ' . $attribute_name .
+                    '<br>attribute_group_name: ' . $attribute_group_name;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $our_prov_attrib_id = $row[0];
+                return $our_prov_attrib_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getOurItemIdByProvItemId($code, $prov_item_id, $prov_id) {
         global $ERROR;
         if ($this->status) {
@@ -62,7 +86,8 @@ class Db {
             } catch (Exception $e) {
                 $ERROR['Db'][] = 'Ошибка поиска категории для сопоставления.' .
                     '<br>prov_id: ' . $prov_id .
-                    '<br>prov_cat_id: ' . $prov_cat_id;
+                    '<br>code: ' . $code .
+                    '<br>prov_cat_id: ' . $prov_item_id;
                 return false;
             }
             if ($result != false) {
@@ -76,9 +101,10 @@ class Db {
     }
 
     public function getOurCatIdByProvCatName($prov_cat_name, $prov_id) {
+        // устаревшая функция
         global $ERROR;
         if ($this->status) {
-            $sql = 'SELECT our_category_id FROM category_map WHERE provider_category_id IN (SELECT id FROM provider_category WHERE name = "' . $prov_cat_name . '" AND provider_id = ' . (int)$prov_id .')';
+            $sql = 'SELECT our_id FROM map WHERE provider_id IN (SELECT id FROM provider_category WHERE name = "' . $prov_cat_name . '" AND provider_id = ' . (int)$prov_id .')';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -91,6 +117,30 @@ class Db {
                 $row = $result->fetch_row();
                 $our_cat_id = $row[0];
                 return $our_cat_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getOurProviderAttributeIdByName($prov_id, $attribute_name, $attribute_group_name) {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_attribute WHERE provider_id = ' . (int)$prov_id . ', name = "' . $attribute_name .
+                '", group_id = (SELECT id FROM provider_attribute_group WHERE provider_id = ' . (int)$prov_id . ', name = "' . $attribute_group_name . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска аттрибута поставщика по имени.' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>attribute_name: ' . $attribute_name .
+                    '<br>attribute_group_name: ' . $attribute_group_name;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $our_prov_attrib_id = $row[0];
+                return $our_prov_attrib_id;
             }
         } else {
             return false;
@@ -245,6 +295,29 @@ class Db {
         }
     }
 
+    public function addAttributeValue($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkAttributeValueData($data)) {
+            $sql = 'INSERT INTO attribute_value (attribute_id, value) VALUES ("' .
+                (int)$data['attribute_id'] . '", "' .
+                $data['value'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута в нашу таблицу' .
+                    '<br>value: ' . $data['value'] .
+                    '<br>attribute_id: ' . $data['attribute_id'];
+                return false;
+            }
+            if ($result != false) {
+                $attribute_value_id = mysqli_insert_id($this->link);
+                return $attribute_value_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProviderCategory($data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderCategoryData($data)) {
@@ -392,6 +465,31 @@ class Db {
             if ($result != false) {
                 $attribute_id = mysqli_insert_id($this->link);
                 return $attribute_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function addProviderAttributeValue($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderAttributeValueData($data)) {
+            $sql = 'INSERT INTO provider_attribute_value (provider_id, attribute_id, value) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
+                (int)$data['attribute_id'] . '", "' .
+                $data['value'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута в таблицу поставщиков' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>value: ' . $data['value'] .
+                    '<br>attribute_id: ' . $data['attribute_id'];
+                return false;
+            }
+            if ($result != false) {
+                $attribute_value_id = mysqli_insert_id($this->link);
+                return $attribute_value_id;
             }
         } else {
             return false;
@@ -581,6 +679,31 @@ class Db {
 
     }
 
+    private function checkAttributeValueData(&$data) {
+
+        if (isset($data['attribute_id'])) {
+            if ($data['attribute_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['value'])) {
+            if ($data['value'] == '') {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+
+
+    }
+
     private function checkProviderCategoryData(&$data) {
         if (isset($data['provider_id'])) {
             if ($data['provider_id'] == '') {
@@ -731,6 +854,38 @@ class Db {
         if (!isset($data['group_id'])) {
             $data['group_id'] = '';
         }
+        return true;
+
+
+    }
+
+    private function checkProviderAttributeValueData(&$data) {
+        if (isset($data['provider_id'])) {
+            if ($data['provider_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['attribute_id'])) {
+            if ($data['attribute_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['value'])) {
+            if ($data['value'] == '') {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
         return true;
 
 

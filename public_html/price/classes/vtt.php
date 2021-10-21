@@ -553,7 +553,7 @@ class Vtt {
                     $data = array();
                     $attribute_name = 'Цвет'; // Имя аттрибута из массива заданного в начале функции
                     $data['provider_id'] = $prov_id;
-                    $data['attribute_id'] = $db->getProviderAttributeIdByName($prov_id, $attribute_name, $default_attr_group_name);
+                    $data['attribute_id'] = $db->getOurProviderAttributeIdByName($prov_id, $attribute_name, $default_attr_group_name);
                     $data['value'] = $color;
                     $our_prov_attrib_value_id = $db->addProviderAttributeValue($data);
 
@@ -578,7 +578,7 @@ class Vtt {
                     $data = array();
                     $attribute_name = 'Ресурс'; // Имя аттрибута из массива заданного в начале функции
                     $data['provider_id'] = $prov_id;
-                    $data['attribute_id'] = $db->getProviderAttributeIdByName($prov_id, $attribute_name, $default_attr_group_name);
+                    $data['attribute_id'] = $db->getOurProviderAttributeIdByName($prov_id, $attribute_name, $default_attr_group_name);
                     $data['value'] = $lifetime;
                     $our_prov_attrib_value_id = $db->addProviderAttributeValue($data);
 
