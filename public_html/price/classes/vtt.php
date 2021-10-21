@@ -146,6 +146,34 @@ class Vtt {
             $data['products'] = is_array($result->GetItemPortionResult->Items->ItemDto)
                 ? $result->GetItemPortionResult->Items->ItemDto
                 : array($result->GetItemPortionResult->Items->ItemDto);
+            //
+            $prod_array = array();
+            foreach ($data['products'] as &$product) {
+                $prod_array[] = array(
+                    'available_quantity' => $product->AvailableQuantity,
+                    'brand' => $product->Brand,
+                    'color_name' => $product->ColorName,
+                    'compatibility' => $product->Compatibility,
+                    'depth' => $product->Depth,
+                    'description' => $product->Description,
+                    'group' => $product->Group,
+                    'height' => $product->Height,
+                    'id' => $product->Id,
+                    'item_life_time' => $product->ItemLifeTime,
+                    'main_office_quantity' => $product->MainOfficeQuantity,
+                    'name' => $product->Name,
+                    'original_number' => $product->OriginalNumber,
+                    'photo_url' => $product->PhotoUrl,
+                    'price' => $product->Price,
+                    'root_group' => $product->RootGroup,
+                    'transit_date' => $product->TransitDate,
+                    'transit_quantity' => $product->TransitQuantity,
+                    'vendor' => $product->Vendor,
+                    'weight' => $product->Weight,
+                    'width' => $product->Width
+                );
+            }
+            $data['products'] = $prod_array;
 
             return $data;
         } else {
@@ -209,7 +237,7 @@ class Vtt {
         }
         // Проверяем, остались ли категории, по которым не удалось получить товары и пробуем их получить
         // Количество попыток определяется переменной $steps
-        $steps = 10;
+        $steps = 20;
         $step = 0;
         while ($step < $steps) {
             if (!empty($error_cats)) {
@@ -586,7 +614,7 @@ class Vtt {
                     $data = array();
                     $attribute_name = 'Ресурс'; // Имя аттрибута из массива заданного в начале функции
                     $data['attribute_id'] = $db->getAttributeIdByName($attribute_name, $default_attr_group_name);
-                    $data['value'] = $color;
+                    $data['value'] = $lifetime;
                     $our_attrib_value_id = $db->addAttributeValue($data);
 
                     // Добавляем запись в таблицу сопоставления

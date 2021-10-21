@@ -53,7 +53,7 @@ class Db {
         global $ERROR;
         if ($this->status) {
             $sql = 'SELECT id FROM attribute WHERE name = "' . $attribute_name .
-                '", group_id = (SELECT id FROM attribute_group WHERE name = "' . $attribute_group_name . '")';
+                '" AND group_id = (SELECT id FROM attribute_group WHERE name = "' . $attribute_group_name . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -126,8 +126,8 @@ class Db {
     public function getOurProviderAttributeIdByName($prov_id, $attribute_name, $attribute_group_name) {
         global $ERROR;
         if ($this->status) {
-            $sql = 'SELECT id FROM provider_attribute WHERE provider_id = ' . (int)$prov_id . ', name = "' . $attribute_name .
-                '", group_id = (SELECT id FROM provider_attribute_group WHERE provider_id = ' . (int)$prov_id . ', name = "' . $attribute_group_name . '")';
+            $sql = 'SELECT id FROM provider_attribute WHERE provider_id = ' . (int)$prov_id . ' AND name = "' . $attribute_name .
+                '" AND group_id = (SELECT id FROM provider_attribute_group WHERE provider_id = ' . (int)$prov_id . ' AND name = "' . $attribute_group_name . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {

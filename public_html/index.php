@@ -12,6 +12,8 @@ $ERROR = array();
 //loadManufacturertVtt();
 //loadModeltVtt();
 //loadVendorVtt();
+//loadAttributeVtt();
+//loadAllSettingVtt();
 
 
 //$my_db = new Db;
@@ -200,6 +202,8 @@ function loadAttributeVtt () {
     $vtt = new Vtt;
     // Получаем все продукты с портала методом Категорий
     $products = $vtt->getAllProductByCategory();
+    //$products = $vtt->getProductPortion(20, 1000);
+    //$products = $products['products'];
     if ($products == false) {
         echo '<br>Не удалось получить все товары с портала ВТТ.';
         return false;
@@ -220,6 +224,73 @@ function loadAttributeVtt () {
     }
     if (empty($ERROR)) {
         echo '<br>При загрузка аттрибутов не было ошибок!';
+        return true;
+    } else {
+        echo '<br>';
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
+    }
+
+}
+
+function loadAllSettingVtt () {
+    // Функция загрузки и создания Производителей, моделей, Вендоров, аттрибутов в Пустой БД
+    global $ERROR;
+    $vtt = new Vtt;
+    // Получаем все продукты с портала методом Категорий
+    $products = $vtt->getAllProductByCategory();
+    //$products = $vtt->getProductPortion(20, 1000);
+    //$products = $products['products'];
+    if ($products == false) {
+        echo '<br>Не удалось получить все товары с портала ВТТ.';
+        return false;
+    } else {
+        // Сравниваем количество полученных товаров для выборки опций с количеством
+        // товаров отдаваемых запросами о количестве с ВТТ
+        echo '<br>Получено товаров: ' . count($products);
+        echo '<br>';
+        if ($vtt->checkTotalProductByVtt(count($products))) {
+            // Производим загрузку производителей
+            $manufacturer = $vtt->createManufacturer($products);
+            // Производим загрузку моделей
+            $models = $vtt->createModel($products);
+            // Производим загрузку вендоров
+            $vendors = $vtt->createVendor($products);
+            // Производим загрузку аттрибутов
+            $attribute = $vtt->createAttribute($products);
+        } else {
+            echo '<br>Количество полученных товаров не сходится с количеством товаров отдваваемым запросом с ВТТ';
+            return false;
+        }
+
+        if ($manufacturer) {
+            echo '<br>Загрузка аттрибутов выполнена успешно!';
+        } else {
+            echo '<br>При загрузке аттрибутов произошли ошибки!';
+        }
+        if ($models) {
+            echo '<br>Загрузка моделей выполнена успешно!';
+        } else {
+            echo '<br>При загрузке моделей произошли ошибки!';
+        }
+        if ($vendors) {
+            echo '<br>Загрузка вендоров выполнена успешно!';
+        } else {
+            echo '<br>При загрузке вендоров произошли ошибки!';
+        }
+        if ($attribute) {
+            echo '<br>Загрузка аттрибутов выполнена успешно!';
+        } else {
+            echo '<br>При загрузке аттрибутов произошли ошибки!';
+        }
+    }
+    if (empty($ERROR)) {
+        echo '<br>При загрузка данных не было ошибок!';
         return true;
     } else {
         echo '<br>';
