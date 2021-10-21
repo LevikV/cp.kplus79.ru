@@ -375,7 +375,7 @@ class Db {
 
     public function addProviderAttribute($data) {
         global $ERROR;
-        if ($this->status AND $this->checkProviderAttributeGroupData($data)) {
+        if ($this->status AND $this->checkProviderAttributeData($data)) {
             $sql = 'INSERT INTO provider_attribute (provider_id, name, group_id) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
                 $data['name'] . '", "' .

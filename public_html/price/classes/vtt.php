@@ -528,36 +528,70 @@ class Vtt {
                 $our_attrib_id = $db->addAttribute($data);
             }
 
-            // Формируем значения аттрибутов и заносим их в карту сопоставлений
+            // Формируем массивы значений аттрибутов
+            $colors = array();
+            $lifestimes = array();
             foreach ($products as &$product) {
                 // Проверяем аттрибут "цвет"
                 if ($product['color_name'] != '') {
-
-
-
-
-
-
-
+                    if (!in_array($product['color_name'], $colors)) {
+                        $colors[] = $product['color_name'];
+                    }
+                }
+                // Проверяем аттрибут "ресурс"
+                if ($product['item_life_time'] != '') {
+                    if (!in_array($product['item_life_time'], $lifestimes)) {
+                        $lifestimes[] = $product['item_life_time'];
+                    }
                 }
             }
-            // Если массив вендоров сформирован, записываем модели
-            if (!empty($vendors)) {
-                foreach ($vendors as $vendor) {
-                    // Добавляем вендоров в таблицу поставщиков
+            // Если массивы значений аттрибутов сформированы, записываем значения аттрибутов по очереди
+            if (!empty($colors) AND !empty($lifestimes)) {
+                // записываем значения аттрибута "цвет"
+                foreach ($colors as $color) {
+                    // Добавляем значение аттрибута в таблицу поставщиков
                     $data = array();
+                    $attribute_name = 'Цвет'; // Имя аттрибута из массива заданного в начале функции
                     $data['provider_id'] = $prov_id;
-                    $data['name'] = $vendor;
-                    $our_prov_vendor_id = $db->addProviderVendor($data);
+                    $data['attribute_id'] = $db->getProviderAttributeIdByName($prov_id, $attribute_name, $default_attr_group_name);
+                    $data['value'] = $color;
+                    $our_prov_attrib_value_id = $db->addProviderAttributeValue($data);
 
-                    // Добавляем вендоров в нашу таблицу БД
+                    // Добавляем значение аттрибута в нашу таблицу БД
                     $data = array();
-                    $data['name'] = $vendor;
-                    $our_vendor_id = $db->addVendor($data);
+                    $attribute_name = 'Цвет'; // Имя аттрибута из массива заданного в начале функции
+                    $data['attribute_id'] = $db->getAttributeIdByName($attribute_name, $default_attr_group_name);
+                    $data['value'] = $color;
+                    $our_attrib_value_id = $db->addAttributeValue($data);
 
                     // Добавляем запись в таблицу сопоставления
-                    if ($our_vendor_id AND $our_prov_vendor_id) {
-                        $vendor_map_id = $db->addMap('vendor', $our_vendor_id, $our_prov_vendor_id);
+                    if ($our_attrib_value_id AND $our_prov_attrib_value_id) {
+                        $attrib_value_id = $db->addMap('attrib_value', $our_attrib_value_id, $our_prov_attrib_value_id);
+                    } else {
+                        return false;
+                    }
+                }
+
+                // записываем значения аттрибута "ресурс"
+                foreach ($lifestimes as $lifetime) {
+                    // Добавляем значение аттрибута в таблицу поставщиков
+                    $data = array();
+                    $attribute_name = 'Ресурс'; // Имя аттрибута из массива заданного в начале функции
+                    $data['provider_id'] = $prov_id;
+                    $data['attribute_id'] = $db->getProviderAttributeIdByName($prov_id, $attribute_name, $default_attr_group_name);
+                    $data['value'] = $lifetime;
+                    $our_prov_attrib_value_id = $db->addProviderAttributeValue($data);
+
+                    // Добавляем значение аттрибута в нашу таблицу БД
+                    $data = array();
+                    $attribute_name = 'Ресурс'; // Имя аттрибута из массива заданного в начале функции
+                    $data['attribute_id'] = $db->getAttributeIdByName($attribute_name, $default_attr_group_name);
+                    $data['value'] = $color;
+                    $our_attrib_value_id = $db->addAttributeValue($data);
+
+                    // Добавляем запись в таблицу сопоставления
+                    if ($our_attrib_value_id AND $our_prov_attrib_value_id) {
+                        $attrib_value_id = $db->addMap('attrib_value', $our_attrib_value_id, $our_prov_attrib_value_id);
                     } else {
                         return false;
                     }
