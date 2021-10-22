@@ -100,11 +100,12 @@ class Db {
         }
     }
 
-    public function getOurCatIdByProvCatName($prov_cat_name, $prov_id) {
-        // устаревшая функция
+    public function getCatIdByProvCatName($prov_id, $prov_cat_name, $prov_root_cat_name) {
+        //
         global $ERROR;
         if ($this->status) {
-            $sql = 'SELECT our_id FROM map WHERE provider_id IN (SELECT id FROM provider_category WHERE name = "' . $prov_cat_name . '" AND provider_id = ' . (int)$prov_id .')';
+            $sql = 'SELECT id FROM provider_category WHERE name = "' . $prov_cat_name .
+                '" AND provider_id = '. (int)$prov_id . ' AND provider_parent_cat_name = "' . $prov_root_cat_name . '"';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {

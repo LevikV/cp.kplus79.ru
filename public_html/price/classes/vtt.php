@@ -350,6 +350,26 @@ class Vtt {
                     }
                 }
 
+                // Создаем ИМЕНА родительских категорий в таблице категорий поставщика
+                // т.к. в выгрузке передается только id родительской категории, без имени
+                foreach ($categories as $category) {
+                    if (!$this->isCategoryExcept($categories, $category)) {
+                        if ($category['parent_id'] != '') {
+                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
+                            $our_parent_cat_id = $db->getOurItemIdByProvItemId('category', $category['parent_id'], 1);
+                            if ($our_cat_id AND $our_parent_cat_id) {
+                                $data = array();
+                                $data['name'] = $category['name'];
+                                $data['parent_id'] = $our_parent_cat_id;
+                                $db->editCategory($our_cat_id, $data);
+                            }
+                        }
+                    }
+                }
+
+
+
+                //
 
                 return true;
             } else {
@@ -634,6 +654,64 @@ class Vtt {
 
     }
 
+    public function createProduct ($products) {
+        // Функция формирует новые товары в ПУСТОЙ базе на основе входного параметра
+        // массива $products в формате имен ключей поставщика (ВТТ)
+        // Создает карту продуктов, продуктов поставщика и продуктов в нашей базе
+        //
+        global $ERROR;
+
+        if ($this->status) {
+            $prov_id = 1; // устанавливаем id поставщика
+            $vendors = array();
+            $db = new Db;
+            if ($db == false) {
+                return false;
+            }
+            // Получаем данные по каждому продукту и производим запись в базу
+            foreach ($products as &$product) {
+                // Получаем данные и производим запись в таблицу Поставщика
+                $data = array();
+                $data['provider_id'] = $prov_id;
+                if ($product['id'] != '') {
+                    $data['provider_product_id'] = $product['id'];
+                } else {
+                    $ERROR['VTT'][] = 'Ошибка получения id товара с ВТТ' .
+                    '<br>id продукта: ' . $product['id'] .
+                    '<br>name продукта: ' . $product['name'];
+                    continue;
+                }
+                if ($product['name'] != '') {
+                    $data['name'] = $product['name'];
+                } else {
+                    $ERROR['VTT'][] = 'Ошибка получения name товара с ВТТ' .
+                        '<br>id продукта: ' . $product['id'] .
+                        '<br>name продукта: ' . $product['name'];
+                    continue;
+                }
+                if ($product['description'] != '') {
+                    $data['description'] = $product['description'];
+                }
+                if ($product['width'] != '') {
+                    $data['width'] = $product['width'];
+                }
+                if ($product['height'] != '') {
+                    $data['height'] = $product['height'];
+                }
+                if ($product['depth'] != '') {
+                    $data['length'] = $product['depth'];
+                }
+                if ($product['weight'] != '') {
+                    $data['weight'] = $product['weight'];
+                }
+            }
+
+        } else {
+            return false;
+        }
+
+    }
+
     public function checkTotalProductByVtt($my_total) {
         // Функция проверки количества товаров на портале ВТТ с количеством переданным в виде параметра
         // Функция возвращает истину или количество товаров в запросе с портала ВТТ
@@ -650,7 +728,7 @@ class Vtt {
                 }
             }
         }
-        if ($my_total == ($total - $total_except)) {
+        if ($my_total === ($total - $total_except)) {
             return true;
         } else {
             //$total = $total - $total_except;

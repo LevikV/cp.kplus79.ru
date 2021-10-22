@@ -23,7 +23,7 @@ $ERROR = array();
 //print_r($my_db->getOurCatIdByProvCatName($prov_cat_name, $prov_id));
 
 
-//$vtt = new Vtt;
+$vtt = new Vtt;
 //$total = $vtt->getTotalProductByProdPortion();
 //$total_except = 0;
 //foreach (VTT_CATEGORY_ID_EXCEPT as $cat) {
@@ -33,12 +33,12 @@ $ERROR = array();
 //echo '<br>';
 //echo $total_except;
 
-//$vtt_cat_id = 'CARTBLT';
+$vtt_cat_id = 'PARTSCART_ROLMAG';
 //$vtt_product_portion = $vtt->getProductPortion(15358, 15369);
-//$vtt_product_portion = $vtt->getProductByCategory($vtt_cat_id);
+$vtt_product_portion = $vtt->getProductByCategory($vtt_cat_id);
 //$vtt_product_total = $vtt->getTotalProductByCategoryId($vtt_cat_id);
 //$vtt_product_total = $vtt->getTotalProductByProdPortion();
-//print_r($vtt_product_total);
+print_r($vtt_product_portion);
 //echo '<br>';
 
 
@@ -305,6 +305,44 @@ function loadAllSettingVtt () {
 
 }
 
+function loadProductBaseDataVtt () {
+    // Функция загрузки и создания продуктов в Пустой БД
+    global $ERROR;
+    $vtt = new Vtt;
+    // Получаем все продукты с портала методом Категорий
+    $products = $vtt->getAllProductByCategory();
+    if ($products == false) {
+        echo '<br>Не удалось получить все товары с портала ВТТ.';
+        return false;
+    } else {
+        // Сравниваем количество полученных товаров с количеством
+        // товаров отдаваемых запросами о количестве с ВТТ
+        if ($vtt->checkTotalProductByVtt(count($products))) {
+            // Производим загрузку товаров и основных данных
+            $product = $vtt->createProduct($products);
+        } else {
+            echo '<br>Количество полученных товаров не сходится с количеством товаров отдваваемым запросом с ВТТ';
+            return false;
+        }
 
+        if ($product) {
+            echo '<br>Загрузка товаров выполнена успешно!';
+        }
+    }
+    if (empty($ERROR)) {
+        echo '<br>При загрузка аттрибутов не было ошибок!';
+        return true;
+    } else {
+        echo '<br>';
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
+    }
+
+}
 
 ?>
