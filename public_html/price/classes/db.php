@@ -619,6 +619,36 @@ class Db {
         }
     }
 
+    public function addProviderProduct($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderProductData($data)) {
+            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, date_add) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
+                $data['provider_product_id'] . '", "' .
+                $data['name'] . '", "' .
+                $data['description'] . '", "' .
+                (int)$data['category_id'] . '", "' .
+                (int)$data['model_id'] . '", "' .
+                (int)$data['vendor_id'] . '", "' .
+                (int)$data['manufacturer_id'] . '", "' .
+                $data['image'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления вендора в таблицу вендоров поставщиков' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>name: ' . $data['name'];
+                return false;
+            }
+            if ($result != false) {
+                $vendor_id = mysqli_insert_id($this->link);
+                return $vendor_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addMap($code, $our_id, $provider_id) {
         global $ERROR;
         if ($this->status) {
