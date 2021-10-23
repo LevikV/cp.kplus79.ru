@@ -296,6 +296,9 @@ class Vtt {
         // делая их дочерними.
 
         global $ERROR;
+        $prov_id = 1;
+        $our_root_category_for_vtt_id = 542; // id родительской категории для категорий с ВТТ
+
         if ($this->status) {
             $categories = $this->getAllCategories();
             if ($categories) {
@@ -308,7 +311,7 @@ class Vtt {
                     if (!$this->isCategoryExcept($categories, $category)) {
                         // Добавляем категорию в таблицу категорий поставщиков
                         $data = array();
-                        $data['provider_id'] = 1;
+                        $data['provider_id'] = $prov_id;
                         $data['provider_category_id'] = $category['id'];
                         $data['provider_category_name'] = $category['name'];
                         $data['provider_category_parent_id'] = $category['parent_id'];
@@ -343,7 +346,7 @@ class Vtt {
                             $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
                             if ($our_cat_id) {
                                 $data['name'] = $category['name'];
-                                $data['parent_id'] = 542;
+                                $data['parent_id'] = $our_root_category_for_vtt_id;
                                 $db->editCategory($our_cat_id, $data);
                             }
                         }
@@ -355,13 +358,16 @@ class Vtt {
                 foreach ($categories as $category) {
                     if (!$this->isCategoryExcept($categories, $category)) {
                         if ($category['parent_id'] != '') {
-                            $our_cat_id = $db->getOurItemIdByProvItemId('category', $category['id'], 1);
-                            $our_parent_cat_id = $db->getOurItemIdByProvItemId('category', $category['parent_id'], 1);
-                            if ($our_cat_id AND $our_parent_cat_id) {
+                            $prov_parent_cat = $db->getProvCatByProvCatId($prov_id, $category['parent_id']);
+                            if ($prov_parent_cat) {
                                 $data = array();
-                                $data['name'] = $category['name'];
-                                $data['parent_id'] = $our_parent_cat_id;
-                                $db->editCategory($our_cat_id, $data);
+                                $prov_cat_id = $db->getCatIdByProvCatId($prov_id, $category['id']);
+                                $data['provider_id'] = $prov_id;
+                                $data['provider_category_id'] = $category['id'];
+                                $data['provider_category_name'] = $category['name'];
+                                $data['provider_category_parent_id'] = $category['parent_id'];
+                                $data['provider_parent_cat_name'] = $prov_parent_cat['name'];
+                                $db->editProviderCategory($prov_cat_id, $data);
                             }
                         }
                     }
@@ -672,7 +678,11 @@ class Vtt {
             foreach ($products as &$product) {
                 // Получаем данные и производим запись в таблицу Поставщика
                 $data = array();
+
+                // Получаем id поставщика товара
                 $data['provider_id'] = $prov_id;
+
+                // Получаем id поставщика товара
                 if ($product['id'] != '') {
                     $data['provider_product_id'] = $product['id'];
                 } else {
@@ -681,6 +691,8 @@ class Vtt {
                     '<br>name продукта: ' . $product['name'];
                     continue;
                 }
+
+                // Получаем имя товара
                 if ($product['name'] != '') {
                     $data['name'] = $product['name'];
                 } else {
@@ -689,21 +701,85 @@ class Vtt {
                         '<br>name продукта: ' . $product['name'];
                     continue;
                 }
+
+                // Получаем описание товара
                 if ($product['description'] != '') {
                     $data['description'] = $product['description'];
                 }
+
+                // Получаем ширину товара
                 if ($product['width'] != '') {
                     $data['width'] = $product['width'];
                 }
+
+                // Получаем высоту товара
                 if ($product['height'] != '') {
                     $data['height'] = $product['height'];
                 }
+
+                // Получаем длину (глубину) товара
                 if ($product['depth'] != '') {
                     $data['length'] = $product['depth'];
                 }
+
+                // Получаем вес товара
                 if ($product['weight'] != '') {
                     $data['weight'] = $product['weight'];
                 }
+
+                // Получаем id категории товара в таблице поставщика
+                $id_prov_cat_id = $db->getCatIdByProvCatName($prov_id, $product['group'], $product['root_group']);
+                if ($id_prov_cat_id) {
+                    $data['category_id'] = $id_prov_cat_id;
+                } else {
+                    $ERROR['VTT'][] = 'Ошибка получения id категории поставщика по имени категории и родительской категории при импорте товаров с ВТТ' .
+                        '<br>id продукта: ' . $product['id'] .
+                        '<br>name продукта: ' . $product['name'];
+                    continue;
+                }
+
+                // Получаем id модели (парт-номера) товара в таблице поставщика
+                if ($product['original_number'] != '') {
+                    $model_id  = $db->getModelIdByProvModelName($prov_id, $product['original_number']);
+                    if ($model_id) {
+                        $data['model_id'] = $model_id;
+                    } else {
+                        $ERROR['VTT'][] = 'Ошибка получения model_id товара поставщика по имени модели при импорте товаров с ВТТ' .
+                            '<br>id продукта: ' . $product['id'] .
+                            '<br>name продукта: ' . $product['name'];
+                        continue;
+                    }
+                }
+
+                // Получаем id вендора товара в таблице поставщика
+                if ($product['vendor'] != '') {
+                    $vendor_id  = $db->getVendorIdByProvVendorName($prov_id, $product['vendor']);
+                    if ($vendor_id) {
+                        $data['vendor_id'] = $vendor_id;
+                    } else {
+                        $ERROR['VTT'][] = 'Ошибка получения vendor_id товара поставщика по имени вендора при импорте товаров с ВТТ' .
+                            '<br>id продукта: ' . $product['id'] .
+                            '<br>name продукта: ' . $product['name'];
+                        continue;
+                    }
+                }
+
+                // Получаем id производителя товара в таблице поставщика
+                if ($product['brand'] != '') {
+                    $manuf_id  = $db->getManufIdByProvManufName($prov_id, $product['brand']);
+                    if ($manuf_id) {
+                        $data['manufacturer_id'] = $manuf_id;
+                    } else {
+                        $ERROR['VTT'][] = 'Ошибка получения manufacturer_id товара поставщика по имени производителя (Брэнда) при импорте товаров с ВТТ' .
+                            '<br>id продукта: ' . $product['id'] .
+                            '<br>name продукта: ' . $product['name'];
+                        continue;
+                    }
+                }
+
+
+
+                $id_our_cat_id = $db->getOurItemIdByProvItemId('category', $id_prov_cat_id, $prov_id);
             }
 
         } else {

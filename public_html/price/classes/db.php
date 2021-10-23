@@ -124,6 +124,128 @@ class Db {
         }
     }
 
+    public function getModelIdByProvModelName($prov_id, $prov_model_name) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_model WHERE name = "' . $prov_model_name .
+                '" AND provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска id модели по имени модели поставщика' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>prov_model_name: ' . $prov_model_name;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $model_id = $row[0];
+                return $model_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getVendorIdByProvVendorName($prov_id, $prov_vendor_name) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_vendor WHERE name = "' . $prov_vendor_name .
+                '" AND provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска id вендора по имени вендора поставщика' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>prov_vendor_name: ' . $prov_vendor_name;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $vendor_id = $row[0];
+                return $vendor_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getManufIdByProvManufName($prov_id, $prov_manuf_name) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_manufacturer WHERE name = "' . $prov_manuf_name .
+                '" AND provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска id производителя (брэнда) по имени брэнда поставщика' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>prov_manuf_name: ' . $prov_manuf_name;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $manuf_id = $row[0];
+                return $manuf_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProvCatByProvCatId($prov_id, $prov_cat_id) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_category WHERE provider_category_id = "' . $prov_cat_id .
+                '" AND provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка получения категории поставщика по provCatId' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>prov_cat_id: ' . $prov_cat_id;
+                return false;
+            }
+            if ($result != false) {
+                //$row = $result->fetch_row();
+                //$row = mysqli_fetch_array($result);
+                $row = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+                return $row[0];
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getCatIdByProvCatId($prov_id, $prov_cat_id) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_category WHERE provider_category_id = "' . $prov_cat_id .
+                '" AND provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска id категории по id категории поставщика' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>prov_cat_id: ' . $prov_cat_id;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $our_cat_id = $row[0];
+                return $our_cat_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getOurProviderAttributeIdByName($prov_id, $attribute_name, $attribute_group_name) {
         global $ERROR;
         if ($this->status) {
