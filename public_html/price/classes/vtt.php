@@ -781,7 +781,7 @@ class Vtt {
                 $id_prov_product = $db->addProviderProduct($data);
 
 
-                $id_our_cat_id = $db->getOurItemIdByProvItemId('category', $id_prov_cat_id, $prov_id);
+                //$id_our_cat_id = $db->getOurItemIdByProvItemId('category', $id_prov_cat_id, $prov_id);
             }
 
         } else {

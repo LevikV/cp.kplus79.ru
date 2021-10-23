@@ -631,11 +631,17 @@ class Db {
                 (int)$data['model_id'] . '", "' .
                 (int)$data['vendor_id'] . '", "' .
                 (int)$data['manufacturer_id'] . '", "' .
-                $data['image'] . '")';
+                $data['width'] . '", "' .
+                $data['height'] . '", "' .
+                $data['length'] . '", "' .
+                $data['width'] . '", "' .
+                $data['weight'] . '", "' .
+                $data['version'] .
+                '", NOW())';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления вендора в таблицу вендоров поставщиков' .
+                $ERROR['Db'][] = 'Ошибка добавления продукта в таблицу продуктов поставщиков' .
                     '<br>provider_id: ' . $data['provider_id'] .
                     '<br>name: ' . $data['name'];
                 return false;
@@ -645,6 +651,10 @@ class Db {
                 return $vendor_id;
             }
         } else {
+            $ERROR['Db'][] = 'Нет соединения или ошибка при проверке данных.' .
+                '<br>provider_product_id: ' . $data['provider_product_id'] .
+                '<br>name: ' . $data['name'];
+
             return false;
         }
     }
@@ -857,6 +867,85 @@ class Db {
 
     }
 
+    private function checkProductData(&$data) {
+        // Проверяем имя товара
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем описание товара
+        if (!isset($data['description'])) {
+            $data['description'] = '';
+        }
+
+        // Проверяем ширину
+        if (!isset($data['width'])) {
+            $data['width'] = '';
+        }
+
+        // Проверяем высоту
+        if (!isset($data['height'])) {
+            $data['height'] = '';
+        }
+
+        // Проверяем длину (глубину)
+        if (!isset($data['length'])) {
+            $data['length'] = '';
+        }
+
+        // Проверяем вес
+        if (!isset($data['weight'])) {
+            $data['weight'] = '';
+        }
+
+        // Проверяем версию
+        if (!isset($data['version'])) {
+            $data['version'] = '';
+        }
+
+        // Проверяем id категории
+        if (isset($data['category_id'])) {
+            if ($data['category_id'] == '' OR $data['category_id'] == 0) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем id модели (оригинальный номер)
+        if (isset($data['model_id'])) {
+            if ($data['model_id'] == '' OR $data['model_id'] == 0) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем id вендора
+        if (isset($data['vendor_id'])) {
+            if ($data['vendor_id'] == '' OR $data['vendor_id'] == 0) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем id производителя (бренда)
+        if (isset($data['manufacturer_id'])) {
+            if ($data['manufacturer_id'] == '' OR $data['manufacturer_id'] == 0) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
     private function checkProviderCategoryData(&$data) {
         if (isset($data['provider_id'])) {
             if ($data['provider_id'] == '') {
@@ -1044,7 +1133,90 @@ class Db {
 
     }
 
+    private function checkProviderProductData(&$data) {
+        // Проверяем id поставщика
+        if (isset($data['provider_id'])) {
+            if ($data['provider_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
 
+        // Проверяем id товара поставщика
+        if (isset($data['provider_product_id'])) {
+            if ($data['provider_product_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем имя товара
+        if (isset($data['name'])) {
+            if ($data['name'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем описание товара
+        if (!isset($data['description'])) {
+            $data['description'] = '';
+        }
+
+        // Проверяем ширину
+        if (!isset($data['width'])) {
+            $data['width'] = '';
+        }
+
+        // Проверяем высоту
+        if (!isset($data['height'])) {
+            $data['height'] = '';
+        }
+
+        // Проверяем длину (глубину)
+        if (!isset($data['length'])) {
+            $data['length'] = '';
+        }
+
+        // Проверяем вес
+        if (!isset($data['weight'])) {
+            $data['weight'] = '';
+        }
+
+        // Проверяем версию
+        if (!isset($data['version'])) {
+            $data['version'] = '';
+        }
+
+        // Проверяем id категории
+        if (isset($data['category_id'])) {
+            if ($data['category_id'] == '' OR $data['category_id'] == 0) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем id модели (оригинальный номер)
+        if (!isset($data['model_id'])) {
+            $data['model_id'] = '';
+        }
+
+        // Проверяем id вендора
+        if (!isset($data['vendor_id'])) {
+            $data['vendor_id'] = '';
+        }
+
+        // Проверяем id производителя (бренда)
+        if (!isset($data['manufacturer_id'])) {
+            $data['manufacturer_id'] = '';
+        }
+
+        return true;
+    }
 }
 
 ?>

@@ -14,6 +14,7 @@ $ERROR = array();
 //loadVendorVtt();
 //loadAttributeVtt();
 //loadAllSettingVtt();
+loadProductBaseDataVtt();
 
 
 //$my_db = new Db;
@@ -23,7 +24,7 @@ $ERROR = array();
 //print_r($my_db->getOurCatIdByProvCatName($prov_cat_name, $prov_id));
 
 
-$vtt = new Vtt;
+//$vtt = new Vtt;
 //$total = $vtt->getTotalProductByProdPortion();
 //$total_except = 0;
 //foreach (VTT_CATEGORY_ID_EXCEPT as $cat) {
@@ -33,12 +34,12 @@ $vtt = new Vtt;
 //echo '<br>';
 //echo $total_except;
 
-$vtt_cat_id = 'PARTSCART_ROLMAG';
+//$vtt_cat_id = 'PARTSCART_ROLMAG';
 //$vtt_product_portion = $vtt->getProductPortion(15358, 15369);
-$vtt_product_portion = $vtt->getProductByCategory($vtt_cat_id);
+//$vtt_product_portion = $vtt->getProductByCategory($vtt_cat_id);
 //$vtt_product_total = $vtt->getTotalProductByCategoryId($vtt_cat_id);
 //$vtt_product_total = $vtt->getTotalProductByProdPortion();
-print_r($vtt_product_portion);
+//print_r($vtt_product_portion);
 //echo '<br>';
 
 
