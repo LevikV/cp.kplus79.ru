@@ -675,6 +675,7 @@ class Vtt {
                 return false;
             }
             // Получаем данные по каждому продукту и производим запись в базу
+            $count_add_product = 0; // устанавливаем счетчик количества добавленных товаров
             foreach ($products as &$product) {
                 // Получаем данные и производим запись в таблицу Поставщика
                 $data = array();
@@ -780,10 +781,16 @@ class Vtt {
                 // Добавляем товар в таблицу поставщиков
                 $id_prov_product = $db->addProviderProduct($data);
 
+                if ($id_prov_product) {
+                    $count_add_product++;
+                }
 
                 //$id_our_cat_id = $db->getOurItemIdByProvItemId('category', $id_prov_cat_id, $prov_id);
             }
 
+            echo 'Количество товаров добавленных в таблицу поставщика: '. $count_add_product . '<br>';
+
+            return true;
         } else {
             return false;
         }

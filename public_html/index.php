@@ -318,6 +318,10 @@ function loadProductBaseDataVtt () {
     } else {
         // Сравниваем количество полученных товаров с количеством
         // товаров отдаваемых запросами о количестве с ВТТ
+
+        echo 'Количество всех товаров на портале ВТТ: ' . $vtt->getTotalProductByProdPortion() . '<br>';
+        echo 'Количество полученных продуктов (учитывая категории-исключения) для загрузки с портала ВТТ: ' . count($products) . '<br>';
+
         if ($vtt->checkTotalProductByVtt(count($products))) {
             // Производим загрузку товаров и основных данных
             $product = $vtt->createProduct($products);
@@ -327,7 +331,9 @@ function loadProductBaseDataVtt () {
         }
 
         if ($product) {
-            echo '<br>Загрузка товаров выполнена успешно!';
+            echo '<br>Загрузка товаров завершена';
+        } else {
+            echo '<br>Загрузку товаров выполнить не удалось';
         }
     }
     if (empty($ERROR)) {

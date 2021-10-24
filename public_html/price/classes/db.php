@@ -631,11 +631,10 @@ class Db {
                 (int)$data['model_id'] . '", "' .
                 (int)$data['vendor_id'] . '", "' .
                 (int)$data['manufacturer_id'] . '", "' .
-                $data['width'] . '", "' .
-                $data['height'] . '", "' .
-                $data['length'] . '", "' .
-                $data['width'] . '", "' .
-                $data['weight'] . '", "' .
+                (float)$data['width'] . '", "' .
+                (float)$data['height'] . '", "' .
+                (float)$data['length'] . '", "' .
+                (float)$data['weight'] . '", "' .
                 $data['version'] .
                 '", NOW())';
             try {
@@ -643,12 +642,22 @@ class Db {
             } catch (Exception $e) {
                 $ERROR['Db'][] = 'Ошибка добавления продукта в таблицу продуктов поставщиков' .
                     '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>name: ' . $data['name'];
+                    '<br>provider_product_id: ' . $data['provider_product_id'] .
+                    '<br>name: ' . $data['name'] .
+                    '<br>category_id: ' . $data['category_id'] .
+                    '<br>model_id: ' . $data['model_id'] .
+                    '<br>vendor_id: ' . $data['vendor_id'] .
+                    '<br>manufacturer_id: ' . $data['manufacturer_id'] .
+                    '<br>width: ' . $data['width'] .
+                    '<br>height: ' . $data['height'] .
+                    '<br>length: ' . $data['length'] .
+                    '<br>weight: ' . $data['weight'] .
+                    '<br>version: ' . $data['version'];
                 return false;
             }
             if ($result != false) {
-                $vendor_id = mysqli_insert_id($this->link);
-                return $vendor_id;
+                $product_id = mysqli_insert_id($this->link);
+                return $product_id;
             }
         } else {
             $ERROR['Db'][] = 'Нет соединения или ошибка при проверке данных.' .
