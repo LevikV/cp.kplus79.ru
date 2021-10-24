@@ -321,6 +321,10 @@ function loadProductBaseDataVtt () {
 
         echo 'Количество всех товаров на портале ВТТ: ' . $vtt->getTotalProductByProdPortion() . '<br>';
         echo 'Количество полученных продуктов (учитывая категории-исключения) для загрузки с портала ВТТ: ' . count($products) . '<br>';
+        foreach (VTT_CATEGORY_ID_EXCEPT as $cat) {
+            echo 'Количество товаров в категории исключении ' . $cat . ' равно: ' . $vtt->getTotalProductByCategoryId($cat) . '<br>';
+        }
+
 
         if ($vtt->checkTotalProductByVtt(count($products))) {
             // Производим загрузку товаров и основных данных

@@ -624,9 +624,9 @@ class Db {
         if ($this->status AND $this->checkProviderProductData($data)) {
             $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, date_add) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
-                $data['provider_product_id'] . '", "' .
-                $data['name'] . '", "' .
-                $data['description'] . '", "' .
+                mysqli_real_escape_string($this->link, $data['provider_product_id']) . '", "' .
+                mysqli_real_escape_string($this->link, $data['name']) . '", "' .
+                mysqli_real_escape_string($this->link, $data['description']) . '", "' .
                 (int)$data['category_id'] . '", "' .
                 (int)$data['model_id'] . '", "' .
                 (int)$data['vendor_id'] . '", "' .
@@ -644,6 +644,7 @@ class Db {
                     '<br>provider_id: ' . $data['provider_id'] .
                     '<br>provider_product_id: ' . $data['provider_product_id'] .
                     '<br>name: ' . $data['name'] .
+                    '<br>description: ' . $data['description'] .
                     '<br>category_id: ' . $data['category_id'] .
                     '<br>model_id: ' . $data['model_id'] .
                     '<br>vendor_id: ' . $data['vendor_id'] .
