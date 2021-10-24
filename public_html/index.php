@@ -14,7 +14,7 @@ $ERROR = array();
 //loadVendorVtt();
 //loadAttributeVtt();
 //loadAllSettingVtt();
-loadProductBaseDataVtt();
+//loadProductBaseDataVtt();
 
 
 //$my_db = new Db;
