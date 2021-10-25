@@ -270,6 +270,30 @@ class Db {
         }
     }
 
+    public function getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $value) {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_attribute_value WHERE provider_id = ' . (int)$prov_id . ' AND attribute_id = ' . (int)$attrib_id .
+                ' AND value = "' . $value . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска id значения аттрибута поставщика по id аттрибута и его значению' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>attribute_id: ' . $attrib_id .
+                    '<br>attribute_value: ' . $value;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $attrib_value_id = $row[0];
+                return $attrib_value_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProduct($data) {
         if ($this->status) {
 
@@ -595,6 +619,31 @@ class Db {
     }
 
     public function addProviderAttributeValue($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderAttributeValueData($data)) {
+            $sql = 'INSERT INTO provider_attribute_value (provider_id, attribute_id, value) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
+                (int)$data['attribute_id'] . '", "' .
+                $data['value'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута в таблицу поставщиков' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>value: ' . $data['value'] .
+                    '<br>attribute_id: ' . $data['attribute_id'];
+                return false;
+            }
+            if ($result != false) {
+                $attribute_value_id = mysqli_insert_id($this->link);
+                return $attribute_value_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function addProviderAttributeProduct($data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderAttributeValueData($data)) {
             $sql = 'INSERT INTO provider_attribute_value (provider_id, attribute_id, value) VALUES ("' .
