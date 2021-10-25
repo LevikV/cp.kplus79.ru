@@ -274,7 +274,7 @@ class Db {
         global $ERROR;
         if ($this->status) {
             $sql = 'SELECT id FROM provider_attribute_value WHERE provider_id = ' . (int)$prov_id . ' AND attribute_id = ' . (int)$attrib_id .
-                ' AND value = "' . $value . '")';
+                ' AND value = "' . $value . '"';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -645,23 +645,21 @@ class Db {
 
     public function addProviderAttributeProduct($data) {
         global $ERROR;
-        if ($this->status AND $this->checkProviderAttributeValueData($data)) {
-            $sql = 'INSERT INTO provider_attribute_value (provider_id, attribute_id, value) VALUES ("' .
-                (int)$data['provider_id'] . '", "' .
-                (int)$data['attribute_id'] . '", "' .
-                $data['value'] . '")';
+        if ($this->status AND $this->checkProviderAttributeProductData($data)) {
+            $sql = 'INSERT INTO provider_attribute_product (product_id, attribute_value_id) VALUES (' .
+                (int)$data['product_id'] . ', ' .
+                (int)$data['attribute_value_id'] . ')';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута в таблицу поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>value: ' . $data['value'] .
-                    '<br>attribute_id: ' . $data['attribute_id'];
+                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута для продукта' .
+                    '<br>product_id: ' . $data['product_id'] .
+                    '<br>attribute_value_id: ' . $data['attribute_value_id'];
                 return false;
             }
             if ($result != false) {
-                $attribute_value_id = mysqli_insert_id($this->link);
-                return $attribute_value_id;
+                $attribute_product_id = mysqli_insert_id($this->link);
+                return $attribute_product_id;
             }
         } else {
             return false;
@@ -714,6 +712,31 @@ class Db {
                 '<br>provider_product_id: ' . $data['provider_product_id'] .
                 '<br>name: ' . $data['name'];
 
+            return false;
+        }
+    }
+
+    public function addProviderProductImage($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderProductImageData($data)) {
+            $sql = 'INSERT INTO provider_image (provider_id, product_id, image) VALUES (' .
+                (int)$data['provider_id'] . ', ' .
+                (int)$data['product_id'] . ', "' .
+                mysqli_real_escape_string($this->link, $data['image']) . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления изображения для продукта поставщика' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>product_id: ' . $data['product_id'] .
+                    '<br>image: ' . $data['image'];
+                return false;
+            }
+            if ($result != false) {
+                $image_product_id = mysqli_insert_id($this->link);
+                return $image_product_id;
+            }
+        } else {
             return false;
         }
     }
@@ -1192,6 +1215,26 @@ class Db {
 
     }
 
+    private function checkProviderAttributeProductData(&$data) {
+        if (isset($data['product_id'])) {
+            if ($data['product_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['attribute_value_id'])) {
+            if ($data['attribute_value_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
     private function checkProviderProductData(&$data) {
         // Проверяем id поставщика
         if (isset($data['provider_id'])) {
@@ -1272,6 +1315,34 @@ class Db {
         // Проверяем id производителя (бренда)
         if (!isset($data['manufacturer_id'])) {
             $data['manufacturer_id'] = '';
+        }
+
+        return true;
+    }
+
+    private function checkProviderProductImageData(&$data) {
+        if (isset($data['product_id'])) {
+            if ($data['product_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['provider_id'])) {
+            if ($data['provider_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['image'])) {
+            if ($data['image'] == '') {
+                return false;
+            }
+        } else {
+            return false;
         }
 
         return true;

@@ -791,28 +791,29 @@ class Vtt {
                             $data = array();
                             $data['product_id'] = $id_prov_product;
                             $data['attribute_value_id'] = $attrib_value_id;
-                            $attrib_product_id = $db->addProviderAttributeProduct($data);
+                            $id_attrib_product = $db->addProviderAttributeProduct($data);
                         }
                     }
                     // аттрибут "Ресурс"
                     if ($product['item_life_time'] != '') {
                         $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
-                        if ($attrib_id) $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product['color_name']);
+                        if ($attrib_id) $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product['item_life_time']);
                         if ($attrib_value_id) {
                             $data = array();
                             $data['product_id'] = $id_prov_product;
                             $data['attribute_value_id'] = $attrib_value_id;
-                            $attrib_product_id = $db->addProviderAttributeProduct($data);
+                            $id_attrib_product = $db->addProviderAttributeProduct($data);
                         }
                     }
-
                     // Производим запись изображений для добавленного товара
-
-
+                    if ($product['photo_url']) {
+                        $data = array();
+                        $data['provider_id'] = $prov_id;
+                        $data['product_id'] = $id_prov_product;
+                        $data['image'] = $product['photo_url'];
+                        $id_image_product = $db->addProviderProductImage($data);
+                    }
                 }
-
-
-
 
 
 

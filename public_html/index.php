@@ -341,7 +341,7 @@ function loadProductBaseDataVtt () {
         }
     }
     if (empty($ERROR)) {
-        echo '<br>При загрузка аттрибутов не было ошибок!';
+        echo '<br>При загрузка продуктов не было ошибок!';
         return true;
     } else {
         echo '<br>';
