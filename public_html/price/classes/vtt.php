@@ -670,6 +670,8 @@ class Vtt {
         if ($this->status) {
             $prov_id = 1; // устанавливаем id поставщика
             $vendors = array();
+
+            // Создаем объект БД для записи данных
             $db = new Db;
             if ($db == false) {
                 return false;
@@ -684,9 +686,7 @@ class Vtt {
                 $data['provider_id'] = $prov_id;
 
                 // Получаем id поставщика товара
-                if ($product['id'] != '') {
-                    $data['provider_product_id'] = $product['id'];
-                } else {
+                if ($product['id'] != '') $data['provider_product_id'] = $product['id']; else {
                     $ERROR['VTT'][] = 'Ошибка получения id товара с ВТТ' .
                     '<br>id продукта: ' . $product['id'] .
                     '<br>name продукта: ' . $product['name'];
@@ -694,9 +694,7 @@ class Vtt {
                 }
 
                 // Получаем имя товара
-                if ($product['name'] != '') {
-                    $data['name'] = $product['name'];
-                } else {
+                if ($product['name'] != '') $data['name'] = $product['name']; else {
                     $ERROR['VTT'][] = 'Ошибка получения name товара с ВТТ' .
                         '<br>id продукта: ' . $product['id'] .
                         '<br>name продукта: ' . $product['name'];
@@ -730,9 +728,7 @@ class Vtt {
 
                 // Получаем id категории товара в таблице поставщика
                 $id_prov_cat_id = $db->getCatIdByProvCatName($prov_id, $product['group'], $product['root_group']);
-                if ($id_prov_cat_id) {
-                    $data['category_id'] = $id_prov_cat_id;
-                } else {
+                if ($id_prov_cat_id) $data['category_id'] = $id_prov_cat_id; else {
                     $ERROR['VTT'][] = 'Ошибка получения id категории поставщика по имени категории и родительской категории при импорте товаров с ВТТ' .
                         '<br>id продукта: ' . $product['id'] .
                         '<br>name продукта: ' . $product['name'];
@@ -781,9 +777,44 @@ class Vtt {
                 // Добавляем товар в таблицу поставщиков
                 $id_prov_product = $db->addProviderProduct($data);
 
+                // Проверяем, если запись товара произведена успешно, то увеличиваем счетчик
+                // добавленных товаров и производим загрузку остальных данных по товару
                 if ($id_prov_product) {
                     $count_add_product++;
+
+                    // Производим запись аттрибутов для добавленного товара
+                    // аттрибут "Цвет"
+                    if ($product['color_name'] != '') {
+                        $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
+                        if ($attrib_id) $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product['color_name']);
+                        if ($attrib_value_id) {
+                            $data = array();
+                            $data['product_id'] = $id_prov_product;
+                            $data['attribute_value_id'] = $attrib_value_id;
+                            $attrib_product_id = $db->addProviderAttributeProduct($data);
+                        }
+                    }
+                    // аттрибут "Ресурс"
+                    if ($product['item_life_time'] != '') {
+                        $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
+                        if ($attrib_id) $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product['color_name']);
+                        if ($attrib_value_id) {
+                            $data = array();
+                            $data['product_id'] = $id_prov_product;
+                            $data['attribute_value_id'] = $attrib_value_id;
+                            $attrib_product_id = $db->addProviderAttributeProduct($data);
+                        }
+                    }
+
+                    // Производим запись изображений для добавленного товара
+
+
                 }
+
+
+
+
+
 
                 //$id_our_cat_id = $db->getOurItemIdByProvItemId('category', $id_prov_cat_id, $prov_id);
             }
