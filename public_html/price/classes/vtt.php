@@ -881,5 +881,50 @@ class Vtt {
         }
     }
 
+    public function updateProductsTotal() {
+        if ($this->status) {
+            $prov_id = 1; // устанавливаем id поставщика
+            $db = new Db;
+            if ($db == false) {
+                return false;
+            }
+            //
+            $products_vtt = $this->getAllProductByCategory();
+
+            $product_vtt_base_count = count($products_vtt);
+            $product_our_base_count = $db->getProviderProductCount($prov_id);
+
+            if ($product_vtt_base_count == $product_our_base_count) echo 'Количество продуктов в нашей БД и на портале поставщика совпадает и равно: ' . $product_our_base_count; else {
+                echo 'Внимание! Разное количество продуктов в нашей БД и на портале ВТТ!<br>';
+                echo 'Товаров в нашей БД: ' . $product_our_base_count . '<br>';
+                echo 'Товаров на портале ВТТ: ' . $product_vtt_base_count . '<br>';
+                echo 'Производим попытку обновления совпадающих товаров...<br>';
+            }
+
+            foreach ($products_vtt as $product) {
+                $data = array();
+                $product_id = $db->getOurProviderProductIdByProviderProductId($prov_id, $product['provider_product_id']);
+                if ($product_id) {
+                    $data['provider_id'] = $product['main_office_quantity'];
+                    $data['product_id'] = $product_id;
+                    $data['total'] = $product['main_office_quantity'];
+
+                } else {
+                    echo 'Товар отсутствует в нашей БД<br>';
+                    echo '<pre>';
+                    print_r($product);
+                    echo '</pre>';
+                    continue;
+                }
+
+            }
+
+
+        } else return false;
+
+
+
+    }
+
 
 }

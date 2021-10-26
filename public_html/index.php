@@ -17,8 +17,9 @@ $ERROR = array();
 //loadProductBaseDataVtt();
 
 
-//$my_db = new Db;
-//$prov_id = 1;
+$my_db = new Db;
+$prov_id = 1;
+echo $my_db->getProviderProductCount($prov_id);
 //$prov_cat_name = 'Картридж-пленки';
 //echo $my_db->getOurCatIdByProvCatId($vtt_cat_id);
 //print_r($my_db->getOurCatIdByProvCatName($prov_cat_name, $prov_id));

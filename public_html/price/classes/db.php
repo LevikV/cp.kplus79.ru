@@ -48,6 +48,30 @@ class Db {
         }
     }
 
+    public function getProviderProductCount($prov_id) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT COUNT(*) FROM provider_product WHERE provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка получения количества товаров поставщика из нашей БД по pro_id' .
+                    '<br>prov_id: ' . $prov_id;
+                return false;
+            }
+            if ($result != false) {
+                //$row = $result->fetch_row();
+                //$row = mysqli_fetch_array($result);
+                $row = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                $count = $row[0]['COUNT(*)'];
+                return (int)$count;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getAttributeIdByName($attribute_name, $attribute_group_name) {
         // Функция поиска id аттрибута в нашей базе по имени и имени группы атрибута
         global $ERROR;
@@ -288,6 +312,28 @@ class Db {
                 $row = $result->fetch_row();
                 $attrib_value_id = $row[0];
                 return $attrib_value_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getOurProviderProductIdByProviderProductId($prov_id, $prov_product_id) {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_product WHERE provider_id = ' . (int)$prov_id . ' AND provider_product_id = "' . $prov_product_id . '"';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска товара поставщика в таблице поставщиков по provider_id и provider_product_id' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>prov_product_id: ' . $prov_product_id;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $prov_product_id = $row[0];
+                return $prov_product_id;
             }
         } else {
             return false;
@@ -735,6 +781,40 @@ class Db {
             if ($result != false) {
                 $image_product_id = mysqli_insert_id($this->link);
                 return $image_product_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function addProviderProductTotal($data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderProductTotalData($data)) {
+            $sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price_usd, price_rub, transit, transit_date, date_add) VALUES (' .
+                (int)$data['provider_id'] . ', ' .
+                (int)$data['product_id'] . ', ' .
+                (int)$data['total'] . ', ' .
+                (float)$data['price_usd'] . ', ' .
+                (float)$data['price_rub'] . ', ' .
+                (int)$data['transit'] . ', ' .
+                (int)$data['transit_date'] . ', ' .
+                 NOW() . ')';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка добавления provider_product_total для продукта поставщика' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>product_id: ' . $data['product_id'] .
+                    '<br>total: ' . $data['total'] .
+                    '<br>price_usd: ' . $data['price_usd'] .
+                    '<br>price_rub: ' . $data['price_rub'] .
+                    '<br>transit: ' . $data['transit'] .
+                    '<br>transit_date: ' . $data['transit_date'];
+                return false;
+            }
+            if ($result != false) {
+                $total_product_id = mysqli_insert_id($this->link);
+                return $total_product_id;
             }
         } else {
             return false;
@@ -1343,6 +1423,53 @@ class Db {
             }
         } else {
             return false;
+        }
+
+        return true;
+    }
+
+    private function checkProviderProductTotalData(&$data) {
+        // Проверяем id товара
+        if (isset($data['product_id'])) {
+            if ($data['product_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем provider_id товара
+        if (isset($data['provider_id'])) {
+            if ($data['provider_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Проверяем total товара
+        if (!isset($data['total'])) {
+            $data['total'] = 0;
+        }
+
+        // Проверяем price_usd товара
+        if (!isset($data['price_usd'])) {
+            $data['price_usd'] = 0;
+        }
+
+        // Проверяем price_rub товара
+        if (!isset($data['price_rub'])) {
+            $data['price_rub'] = 0;
+        }
+
+        // Проверяем transit товара
+        if (!isset($data['transit'])) {
+            $data['transit'] = 0;
+        }
+
+        // Проверяем transit товара
+        if (!isset($data['transit_date'])) {
+            $data['transit_date'] = null;
         }
 
         return true;
