@@ -901,29 +901,74 @@ class Vtt {
                 echo 'Производим попытку обновления совпадающих товаров...<br>';
             }
 
-            foreach ($products_vtt as $product) {
+            $provider_product_total_count = 0;
+            foreach ($products_vtt as $product_vtt) {
                 $data = array();
-                $product_id = $db->getOurProviderProductIdByProviderProductId($prov_id, $product['provider_product_id']);
+                // Получаем id продукта поставщика в нашей базе по id товара поставщика
+                $product_id = $db->getOurProviderProductIdByProviderProductId($prov_id, $product_vtt['provider_product_id']);
+                // Проверяем, есть ли товар в базе
                 if ($product_id) {
-                    $data['provider_id'] = $product['main_office_quantity'];
-                    $data['product_id'] = $product_id;
-                    $data['total'] = $product['main_office_quantity'];
+                    $product_total = $db->getProviderProductTotal($prov_id, $product_id);
+                    // Проверяем, есть ли данные по количеству и цене в базе по продукту
+                    if ($product_total) {
+                        // Сравниваем данные по количеству, цене и транзиту
+                        if ($product_total['total'] != intval($product_vtt['main_office_quantity']))
+                            $data['total'] = intval($product_vtt['main_office_quantity']);
+                        //
+                        if ($product_total['price_usd'] != floatval($product_vtt['price']))
+                            $data['price_usd'] = floatval($product_vtt['price']);
+                        //
+                        if ($product_total['transit'] != intval($product_vtt['transit_quantity']))
+                            $data['transit'] = intval($product_vtt['transit_quantity']);
+                        //
+                        if ($product_total['transit_date'] != strtotime($product_vtt['transit_date']))
+                            $data['transit_date'] = strtotime($product_vtt['transit_date']);
+                        //
+                        // Проверяем, были ли какие либо изменения
+                        if (!empty($data)) {
+                            // если данные по цене и количеству продукта в базе отличаются от полученных данных
+                            // то проверяем какие и записываем изменения
+                            $data['provider_id'] = $prov_id;
+                            $data['product_id'] = $product_id;
+
+                            if (!isset($data['total'])) $data['total'] = $product_total['total'];
+                            if (!isset($data['price_usd'])) $data['price_usd'] = $product_total['price_usd'];
+                            if (!isset($data['transit'])) $data['transit'] = $product_total['transit'];
+                            if (!isset($data['transit_date'])) $data['transit_date'] = $product_total['transit_date'];
+
+
+
+                        } else {
+                            // если изменений по количеству и цене нет, то просто обновляем
+                            // дату проверки (обновления) у товара
+
+
+
+                        }
+                    } else {
+                        $data['provider_id'] = $product_vtt['main_office_quantity'];
+                        $data['product_id'] = $product_id;
+                        $data['total'] = intval($product_vtt['main_office_quantity']);
+                        $data['price_usd'] = floatval($product_vtt['price']);
+                        $data['transit'] = intval($product_vtt['transit_quantity']);
+                        $data['transit_date'] = strtotime($product_vtt['transit_date']);
+                        $product_total_id = $db->addProviderProductTotal($data);
+
+                        if ($product_total_id) $provider_product_total_count++;
+                    }
 
                 } else {
                     echo 'Товар отсутствует в нашей БД<br>';
                     echo '<pre>';
                     print_r($product);
                     echo '</pre>';
+                    echo '<br>';
                     continue;
                 }
-
             }
-
-
+            echo 'Обновлено значений цены и остатков для ' . $provider_product_total_count . ' товаров<br>';
+            return true;
         } else return false;
-
-
-
     }
 
 

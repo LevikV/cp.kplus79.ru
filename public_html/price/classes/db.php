@@ -340,6 +340,43 @@ class Db {
         }
     }
 
+    public function getProviderProductTotal($prov_id, $product_id) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_product_total WHERE provider_id = '. (int)$prov_id . ' AND product_id = ' . (int)$product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка получения данных total продукта поставщика' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>product_id: ' . $product_id;
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'product_id' => $row["product_id"],
+                        'total' => $row["total"],
+                        'price_usd' => $row["price_usd"],
+                        'price_rub' => $row["price_rub"],
+                        'transit' => $row["transit"],
+                        'transit_date' => $row["transit_date"],
+                        'date_add' => $row["date_add"],
+                        'date_edit' => $row["date_edit"],
+                        'date_update' => $row["date_update"]
+                    );
+                }
+                return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProduct($data) {
         if ($this->status) {
 
