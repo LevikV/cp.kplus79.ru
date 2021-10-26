@@ -936,6 +936,8 @@ class Vtt {
                             if (!isset($data['transit'])) $data['transit'] = $product_total['transit'];
                             if (!isset($data['transit_date'])) $data['transit_date'] = $product_total['transit_date'];
 
+                            $product_total_edits_id = $db->editdProviderProductTotal($product_id, $data);
+                            if ($product_total_edits_id) $provider_product_total_count++;
 
 
                         } else {
@@ -952,9 +954,9 @@ class Vtt {
                         $data['price_usd'] = floatval($product_vtt['price']);
                         $data['transit'] = intval($product_vtt['transit_quantity']);
                         $data['transit_date'] = strtotime($product_vtt['transit_date']);
-                        $product_total_id = $db->addProviderProductTotal($data);
 
-                        if ($product_total_id) $provider_product_total_count++;
+                        $product_total_adds_id = $db->addProviderProductTotal($data);
+                        if ($product_total_adds_id) $provider_product_total_count++;
                     }
 
                 } else {
