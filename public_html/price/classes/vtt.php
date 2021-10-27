@@ -955,7 +955,17 @@ class Vtt {
                         $data['transit_date'] = $product_vtt['transit_date'];
 
                         $product_total_adds_id = $db->addProviderProductTotal($data);
-                        if ($product_total_adds_id) $provider_product_total_count_add++;
+                        if ($product_total_adds_id) {
+                            $provider_product_total_count_add++;
+                        } else {
+                            echo 'Добавить total для товара ' . $data['product_id'] . ' не удалось <br>';
+                            echo '<pre>';
+                            print_r($product_vtt);
+                            echo '</pre>';
+                            echo '<pre>';
+                            print_r($data);
+                            echo '</pre>';
+                        }
                     }
 
                 } else {

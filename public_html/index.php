@@ -372,7 +372,7 @@ function updateProductTotalDataVtt () {
         echo '<br>Не удалось обновить total для товаров с портала ВТТ.';
         return false;
     } else {
-        echo '<br>Загрузку товаров выполнить не удалось';
+        echo '<br>Загрузка total товаров выполнена';
     }
 
     if (empty($ERROR)) {

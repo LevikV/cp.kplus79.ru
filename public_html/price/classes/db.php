@@ -827,6 +827,7 @@ class Db {
     public function addProviderProductTotal($data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderProductTotalData($data)) {
+            if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
             $sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price_usd, price_rub, transit, transit_date, date_add) VALUES (' .
                 (int)$data['provider_id'] . ', ' .
                 (int)$data['product_id'] . ', ' .
@@ -933,6 +934,7 @@ class Db {
     public function editProviderProductTotal($product_id, $data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderProductTotalData($data)) {
+            if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
             $sql = 'UPDATE provider_product_total SET provider_id = '. (int)$data['provider_id'] .
                 ', product_id = ' . (int)$data['product_id'] .
                 ', total = ' . (int)$data['total'] .
