@@ -15,15 +15,16 @@ $ERROR = array();
 //loadAttributeVtt();
 //loadAllSettingVtt();
 //loadProductBaseDataVtt();
+updateProductTotalDataVtt();
 
 
-$my_db = new Db;
-$prov_id = 1;
-echo $my_db->getProviderProductCount($prov_id);
-echo '<br>';
-$date = strtotime('2021-11-08T00:00:00');
-print_r($date);
-echo '<br>';
+//$my_db = new Db;
+//$prov_id = 1;
+//echo $my_db->getProviderProductCount($prov_id);
+//echo '<br>';
+//$date = strtotime('2021-11-08T00:00:00');
+//print_r($date);
+//echo '<br>';
 //$prov_cat_name = 'Картридж-пленки';
 //echo $my_db->getOurCatIdByProvCatId($vtt_cat_id);
 //print_r($my_db->getOurCatIdByProvCatName($prov_cat_name, $prov_id));
@@ -347,6 +348,35 @@ function loadProductBaseDataVtt () {
     }
     if (empty($ERROR)) {
         echo '<br>При загрузка продуктов не было ошибок!';
+        return true;
+    } else {
+        echo '<br>';
+        foreach ($ERROR as $key => $value) {
+            echo 'Error - ' . $key . ': <br>';
+            foreach ($value as $item) {
+                echo '<br>';
+                echo $item;
+            }
+        }
+    }
+
+}
+
+function updateProductTotalDataVtt () {
+    // Функция загрузки, создания и обновления total ВТТ
+    global $ERROR;
+    $vtt = new Vtt;
+    // Получаем все продукты с портала методом Категорий
+    $totals = $vtt->updateProductsTotal();
+    if ($totals == false) {
+        echo '<br>Не удалось обновить total для товаров с портала ВТТ.';
+        return false;
+    } else {
+        echo '<br>Загрузку товаров выполнить не удалось';
+    }
+
+    if (empty($ERROR)) {
+        echo '<br>При загрузка total не было ошибок!';
         return true;
     } else {
         echo '<br>';

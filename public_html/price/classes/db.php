@@ -323,7 +323,7 @@ class Db {
         if ($this->status) {
             $sql = 'SELECT id FROM provider_product WHERE provider_id = ' . (int)$prov_id . ' AND provider_product_id = "' . $prov_product_id . '"';
             try {
-                $result = mysqli_query($this->link, $sql);
+-                $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 $ERROR['Db'][] = 'Ошибка поиска товара поставщика в таблице поставщиков по provider_id и provider_product_id' .
                     '<br>prov_id: ' . $prov_id .
@@ -834,8 +834,8 @@ class Db {
                 (float)$data['price_usd'] . ', ' .
                 (float)$data['price_rub'] . ', ' .
                 (int)$data['transit'] . ', ' .
-                (int)$data['transit_date'] . ', ' .
-                 NOW() . ')';
+                $data['transit_date'] . ',' .
+                ' NOW())';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -920,6 +920,61 @@ class Db {
             } catch (Exception $e) {
                 $ERROR['Db'][] = 'Ошибка обновления записи в таблице категорий поставщиков' .
                     '<br>cat_id: ' . $cat_id;
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function editProviderProductTotal($product_id, $data) {
+        global $ERROR;
+        if ($this->status AND $this->checkProviderProductTotalData($data)) {
+            $sql = 'UPDATE provider_product_total SET provider_id = '. (int)$data['provider_id'] .
+                ', product_id = ' . (int)$data['product_id'] .
+                ', total = ' . (int)$data['total'] .
+                ', price_usd = ' . (float)$data['price_usd'] .
+                ', price_rub = ' . (float)$data['price_rub'] .
+                ', transit = ' . (int)$data['transit'] .
+                ', transit_date = ' . $data['transit_date'] .
+                ', date_edit = NOW()' .
+                ', date_update = NOW()' .
+                ' WHERE product_id = ' . (int)$product_id . ' AND provider_id = ' . (int)$data['provider_id'];
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка изменения записи в таблице provider_product_total' .
+                    '<br>provider_id: ' . $data['provider_id'] .
+                    '<br>product_id: ' . $data['product_id'] .
+                    '<br>total: ' . $data['total'] .
+                    '<br>price_usd: ' . $data['price_usd'] .
+                    '<br>price_rub: ' . $data['price_rub'] .
+                    '<br>transit: ' . $data['transit'] .
+                    '<br>transit_date: ' . $data['transit_date'];
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function updateProviderProductTotal($prov_id, $product_id) {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'UPDATE provider_product_total SET date_update = NOW()' .
+                ' WHERE product_id = ' . (int)$product_id . ' AND provider_id = ' . (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка обновления записи в таблице provider_product_total' .
+                    '<br>provider_id: ' . $prov_id .
+                    '<br>product_id: ' . $product_id;
                 return false;
             }
             if ($result != false) {
@@ -1506,8 +1561,8 @@ class Db {
 
         // Проверяем transit товара
         if (!isset($data['transit_date'])) {
-            $data['transit_date'] = null;
-        }
+            $data['transit_date'] = "null";
+        } elseif ($data['transit_date'] == '') $data['transit_date'] = "null";
 
         return true;
     }
