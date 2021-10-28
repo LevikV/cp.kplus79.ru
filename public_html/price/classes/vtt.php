@@ -1006,5 +1006,134 @@ class Vtt {
         } else return false;
     }
 
+    public function updateProducts() {
+        if ($this->status) {
+            //
+            $prov_id = 1; // устанавливаем id поставщика
+
+            // Получаем выгрузку продуктов от поставщика
+            $products_vtt = $this->getAllProductByCategory();
+
+            // Создаем объкт БД для получения/записи данных
+            $db = new Db;
+            if ($db == false) {
+                return false;
+            }
+
+            // Получаем все товары поставщика из нашей БД
+            $products_vtt_our_base = $db->getProviderProducts($prov_id);
+
+            // Собираем products_id продуктов из выгрузки поставщика
+            $id_products_vtt = array();
+            foreach ($products_vtt as $product_vtt) $id_products_vtt[] = $product_vtt['id'];
+
+            //
+            foreach ($products_vtt_our_base as $product_vtt_our_base) {
+                if (!in_array($product_vtt_our_base['provider_product_id'], $id_products_vtt)) {
+                    echo 'Для товара в нашей базе с provider_product_id: ' . $product_vtt_our_base['provider_product_id'] . ' не найдено соответствия в выгрузке по provider_product_id <br>';
+                }
+            }
+
+
+
+            $product_vtt_base_count = count($products_vtt);
+            $product_vtt_our_base_count = count($products_vtt_our_base);
+
+            if ($product_vtt_base_count == $product_vtt_our_base_count) echo 'Количество продуктов в нашей БД и на портале поставщика совпадает и равно: ' . $product_vtt_our_base_count; else {
+                echo 'Внимание! Разное количество продуктов в нашей БД и на портале ВТТ!<br>';
+                echo 'Товаров в нашей БД: ' . $product_vtt_our_base_count . '<br>';
+                echo 'Товаров на портале ВТТ: ' . $product_vtt_base_count . '<br>';
+                echo 'Производим попытку обновления совпадающих товаров...<br>';
+            }
+
+            $provider_product_total_count_add = 0;
+            $provider_product_total_count_edit = 0;
+            $provider_product_total_count_update = 0;
+            foreach ($products_vtt as $product_vtt) {
+                $data = array();
+                // Получаем id продукта поставщика в нашей базе по id товара поставщика
+                $product_id = $db->getOurProviderProductIdByProviderProductId($prov_id, $product_vtt['id']);
+                // Проверяем, есть ли товар в базе
+                if ($product_id) {
+                    $product_total = $db->getProviderProductTotal($prov_id, $product_id);
+                    // Проверяем, есть ли данные по количеству и цене в базе по продукту
+                    if ($product_total) {
+                        // Сравниваем данные по количеству, цене и транзиту
+                        if ($product_total['total'] != intval($product_vtt['main_office_quantity']))
+                            $data['total'] = intval($product_vtt['main_office_quantity']);
+                        //
+                        if ($product_total['price_usd'] != floatval($product_vtt['price']))
+                            $data['price_usd'] = floatval($product_vtt['price']);
+                        //
+                        if ($product_total['transit'] != intval($product_vtt['transit_quantity']))
+                            $data['transit'] = intval($product_vtt['transit_quantity']);
+                        //
+                        if ($product_total['transit_date'] != $product_vtt['transit_date'])
+                            $data['transit_date'] = $product_vtt['transit_date'];
+                        //
+                        // Проверяем, были ли какие либо изменения
+                        if (!empty($data)) {
+                            // если данные по цене и количеству продукта в базе отличаются от полученных данных
+                            // то проверяем какие и записываем изменения
+                            $data['provider_id'] = $prov_id;
+                            $data['product_id'] = $product_id;
+
+                            if (!isset($data['total'])) $data['total'] = $product_total['total'];
+                            if (!isset($data['price_usd'])) $data['price_usd'] = $product_total['price_usd'];
+                            if (!isset($data['transit'])) $data['transit'] = $product_total['transit'];
+                            if (!isset($data['transit_date'])) $data['transit_date'] = $product_total['transit_date'];
+
+                            $product_total_edits_id = $db->editProviderProductTotal($product_id, $data);
+                            if ($product_total_edits_id) {
+                                $provider_product_total_count_edit++;
+                                $db->updateProviderProduct($product_id);
+                            }
+                        } else {
+                            // если изменений по количеству и цене нет, то просто обновляем
+                            // дату проверки (обновления) у товара
+                            $product_total_updates = $db->updateProviderProductTotal($prov_id, $product_id);
+                            if ($product_total_updates) {
+                                $db->updateProviderProduct($product_id);
+                                $provider_product_total_count_update++;
+                            }
+                        }
+                    } else {
+                        $data['provider_id'] = $prov_id;
+                        $data['product_id'] = $product_id;
+                        $data['total'] = intval($product_vtt['main_office_quantity']);
+                        $data['price_usd'] = floatval($product_vtt['price']);
+                        $data['transit'] = intval($product_vtt['transit_quantity']);
+                        $data['transit_date'] = $product_vtt['transit_date'];
+
+                        $product_total_adds_id = $db->addProviderProductTotal($data);
+                        if ($product_total_adds_id) {
+                            $db->updateProviderProduct($product_id);
+                            $provider_product_total_count_add++;
+                        } else {
+                            echo 'Добавить total для товара ' . $data['product_id'] . ' не удалось <br>';
+                            echo '<pre>';
+                            print_r($product_vtt);
+                            echo '</pre>';
+                            echo '<pre>';
+                            print_r($data);
+                            echo '</pre>';
+                        }
+                    }
+
+                } else {
+                    echo 'Товар отсутствует в нашей БД<br>';
+                    echo '<pre>';
+                    print_r($product_vtt);
+                    echo '</pre>';
+                    echo '<br>';
+                    continue;
+                }
+            }
+            echo 'Добавлено значений цены, остатков и транзита для ' . $provider_product_total_count_add . ' товаров<br>';
+            echo 'Изменено значений цены, остатков и транзита для ' . $provider_product_total_count_edit . ' товаров<br>';
+            echo 'Обновлено значений цены, остатков и транзита для ' . $provider_product_total_count_update . ' товаров<br>';
+            return true;
+        } else return false;
+    }
 
 }

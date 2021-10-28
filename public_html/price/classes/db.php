@@ -6,6 +6,21 @@ class Db {
 
     function __construct()
     {
+//        //mysqli_report(MYSQLI_REPORT_ALL);
+//        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+//        global $ERROR;
+//        try {
+//            $this->link = mysqli_connect(DB_SERVER, DB_USER, DB_PSWD, DB_NAME);
+//            if ($this->link != false) {
+//                $this->status = true;
+//            }
+//        } catch (Exception $e) {
+//            $ERROR['Db'][] = 'Ошибка создания подключения к БД';
+//            $this->status = false;
+//        }
+    }
+
+    private function connectDB() {
         //mysqli_report(MYSQLI_REPORT_ALL);
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         global $ERROR;
@@ -13,11 +28,22 @@ class Db {
             $this->link = mysqli_connect(DB_SERVER, DB_USER, DB_PSWD, DB_NAME);
             if ($this->link != false) {
                 $this->status = true;
+                return true;
             }
         } catch (Exception $e) {
             $ERROR['Db'][] = 'Ошибка создания подключения к БД';
             $this->status = false;
+            return false;
         }
+    }
+
+    private function closeDB() {
+
+        if ($this->status) {
+            $result = mysqli_close($this->link);
+            $this->status = false;
+        }
+
     }
 
     public function getCategories() {
@@ -74,6 +100,7 @@ class Db {
 
     public function getAttributeIdByName($attribute_name, $attribute_group_name) {
         // Функция поиска id аттрибута в нашей базе по имени и имени группы атрибута
+        $this->connectDB();
         global $ERROR;
         if ($this->status) {
             $sql = 'SELECT id FROM attribute WHERE name = "' . $attribute_name .
@@ -86,6 +113,7 @@ class Db {
                     '<br>attribute_group_name: ' . $attribute_group_name;
                 return false;
             }
+            $this->closeDB();
             if ($result != false) {
                 $row = $result->fetch_row();
                 $our_prov_attrib_id = $row[0];
@@ -323,14 +351,15 @@ class Db {
         if ($this->status) {
             $sql = 'SELECT id FROM provider_product WHERE provider_id = ' . (int)$prov_id . ' AND provider_product_id = "' . $prov_product_id . '"';
             try {
--                $result = mysqli_query($this->link, $sql);
+                $result = array();
+-               $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 $ERROR['Db'][] = 'Ошибка поиска товара поставщика в таблице поставщиков по provider_id и provider_product_id' .
                     '<br>prov_id: ' . $prov_id .
                     '<br>prov_product_id: ' . $prov_product_id;
                 return false;
             }
-            if ($result != false) {
+            if ($result->num_rows > 0) {
                 $row = $result->fetch_row();
                 $prov_product_id = $row[0];
                 return $prov_product_id;
@@ -370,7 +399,7 @@ class Db {
                         'date_update' => $row["date_update"]
                     );
                 }
-                return $rows;
+                return $rows[0];
             }
         } else {
             return false;
@@ -794,7 +823,7 @@ class Db {
     public function addProviderProduct($data) {
         global $ERROR;
         if ($this->status AND $this->checkProviderProductData($data)) {
-            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, date_add) VALUES ("' .
+            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, date_add) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
                 mysqli_real_escape_string($this->link, $data['provider_product_id']) . '", "' .
                 mysqli_real_escape_string($this->link, $data['name']) . '", "' .
@@ -807,8 +836,7 @@ class Db {
                 (float)$data['height'] . '", "' .
                 (float)$data['length'] . '", "' .
                 (float)$data['weight'] . '", "' .
-                $data['version'] .
-                '", NOW())';
+                $data['version'] . '", 2, NOW())';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
