@@ -377,6 +377,48 @@ class Db {
         }
     }
 
+    public function getProviderProducts($prov_id) {
+        //
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_product WHERE provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка получения всех товаров поставщика' .
+                    '<br>prov_id: ' . $prov_id;
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'provider_product_id' => $row["provider_product_id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'category_id' => $row["category_id"],
+                        'model_id' => $row["model_id"],
+                        'vendor_id' => $row["vendor_id"],
+                        'manufacturer_id	' => $row["manufacturer_id	"],
+                        'width' => $row["width"],
+                        'height' => $row["height"],
+                        'length' => $row["length"],
+                        'weight' => $row["weight"],
+                        'version' => $row["version"],
+                        'date_add' => $row["date_add"],
+                        'date_edit' => $row["date_edit"],
+                        'date_update' => $row["date_update"]
+                    );
+                }
+                return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProduct($data) {
         if ($this->status) {
 
@@ -985,6 +1027,43 @@ class Db {
         } else {
             return false;
         }
+    }
+
+    public function updateProviderProduct($product_id) {
+        global $ERROR;
+        if ($this->status) {
+            $sql = 'UPDATE provider_product SET date_update = NOW()' .
+                ' WHERE id = ' . (int)$product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка обновления записи в таблице provider_product' .
+                    '<br>product_id: ' . $product_id;
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function checkProviderProductId($prov_id) {
+        $provider_products = $this->getProviderProducts($prov_id);
+        $products_id = array();
+        $products_duplicate_id = array();
+        foreach ($provider_products as $product) {
+            if ($product['provider_product_id'] == '') echo 'У товара отсутствует id поставщика. Имя товара: ' . $product['name'];
+            elseif (in_array($product['provider_product_id'], $products_id)) {
+                echo 'Дублируется id товара поставщика. provider_product_id: ' . $product['provider_product_id'];
+                $products_duplicate_id[] = $product['provider_product_id'];
+            }
+            else $products_id[] = $product['provider_product_id'];
+        }
+        echo 'Произведена проверка ' . count($provider_products) . ' товаров <br>';
+        echo 'Дублей id ' . count($products_duplicate_id) . ' товаров <br>';
+        echo 'Уникальных id ' . count($products_id) . ' товаров <br>';
     }
 
     private function checkCategoryData(&$data) {

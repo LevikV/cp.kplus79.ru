@@ -19,6 +19,7 @@ updateProductTotalDataVtt();
 
 
 //$my_db = new Db;
+//$my_db->checkProviderProductId(1);
 //$prov_id = 1;
 //echo $my_db->getProviderProductCount($prov_id);
 //echo '<br>';

@@ -884,19 +884,34 @@ class Vtt {
     public function updateProductsTotal() {
         if ($this->status) {
             $prov_id = 1; // устанавливаем id поставщика
+
+            //
+            $products_vtt = $this->getAllProductByCategory();
+
             $db = new Db;
             if ($db == false) {
                 return false;
             }
             //
-            $products_vtt = $this->getAllProductByCategory();
+            $products_vtt_our_base = $db->getProviderProducts($prov_id);
+
+
+            $id_products_vtt = array();
+            foreach ($products_vtt as $product_vtt) $id_products_vtt[] = $product_vtt['id'];
+            foreach ($products_vtt_our_base as $product_vtt_our_base) {
+                if (!in_array($product_vtt_our_base['provider_product_id'], $id_products_vtt)) {
+                    echo 'Для товара в нашей базе с provider_product_id: ' . $product_vtt_our_base['provider_product_id'] . ' не найдено соответствия в выгрузке по provider_product_id <br>';
+                }
+            }
+
+
 
             $product_vtt_base_count = count($products_vtt);
-            $product_our_base_count = $db->getProviderProductCount($prov_id);
+            $product_vtt_our_base_count = count($products_vtt_our_base);
 
-            if ($product_vtt_base_count == $product_our_base_count) echo 'Количество продуктов в нашей БД и на портале поставщика совпадает и равно: ' . $product_our_base_count; else {
+            if ($product_vtt_base_count == $product_vtt_our_base_count) echo 'Количество продуктов в нашей БД и на портале поставщика совпадает и равно: ' . $product_vtt_our_base_count; else {
                 echo 'Внимание! Разное количество продуктов в нашей БД и на портале ВТТ!<br>';
-                echo 'Товаров в нашей БД: ' . $product_our_base_count . '<br>';
+                echo 'Товаров в нашей БД: ' . $product_vtt_our_base_count . '<br>';
                 echo 'Товаров на портале ВТТ: ' . $product_vtt_base_count . '<br>';
                 echo 'Производим попытку обновления совпадающих товаров...<br>';
             }
@@ -939,12 +954,18 @@ class Vtt {
                             if (!isset($data['transit_date'])) $data['transit_date'] = $product_total['transit_date'];
 
                             $product_total_edits_id = $db->editProviderProductTotal($product_id, $data);
-                            if ($product_total_edits_id) $provider_product_total_count_edit++;
+                            if ($product_total_edits_id) {
+                                $provider_product_total_count_edit++;
+                                $db->updateProviderProduct($product_id);
+                            }
                         } else {
                             // если изменений по количеству и цене нет, то просто обновляем
                             // дату проверки (обновления) у товара
                             $product_total_updates = $db->updateProviderProductTotal($prov_id, $product_id);
-                            if ($product_total_updates) $provider_product_total_count_update++;
+                            if ($product_total_updates) {
+                                $db->updateProviderProduct($product_id);
+                                $provider_product_total_count_update++;
+                            }
                         }
                     } else {
                         $data['provider_id'] = $prov_id;
@@ -956,6 +977,7 @@ class Vtt {
 
                         $product_total_adds_id = $db->addProviderProductTotal($data);
                         if ($product_total_adds_id) {
+                            $db->updateProviderProduct($product_id);
                             $provider_product_total_count_add++;
                         } else {
                             echo 'Добавить total для товара ' . $data['product_id'] . ' не удалось <br>';
