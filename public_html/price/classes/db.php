@@ -1,23 +1,23 @@
 <?php
 
-class Db {
+class Db extends Sys {
     public $status;
     private $link;
 
     function __construct()
     {
-//        //mysqli_report(MYSQLI_REPORT_ALL);
-//        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-//        global $ERROR;
-//        try {
-//            $this->link = mysqli_connect(DB_SERVER, DB_USER, DB_PSWD, DB_NAME);
-//            if ($this->link != false) {
-//                $this->status = true;
-//            }
-//        } catch (Exception $e) {
-//            $ERROR['Db'][] = 'Ошибка создания подключения к БД';
-//            $this->status = false;
-//        }
+        //mysqli_report(MYSQLI_REPORT_ALL);
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        global $ERROR;
+        try {
+            $this->link = mysqli_connect(DB_SERVER, DB_USER, DB_PSWD, DB_NAME);
+            if ($this->link != false) {
+                $this->status = true;
+            }
+        } catch (Exception $e) {
+            $ERROR['Db'][] = 'Ошибка создания подключения к БД';
+            $this->status = false;
+        }
     }
 
     private function connectDB() {
@@ -48,6 +48,7 @@ class Db {
 
     public function getCategories() {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT * FROM category ';
             try {
@@ -77,6 +78,7 @@ class Db {
     public function getProviderProductCount($prov_id) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT COUNT(*) FROM provider_product WHERE provider_id = '. (int)$prov_id;
             try {
@@ -100,8 +102,8 @@ class Db {
 
     public function getAttributeIdByName($attribute_name, $attribute_group_name) {
         // Функция поиска id аттрибута в нашей базе по имени и имени группы атрибута
-        $this->connectDB();
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM attribute WHERE name = "' . $attribute_name .
                 '" AND group_id = (SELECT id FROM attribute_group WHERE name = "' . $attribute_group_name . '")';
@@ -113,7 +115,6 @@ class Db {
                     '<br>attribute_group_name: ' . $attribute_group_name;
                 return false;
             }
-            $this->closeDB();
             if ($result != false) {
                 $row = $result->fetch_row();
                 $our_prov_attrib_id = $row[0];
@@ -126,6 +127,7 @@ class Db {
 
     public function getOurItemIdByProvItemId($code, $prov_item_id, $prov_id) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             switch ($code) {
                 case 'category': {
@@ -155,6 +157,7 @@ class Db {
     public function getCatIdByProvCatName($prov_id, $prov_cat_name, $prov_root_cat_name) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_category WHERE name = "' . $prov_cat_name .
                 '" AND provider_id = '. (int)$prov_id . ' AND provider_parent_cat_name = "' . $prov_root_cat_name . '"';
@@ -179,6 +182,7 @@ class Db {
     public function getModelIdByProvModelName($prov_id, $prov_model_name) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_model WHERE name = "' . $prov_model_name .
                 '" AND provider_id = '. (int)$prov_id;
@@ -203,6 +207,7 @@ class Db {
     public function getVendorIdByProvVendorName($prov_id, $prov_vendor_name) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_vendor WHERE name = "' . $prov_vendor_name .
                 '" AND provider_id = '. (int)$prov_id;
@@ -227,6 +232,7 @@ class Db {
     public function getManufIdByProvManufName($prov_id, $prov_manuf_name) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_manufacturer WHERE name = "' . $prov_manuf_name .
                 '" AND provider_id = '. (int)$prov_id;
@@ -251,6 +257,7 @@ class Db {
     public function getProvCatByProvCatId($prov_id, $prov_cat_id) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT * FROM provider_category WHERE provider_category_id = "' . $prov_cat_id .
                 '" AND provider_id = '. (int)$prov_id;
@@ -277,6 +284,7 @@ class Db {
     public function getCatIdByProvCatId($prov_id, $prov_cat_id) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_category WHERE provider_category_id = "' . $prov_cat_id .
                 '" AND provider_id = '. (int)$prov_id;
@@ -300,6 +308,7 @@ class Db {
 
     public function getOurProviderAttributeIdByName($prov_id, $attribute_name, $attribute_group_name) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_attribute WHERE provider_id = ' . (int)$prov_id . ' AND name = "' . $attribute_name .
                 '" AND group_id = (SELECT id FROM provider_attribute_group WHERE provider_id = ' . (int)$prov_id . ' AND name = "' . $attribute_group_name . '")';
@@ -324,6 +333,7 @@ class Db {
 
     public function getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $value) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_attribute_value WHERE provider_id = ' . (int)$prov_id . ' AND attribute_id = ' . (int)$attrib_id .
                 ' AND value = "' . $value . '"';
@@ -348,6 +358,7 @@ class Db {
 
     public function getOurProviderProductIdByProviderProductId($prov_id, $prov_product_id) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT id FROM provider_product WHERE provider_id = ' . (int)$prov_id . ' AND provider_product_id = "' . $prov_product_id . '"';
             try {
@@ -372,6 +383,7 @@ class Db {
     public function getProviderProductTotal($prov_id, $product_id) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT * FROM provider_product_total WHERE provider_id = '. (int)$prov_id . ' AND product_id = ' . (int)$product_id;
             try {
@@ -409,6 +421,7 @@ class Db {
     public function getProviderProducts($prov_id) {
         //
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'SELECT * FROM provider_product WHERE provider_id = '. (int)$prov_id;
             try {
@@ -456,6 +469,7 @@ class Db {
 
     public function addCategory($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkCategoryData($data)) {
             $sql = 'INSERT INTO category (name, description, parent_id, image) VALUES ("' .
                 $data['name'] . '", "' .
@@ -483,6 +497,7 @@ class Db {
 
     public function addManufacturer($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkManufacturerData($data)) {
             $sql = 'INSERT INTO manufacturer (name, description, image) VALUES ("' .
                 $data['name'] . '", "' .
@@ -508,6 +523,7 @@ class Db {
 
     public function addModel($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkModelData($data)) {
             $sql = 'INSERT INTO model (name) VALUES ("' .
                 $data['name'] . '")';
@@ -529,6 +545,7 @@ class Db {
 
     public function addVendor($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkVendorData($data)) {
             $sql = 'INSERT INTO vendor (name, description, image) VALUES ("' .
                 $data['name'] . '", "' .
@@ -552,6 +569,7 @@ class Db {
 
     public function addAttributeGroup($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkAttributeGroupData($data)) {
             $sql = 'INSERT INTO attribute_group (name, parent_id) VALUES ("' .
                 $data['name'] . '", "' .
@@ -575,6 +593,7 @@ class Db {
 
     public function addAttribute($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkAttributeGroupData($data)) {
             $sql = 'INSERT INTO attribute (name, group_id) VALUES ("' .
                 $data['name'] . '", "' .
@@ -598,6 +617,7 @@ class Db {
 
     public function addAttributeValue($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkAttributeValueData($data)) {
             $sql = 'INSERT INTO attribute_value (attribute_id, value) VALUES ("' .
                 (int)$data['attribute_id'] . '", "' .
@@ -621,6 +641,7 @@ class Db {
 
     public function addProviderCategory($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderCategoryData($data)) {
             $sql = 'INSERT INTO provider_category (provider_id, provider_category_id, name, provider_parent_id, provider_parent_cat_name) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -649,6 +670,7 @@ class Db {
 
     public function addProviderManufacturer($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderManufacturerData($data)) {
             $sql = 'INSERT INTO provider_manufacturer (provider_id, name, description, image) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -676,6 +698,7 @@ class Db {
 
     public function addProviderModel($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderModelData($data)) {
             $sql = 'INSERT INTO provider_model (provider_id, name) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -699,6 +722,7 @@ class Db {
 
     public function addProviderVendor($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderVendorData($data)) {
             $sql = 'INSERT INTO provider_vendor (provider_id, name, description, image) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -724,6 +748,7 @@ class Db {
 
     public function addProviderAttributeGroup($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderAttributeGroupData($data)) {
             $sql = 'INSERT INTO provider_attribute_group (provider_id, name, parent_id) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -749,6 +774,7 @@ class Db {
 
     public function addProviderAttribute($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderAttributeData($data)) {
             $sql = 'INSERT INTO provider_attribute (provider_id, name, group_id) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -774,6 +800,7 @@ class Db {
 
     public function addProviderAttributeValue($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderAttributeValueData($data)) {
             $sql = 'INSERT INTO provider_attribute_value (provider_id, attribute_id, value) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -799,6 +826,7 @@ class Db {
 
     public function addProviderAttributeProduct($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderAttributeProductData($data)) {
             $sql = 'INSERT INTO provider_attribute_product (product_id, attribute_value_id) VALUES (' .
                 (int)$data['product_id'] . ', ' .
@@ -822,6 +850,7 @@ class Db {
 
     public function addProviderProduct($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductData($data)) {
             $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, date_add) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
@@ -871,6 +900,7 @@ class Db {
 
     public function addProviderProductImage($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductImageData($data)) {
             $sql = 'INSERT INTO provider_image (provider_id, product_id, image) VALUES (' .
                 (int)$data['provider_id'] . ', ' .
@@ -896,6 +926,7 @@ class Db {
 
     public function addProviderProductTotal($data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductTotalData($data)) {
             if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
             $sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price_usd, price_rub, transit, transit_date, date_add) VALUES (' .
@@ -931,6 +962,7 @@ class Db {
 
     public function addMap($code, $our_id, $provider_id) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'INSERT INTO map (code, our_id, provider_id) VALUES ("' .
                 $code . '", "' .
@@ -956,6 +988,7 @@ class Db {
 
     public function editCategory($cat_id, $data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkCategoryData($data)) {
             $sql = 'UPDATE category SET name = "'. $data['name'] .
                 '", description="' . $data['description'] .
@@ -979,6 +1012,7 @@ class Db {
 
     public function editProviderCategory($cat_id, $data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderCategoryData($data)) {
             $sql = 'UPDATE provider_category SET provider_id = "'. $data['provider_id'] .
                 '", provider_category_id = "' . $data['provider_category_id'] .
@@ -1003,6 +1037,7 @@ class Db {
 
     public function editProviderProductTotal($product_id, $data) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductTotalData($data)) {
             if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
             $sql = 'UPDATE provider_product_total SET provider_id = '. (int)$data['provider_id'] .
@@ -1038,6 +1073,7 @@ class Db {
 
     public function updateProviderProductTotal($prov_id, $product_id) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'UPDATE provider_product_total SET date_update = NOW()' .
                 ' WHERE product_id = ' . (int)$product_id . ' AND provider_id = ' . (int)$prov_id;
@@ -1059,6 +1095,7 @@ class Db {
 
     public function updateProviderProduct($product_id) {
         global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'UPDATE provider_product SET date_update = NOW()' .
                 ' WHERE id = ' . (int)$product_id;

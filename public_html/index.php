@@ -15,10 +15,13 @@ $ERROR = array();
 //loadAttributeVtt();
 //loadAllSettingVtt();
 //loadProductBaseDataVtt();
-updateProductTotalDataVtt();
+//updateProductTotalDataVtt();
 
 
-//$my_db = new Db;
+$my_db = new Db;
+echo $my_db->getProviderProductCount(1);
+$my_db->addLog('INFO', 'VTT', 'Test adds log!');
+
 //echo $my_db->getOurProviderProductIdByProviderProductId(1, '99690604444');
 //$my_db->checkProviderProductId(1);
 //$prov_id = 1;
