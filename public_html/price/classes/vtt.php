@@ -896,11 +896,18 @@ class Vtt {
             $products_vtt_our_base = $db->getProviderProducts($prov_id);
 
 
-            $id_products_vtt = array();
-            foreach ($products_vtt as $product_vtt) $id_products_vtt[] = $product_vtt['id'];
-            foreach ($products_vtt_our_base as $product_vtt_our_base) {
-                if (!in_array($product_vtt_our_base['provider_product_id'], $id_products_vtt)) {
-                    echo 'Для товара в нашей базе с provider_product_id: ' . $product_vtt_our_base['provider_product_id'] . ' не найдено соответствия в выгрузке по provider_product_id <br>';
+            $id_products_vtt_our_base = array();
+            foreach ($products_vtt_our_base as $product_vtt_our_base) $id_products_vtt_our_base[] = $product_vtt_our_base['id'];
+            foreach ($products_vtt as $product_vtt) {
+                if (in_array($product_vtt['id'], $id_products_vtt_our_base)) {
+                    // Если товар есть в нашей таблице товаров поставщика, то проверяем и обноввляем данные
+                    $product_our_base = $db->getProviderProduct($prov_id, $db->getOurProviderProductIdByProviderProductId($prov_id, $product_vtt['id']));
+                    if ($product_our_base) {
+
+                    }
+
+                } else {
+                    // Если товара нет, то подготавливаем данные и производим добавление товара
                 }
             }
 

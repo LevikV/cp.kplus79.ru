@@ -418,6 +418,54 @@ class Db extends Sys {
         }
     }
 
+    public function getProviderProduct($prov_id, $product_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_product WHERE provider_id = '. (int)$prov_id . ' AND product_id = ' . (int)$product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения продукта поставщика из provider_products' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'product_id' => $row["product_id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'category_id' => $row["category_id"],
+                        'model_id' => $row["model_id"],
+                        'vendor_id' => $row["vendor_id"],
+                        'manufacturer_id' => $row["manufacturer_id"],
+                        'width' => $row["width"],
+                        'height' => $row["height"],
+                        'length' => $row["length"],
+                        'weight' => $row["weight"],
+                        'version' => $row["version"],
+                        'status' => $row["status"],
+                        'date_add' => $row["date_add"],
+                        'date_edit' => $row["date_edit"],
+                        'date_update' => $row["date_update"]
+                    );
+                }
+                return $rows[0];
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getProviderProducts($prov_id) {
         //
         global $ERROR;
