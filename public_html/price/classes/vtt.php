@@ -881,29 +881,57 @@ class Vtt {
         }
     }
 
-    public function updateProductsTotal() {
+    public function updateProducts() {
         if ($this->status) {
             $prov_id = 1; // устанавливаем id поставщика
 
-            //
+            // Получаем товары с портала поставщика
             $products_vtt = $this->getAllProductByCategory();
 
+            // Создаем объект для доступа к нашей БД
             $db = new Db;
             if ($db == false) {
                 return false;
             }
-            //
+
+            // Получаем все товары поставщика из нашей базы
             $products_vtt_our_base = $db->getProviderProducts($prov_id);
 
-
+            // Формируем массив id продуктов из нашей базы поставщиков provider_product
             $id_products_vtt_our_base = array();
             foreach ($products_vtt_our_base as $product_vtt_our_base) $id_products_vtt_our_base[] = $product_vtt_our_base['id'];
+
+            // Перебираем все товары с выгрузки, обновляем данные по имеющимся и если есть новые добавляем.
             foreach ($products_vtt as $product_vtt) {
+                $data = array();
                 if (in_array($product_vtt['id'], $id_products_vtt_our_base)) {
                     // Если товар есть в нашей таблице товаров поставщика, то проверяем и обноввляем данные
+                    // получаем данные по товару из нашей базы
                     $product_our_base = $db->getProviderProduct($prov_id, $db->getOurProviderProductIdByProviderProductId($prov_id, $product_vtt['id']));
                     if ($product_our_base) {
-
+                        // если товар есть сравниваем данные в нашей базе с данными по товару с выгрузки
+                        // сравниваем имя товара
+                        if ($product_vtt['name'] != $product_our_base['name'])
+                            $data['name'] = $product_vtt['name'];
+                        // сравниваем описание товара
+                        if ($product_vtt['description'] != $product_our_base['description'])
+                            $data['description'] = $product_vtt['description'];
+                        // получаем категорию товара из выгрузки
+                        $our_prov_cat_id = $db->getCatIdByProvCatName($prov_id, $product_vtt['group'], $product_vtt['root_group']);
+                        if ($our_prov_cat_id)
+                            if ($our_prov_cat_id != $product_our_base['category_id'])
+                                $data['category_id'] = $our_prov_cat_id;
+                        else {
+                            // если категория не найдена в базе поставщиков, то пишем сообщение в лог
+                            // ставим статус товару НА ПРОВЕРКЕ
+                            $message = 'По имеющемуся товару в выгрузке изменилась категория, которая не может быть сопоставлена!' . "\r\n";
+                            $message .= 'Товар помечен на проверку' . "\r\n";
+                            $message .= 'product_id: ' . $product_our_base['id'] . "\r\n";
+                            $message .= 'provider_product_id: ' . $product_vtt['id'] . "\r\n";
+                            $db->addLog('ERROR', 'VTT', $message);
+                            //
+                            $db->reviewProviderProduct($product_our_base['id']);
+                        }
                     }
 
                 } else {
@@ -1013,7 +1041,7 @@ class Vtt {
         } else return false;
     }
 
-    public function updateProducts() {
+    public function updateProductsTotal() {
         if ($this->status) {
             //
             $prov_id = 1; // устанавливаем id поставщика
@@ -1040,8 +1068,6 @@ class Vtt {
                     echo 'Для товара в нашей базе с provider_product_id: ' . $product_vtt_our_base['provider_product_id'] . ' не найдено соответствия в выгрузке по provider_product_id <br>';
                 }
             }
-
-
 
             $product_vtt_base_count = count($products_vtt);
             $product_vtt_our_base_count = count($products_vtt_our_base);

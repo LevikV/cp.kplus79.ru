@@ -441,7 +441,7 @@ class Db extends Sys {
                     $rows[] = array(
                         'id' => $row["id"],
                         'provider_id' => $row["provider_id"],
-                        'product_id' => $row["product_id"],
+                        'provider_product_id' => $row["provider_product_id"],
                         'name' => $row["name"],
                         'description' => $row["description"],
                         'category_id' => $row["category_id"],
@@ -1162,7 +1162,32 @@ class Db extends Sys {
         }
     }
 
+    public function reviewProviderProduct($product_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'UPDATE provider_product SET status = 2' .
+                ' WHERE id = ' . (int)$product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $message = 'Ошибка установки статуса "НА ПРОВЕРКЕ" (2) записи в таблице provider_product' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function checkProviderProductId($prov_id) {
+        // Функция проверки на дубли id_provider_product товаров поставщика
+
         $provider_products = $this->getProviderProducts($prov_id);
         $products_id = array();
         $products_duplicate_id = array();
