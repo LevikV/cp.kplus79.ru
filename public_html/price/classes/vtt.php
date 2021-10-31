@@ -916,7 +916,7 @@ class Vtt {
                         // сравниваем описание товара
                         if ($product_vtt['description'] != $product_our_base['description'])
                             $data['description'] = $product_vtt['description'];
-                        // получаем категорию товара из выгрузки
+                        // сравниваем категорию товара
                         $our_prov_cat_id = $db->getCatIdByProvCatName($prov_id, $product_vtt['group'], $product_vtt['root_group']);
                         if ($our_prov_cat_id)
                             if ($our_prov_cat_id != $product_our_base['category_id'])
@@ -925,13 +925,27 @@ class Vtt {
                             // если категория не найдена в базе поставщиков, то пишем сообщение в лог
                             // ставим статус товару НА ПРОВЕРКЕ
                             $message = 'По имеющемуся товару в выгрузке изменилась категория, которая не может быть сопоставлена!' . "\r\n";
-                            $message .= 'Товар помечен на проверку' . "\r\n";
+                            $message .= 'Необходимо обновить категории поставщика. Товар помечен на проверку' . "\r\n";
                             $message .= 'product_id: ' . $product_our_base['id'] . "\r\n";
                             $message .= 'provider_product_id: ' . $product_vtt['id'] . "\r\n";
                             $db->addLog('ERROR', 'VTT', $message);
                             //
                             $db->reviewProviderProduct($product_our_base['id']);
                         }
+                        // Сравнваем модель товара
+                        $our_prov_model_id = $db->getModelIdByProvModelName($prov_id, $product_vtt['original_number']);
+                        if ((int)$our_prov_model_id != $product_our_base['model_id'])
+                            $data['model_id'] = (int)$our_prov_model_id;
+                        // Сравнваем Вендора товара
+                        $our_prov_vendor_id = $db->getVendorIdByProvVendorName($prov_id, $product_vtt['vendor']);
+                        if ((int)$our_prov_vendor_id != $product_our_base['vendor_id'])
+                            $data['vendor_id'] = (int)$our_prov_vendor_id;
+                        // Сравнваем Производителя товара
+                        $our_prov_manuf_id = $db->getManufIdByProvManufName($prov_id, $product_vtt['brand']);
+                        if ((int)$our_prov_manuf_id != $product_our_base['manufacturer_id'])
+                            $data['manufacturer_id'] = (int)$our_prov_manuf_id;
+
+
                     }
 
                 } else {
