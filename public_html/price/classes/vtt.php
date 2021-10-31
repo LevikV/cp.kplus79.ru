@@ -944,6 +944,19 @@ class Vtt {
                         $our_prov_manuf_id = $db->getManufIdByProvManufName($prov_id, $product_vtt['brand']);
                         if ((int)$our_prov_manuf_id != $product_our_base['manufacturer_id'])
                             $data['manufacturer_id'] = (int)$our_prov_manuf_id;
+                        // сравниваем ширину товара
+                        if ((float)$product_vtt['width'] != $product_our_base['width'])
+                            $data['width'] = (float)$product_vtt['width'];
+                        // сравниваем высоту товара
+                        if ((float)$product_vtt['height'] != $product_our_base['height'])
+                            $data['height'] = (float)$product_vtt['height'];
+                        // сравниваем длину (глубину) товара
+                        if ((float)$product_vtt['depth'] != $product_our_base['length'])
+                            $data['length'] = (float)$product_vtt['depth'];
+                        // сравниваем вес товара
+                        if ((float)$product_vtt['weight'] != $product_our_base['weight'])
+                            $data['weight'] = (float)$product_vtt['weight'];
+
 
 
                     }
