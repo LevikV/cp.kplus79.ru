@@ -985,14 +985,19 @@ class Vtt {
                             if (!isset($data['weight'])) $data['weight'] = $product_our_base['weight'];
 
                             $product_edits = $db->editProviderProduct($product_id, $data);
+
+                            // Сравниваем аттрибуты
+                            $color = ($db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные') == null) ? '' : $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные');
+
                             if ($product_edits) {
                                 $product_count_edit++;
                                 array_diff($id_products_vtt_our_base, $product_vtt['id']);
                             }
 
                         } else {
-                            // если изменений по количеству и цене нет, или их не удалось разрешить (категория)
-                            // то просто обновляем дату проверки (обновления) у товара
+                            // если изменений по основным данным нет, или их не удалось разрешить (категория)
+                            // то сравниваем изменения по аттрибутам и картинкам
+                            // и просто обновляем дату проверки (обновления) у товара
                             $product_updates = $db->updateProviderProduct($product_id);
                             if ($product_updates) {
                                 $product_count_update++;

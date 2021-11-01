@@ -18,9 +18,9 @@ $ERROR = array();
 //updateProductTotalDataVtt();
 
 $prov_id = 1;
-$attrib_name = 'Цвет';
+$attrib_name = 'Ресурс';
 $attrib_group_name = 'Основные';
-$product_id = 321;
+$product_id = 161;
 
 $my_db = new Db;
 print_r($my_db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, $attrib_name, $attrib_group_name));
