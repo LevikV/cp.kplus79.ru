@@ -1119,6 +1119,58 @@ class Db extends Sys {
         }
     }
 
+    public function editProviderProduct($product_id, $data) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status AND $this->checkProviderProductData($data)) {
+            $sql = 'UPDATE provider_product SET provider_id = '. (int)$data['provider_id'] .
+                ', provider_product_id = "' . $data['product_id'] .
+                '", name = "' . $data['name'] .
+                '", description = "' . $data['description'] .
+                '", category_id = ' . (int)$data['category_id'] .
+                ', model_id = ' . (int)$data['model_id'] .
+                ', vendor_id = ' . (int)$data['vendor_id'] .
+                ', manufacturer_id = ' . (int)$data['manufacturer_id'] .
+                ', width = ' . (float)$data['width'] .
+                ', height = ' . (float)$data['height'] .
+                ', length = ' . (float)$data['length'] .
+                ', weight = ' . (float)$data['weight'] .
+                ', version = "' . $data['version'] .
+                '", status = ' . (int)$data['status'] .
+                ', date_edit = NOW()' .
+                ', date_update = NOW()' .
+                ' WHERE product_id = ' . (int)$product_id . ' AND provider_id = ' . (int)$data['provider_id'];
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения товара в таблице provider_product' . "\r\n";
+                $message .= 'provider_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'description: ' . $data['description'] . "\r\n";
+                $message .= 'category_id: ' . $data['category_id'] . "\r\n";
+                $message .= 'model_id: ' . $data['model_id'] . "\r\n";
+                $message .= 'vendor_id: ' . $data['vendor_id'] . "\r\n";
+                $message .= 'manufacturer_id: ' . $data['manufacturer_id'] . "\r\n";
+                $message .= 'width: ' . $data['width'] . "\r\n";
+                $message .= 'height: ' . $data['height'] . "\r\n";
+                $message .= 'length: ' . $data['length'] . "\r\n";
+                $message .= 'weight: ' . $data['weight'] . "\r\n";
+                $message .= 'version: ' . $data['version'] . "\r\n";
+                $message .= 'status: ' . $data['status'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function updateProviderProductTotal($prov_id, $product_id) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
@@ -1162,17 +1214,18 @@ class Db extends Sys {
         }
     }
 
-    public function reviewProviderProduct($product_id) {
+    public function setStatusProviderProduct($product_id, $status) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'UPDATE provider_product SET status = 2' .
-                ' WHERE id = ' . (int)$product_id;
+            $sql = 'UPDATE provider_product SET status = ' . (int)$status .
+                ', date_update = NOW() WHERE id = ' . (int)$product_id;
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $message = 'Ошибка установки статуса "НА ПРОВЕРКЕ" (2) записи в таблице provider_product' . "\r\n";
+                $message = 'Ошибка установки статуса товару в таблице provider_product' . "\r\n";
                 $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'status: ' . $status . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
 
                 return false;
@@ -1706,6 +1759,11 @@ class Db extends Sys {
         // Проверяем id производителя (бренда)
         if (!isset($data['manufacturer_id'])) {
             $data['manufacturer_id'] = '';
+        }
+
+        // Проверяем статус товар
+        if (!isset($data['status'])) {
+            $data['status'] = 0;
         }
 
         return true;

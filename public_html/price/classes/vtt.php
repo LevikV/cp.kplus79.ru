@@ -899,9 +899,16 @@ class Vtt {
 
             // Формируем массив id продуктов из нашей базы поставщиков provider_product
             $id_products_vtt_our_base = array();
-            foreach ($products_vtt_our_base as $product_vtt_our_base) $id_products_vtt_our_base[] = $product_vtt_our_base['id'];
+            foreach ($products_vtt_our_base as $product_vtt_our_base) $id_products_vtt_our_base[] = $product_vtt_our_base['provider_product_id'];
 
             // Перебираем все товары с выгрузки, обновляем данные по имеющимся и если есть новые добавляем.
+            //
+            // устанавливаем счетчики
+            $product_count_edit = 0;
+            $product_count_add = 0;
+            $product_count_update = 0;
+            $product_count_off = 0;
+
             foreach ($products_vtt as $product_vtt) {
                 $data = array();
                 if (in_array($product_vtt['id'], $id_products_vtt_our_base)) {
@@ -909,6 +916,9 @@ class Vtt {
                     // получаем данные по товару из нашей базы
                     $product_our_base = $db->getProviderProduct($prov_id, $db->getOurProviderProductIdByProviderProductId($prov_id, $product_vtt['id']));
                     if ($product_our_base) {
+
+                        $product_id = $product_our_base['id'];
+
                         // если товар есть сравниваем данные в нашей базе с данными по товару с выгрузки
                         // сравниваем имя товара
                         if ($product_vtt['name'] != $product_our_base['name'])
@@ -930,7 +940,7 @@ class Vtt {
                             $message .= 'provider_product_id: ' . $product_vtt['id'] . "\r\n";
                             $db->addLog('ERROR', 'VTT', $message);
                             //
-                            $db->reviewProviderProduct($product_our_base['id']);
+                            $db->setStatusProviderProduct($product_our_base['id'], 2);
                         }
                         // Сравнваем модель товара
                         $our_prov_model_id = $db->getModelIdByProvModelName($prov_id, $product_vtt['original_number']);
@@ -956,15 +966,65 @@ class Vtt {
                         // сравниваем вес товара
                         if ((float)$product_vtt['weight'] != $product_our_base['weight'])
                             $data['weight'] = (float)$product_vtt['weight'];
+                        // Проверяем, были ли какие либо изменения
+                        if (!empty($data)) {
+                            // если данные по продукту в базе отличаются от полученных данных
+                            // то проверяем какие именно и записываем изменения
+                            $data['provider_id'] = $prov_id;
+                            $data['status'] = $product_our_base['status'];
 
+                            if (!isset($data['name'])) $data['name'] = $product_our_base['name'];
+                            if (!isset($data['description'])) $data['description'] = $product_our_base['description'];
+                            if (!isset($data['category_id'])) $data['category_id'] = $product_our_base['category_id'];
+                            if (!isset($data['model_id'])) $data['model_id'] = $product_our_base['model_id'];
+                            if (!isset($data['vendor_id'])) $data['vendor_id'] = $product_our_base['vendor_id'];
+                            if (!isset($data['manufacturer_id'])) $data['manufacturer_id'] = $product_our_base['manufacturer_id'];
+                            if (!isset($data['width'])) $data['width'] = $product_our_base['width'];
+                            if (!isset($data['height'])) $data['height'] = $product_our_base['height'];
+                            if (!isset($data['length'])) $data['length'] = $product_our_base['length'];
+                            if (!isset($data['weight'])) $data['weight'] = $product_our_base['weight'];
 
+                            $product_edits = $db->editProviderProduct($product_id, $data);
+                            if ($product_edits) {
+                                $product_count_edit++;
+                                array_diff($id_products_vtt_our_base, $product_vtt['id']);
+                            }
 
+                        } else {
+                            // если изменений по количеству и цене нет, или их не удалось разрешить (категория)
+                            // то просто обновляем дату проверки (обновления) у товара
+                            $product_updates = $db->updateProviderProduct($product_id);
+                            if ($product_updates) {
+                                $product_count_update++;
+                                array_diff($id_products_vtt_our_base, $product_vtt['id']);
+                            }
+                        }
                     }
-
                 } else {
                     // Если товара нет, то подготавливаем данные и производим добавление товара
+
+
+
+
                 }
             }
+
+            // Проверяем, остались ли id товаров в массиве товаров поставщика из нашей базы
+            // и если остались, то значит этих товаров не было в выгрузке поставщика и их нужно
+            // отключить
+            if (!empty($id_products_vtt_our_base))
+                foreach ($id_products_vtt_our_base as $prov_prod_id) {
+                    $product_id = $db->getOurProviderProductIdByProviderProductId($prov_id, $prov_prod_id);
+                    $product_our_base = $db->getProviderProduct($prov_id, $product_id);
+                    if ($product_our_base['status'] != 0)
+                        if ($db->setStatusProviderProduct($product_id, 0))
+                            $product_count_off++;
+                }
+
+            // Сравниваем количество обновленных, добавленных и отключенных товаров
+
+
+
 
 
             return true;
