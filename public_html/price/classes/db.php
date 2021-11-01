@@ -356,6 +356,46 @@ class Db extends Sys {
         }
     }
 
+    public function getProviderProductAttributeValueByAttribName($prov_id, $product_id, $attrib_name, $attrib_group_name) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
+                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . ')';
+
+            $sql2 = 'SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
+                ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
+                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . '))';
+
+            $sql3 = 'SELECT attribute_value_id FROM provider_attribute_product WHERE product_id = '. $product_id .
+                ' AND attribute_value_id IN (SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
+                ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
+                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . ')))';
+
+            $sql4 = 'SELECT value FROM provider_attribute_value WHERE id = (SELECT attribute_value_id FROM provider_attribute_product WHERE product_id = '. $product_id .
+                ' AND attribute_value_id IN (SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
+                ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
+                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . '))))';
+
+            try {
+                $result = mysqli_query($this->link, $sql4);
+            } catch (Exception $e) {
+                $ERROR['Db'][] = 'Ошибка поиска id значения аттрибута поставщика по id аттрибута и его значению' .
+                    '<br>prov_id: ' . $prov_id .
+                    '<br>attribute_id: ' . $attrib_id .
+                    '<br>attribute_value: ' . $value;
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                $attrib_value_id = $row[0];
+                return $attrib_value_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getOurProviderProductIdByProviderProductId($prov_id, $prov_product_id) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
