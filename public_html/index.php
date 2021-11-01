@@ -17,10 +17,17 @@ $ERROR = array();
 //loadProductBaseDataVtt();
 //updateProductTotalDataVtt();
 
+$prov_id = 1;
+$attrib_name = 'Цвет';
+$attrib_group_name = 'Основные';
+$product_id = 321;
 
 $my_db = new Db;
-echo $my_db->getProviderProductCount(1);
-$my_db->addLog('INFO', 'VTT', 'Test adds log!');
+print_r($my_db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, $attrib_name, $attrib_group_name));
+
+
+//echo $my_db->getProviderProductCount(1);
+//$my_db->addLog('INFO', 'VTT', 'Test adds log!');
 
 //echo $my_db->getOurProviderProductIdByProviderProductId(1, '99690604444');
 //$my_db->checkProviderProductId(1);

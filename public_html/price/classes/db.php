@@ -360,36 +360,40 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
-                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . ')';
-
-            $sql2 = 'SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
-                ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
-                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . '))';
-
-            $sql3 = 'SELECT attribute_value_id FROM provider_attribute_product WHERE product_id = '. $product_id .
-                ' AND attribute_value_id IN (SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
-                ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
-                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . ')))';
-
-            $sql4 = 'SELECT value FROM provider_attribute_value WHERE id = (SELECT attribute_value_id FROM provider_attribute_product WHERE product_id = '. $product_id .
+//            $sql = 'SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
+//                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . ')';
+//
+//            $sql2 = 'SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
+//                ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
+//                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . '))';
+//
+//            $sql3 = 'SELECT attribute_value_id FROM provider_attribute_product WHERE product_id = '. $product_id .
+//                ' AND attribute_value_id IN (SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
+//                ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
+//                ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . ')))';
+//
+            $sql = 'SELECT value FROM provider_attribute_value WHERE id = (SELECT attribute_value_id FROM provider_attribute_product WHERE product_id = '. $product_id .
                 ' AND attribute_value_id IN (SELECT id FROM provider_attribute_value WHERE provider_id = ' . $prov_id .
                 ' AND attribute_id = (SELECT id FROM provider_attribute WHERE name = "'. $attrib_name .'" AND provider_id = '. $prov_id .
                 ' AND group_id = (SELECT id FROM provider_attribute_group WHERE name = "' . $attrib_group_name . '" AND provider_id = '. $prov_id . '))))';
 
             try {
-                $result = mysqli_query($this->link, $sql4);
+                $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска id значения аттрибута поставщика по id аттрибута и его значению' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>attribute_id: ' . $attrib_id .
-                    '<br>attribute_value: ' . $value;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска значения аттрибута по имени аттрибута поставщика и id продукта' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'attrib_name: ' . $attrib_name . "\r\n";
+                $message .= 'attrib_group_name: ' . $attrib_group_name . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $attrib_value_id = $row[0];
-                return $attrib_value_id;
+                $attrib_value = $row[0];
+                return $attrib_value;
             }
         } else {
             return false;
