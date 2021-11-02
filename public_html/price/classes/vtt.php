@@ -987,8 +987,44 @@ class Vtt {
                             $product_edits = $db->editProviderProduct($product_id, $data);
 
                             // Сравниваем аттрибуты
-                            $color = ($db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные') == null) ? '' : $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные');
+                            // Цвет
+                            $color = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные');
+                            if ($product_vtt['color_name'] != (string)$color) {
+                                //
+                                if ($color == null) {
+                                    // Если записи об аттрибуте продукта нет, то формируем и добавляем
+                                    $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
+                                    // Получаем id значения аттрибута
+                                    $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['color_name']);
+                                    // если значения аттрибута Цвет нет в нашей базе в provider_attribute_value
+                                    // то добавляем новое значение
+                                    if ($attrib_value_id == null) {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['attribute_id'] = $attrib_id;
+                                        $data['value'] = $product_vtt['color_name'];
+                                        //
+                                        $attrib_value_id = $db->addProviderAttributeValue($data);
+                                    }
+                                    $data = array();
+                                    $data['product_id'] = $product_id;
+                                    $data['attribute_value_id'] = $attrib_value_id;
 
+                                    $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
+
+                                } else {
+                                    // Если записи об аттрибуте продукта есть, то получаем ее и обновляем
+
+
+                                }
+
+
+
+
+
+                            }
+
+                            // проверяем были ли изменения в каких либо данных, и если были, увеличиваем счетчик
                             if ($product_edits) {
                                 $product_count_edit++;
                                 array_diff($id_products_vtt_our_base, $product_vtt['id']);
