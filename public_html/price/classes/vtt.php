@@ -1013,7 +1013,13 @@ class Vtt {
                                     $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
 
                                 } else {
-                                    // Если записи об аттрибуте продукта есть, то получаем ее и обновляем
+                                    // Если записи об аттрибуте продукта есть, то обновляем ее
+                                    $data = array();
+                                    $data['attribute_name'] = '';
+                                    $data['attribute_group_name'] = '';
+                                    $data['attribute_value'] = '';
+
+                                    $product_attrib_color_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
 
 
                                 }
