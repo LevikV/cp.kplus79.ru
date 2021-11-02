@@ -983,10 +983,10 @@ class Vtt {
                             if (!isset($data['height'])) $data['height'] = $product_our_base['height'];
                             if (!isset($data['length'])) $data['length'] = $product_our_base['length'];
                             if (!isset($data['weight'])) $data['weight'] = $product_our_base['weight'];
-
                             $product_edits = $db->editProviderProduct($product_id, $data);
 
                             // Сравниваем аттрибуты
+                            //
                             // Цвет
                             $color = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные');
                             if ($product_vtt['color_name'] != (string)$color) {
@@ -1011,27 +1011,60 @@ class Vtt {
                                     $data['attribute_value_id'] = $attrib_value_id;
 
                                     $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
-
                                 } else {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
                                     $data = array();
-                                    $data['attribute_name'] = '';
-                                    $data['attribute_group_name'] = '';
-                                    $data['attribute_value'] = '';
+                                    $data['attribute_name'] = 'Цвет';
+                                    $data['attribute_group_name'] = 'Основные';
+                                    $data['attribute_value'] = $product_vtt['color_name'];
 
                                     $product_attrib_color_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
-
-
                                 }
-
-
-
-
-
                             }
 
+                            // Ресурс
+                            $life_time = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Ресурс', 'Основные');
+                            if ($product_vtt['item_life_time'] != (string)$life_time) {
+                                //
+                                if ($life_time == null) {
+                                    // Если записи об аттрибуте продукта нет, то формируем и добавляем
+                                    $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
+                                    // Получаем id значения аттрибута
+                                    $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['item_life_time']);
+                                    // если значения аттрибута Ресурс нет в нашей базе в provider_attribute_value
+                                    // то добавляем новое значение
+                                    if ($attrib_value_id == null) {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['attribute_id'] = $attrib_id;
+                                        $data['value'] = $product_vtt['item_life_time'];
+                                        //
+                                        $attrib_value_id = $db->addProviderAttributeValue($data);
+                                    }
+                                    $data = array();
+                                    $data['product_id'] = $product_id;
+                                    $data['attribute_value_id'] = $attrib_value_id;
+
+                                    $product_attrib_life_time_edits = $db->addProviderAttributeProduct($data);
+                                } else {
+                                    // Если записи об аттрибуте продукта есть, то обновляем ее
+                                    $data = array();
+                                    $data['attribute_name'] = 'Ресурс';
+                                    $data['attribute_group_name'] = 'Основные';
+                                    $data['attribute_value'] = $product_vtt['item_life_time'];
+
+                                    $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                }
+                            }
+
+                            // Сравниваем изображение
+                            //
+                            $image = $db->getProviderProductImage();
+
+
+
                             // проверяем были ли изменения в каких либо данных, и если были, увеличиваем счетчик
-                            if ($product_edits) {
+                            if ($product_edits OR $product_attrib_color_edits OR $product_attrib_life_time_edits) {
                                 $product_count_edit++;
                                 array_diff($id_products_vtt_our_base, $product_vtt['id']);
                             }

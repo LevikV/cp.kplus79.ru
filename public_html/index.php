@@ -17,14 +17,15 @@ $ERROR = array();
 //loadProductBaseDataVtt();
 //updateProductTotalDataVtt();
 
-$prov_id = 1;
-$attrib_name = 'Ресурс';
-$attrib_group_name = 'Основные';
-$product_id = 161;
-
-$my_db = new Db;
-print_r($my_db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, $attrib_name, $attrib_group_name));
-
+//$prov_id = 1;
+//$product_id = 86;
+//$data['attribute_name'] = 'Цвет';
+//$data['attribute_group_name'] = 'Основные';
+//$data['attribute_value'] = 'Orange'; // По умолчаниюк цвет Bk для этого товара
+//
+//
+//$my_db = new Db;
+//$my_db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
 
 //echo $my_db->getProviderProductCount(1);
 //$my_db->addLog('INFO', 'VTT', 'Test adds log!');

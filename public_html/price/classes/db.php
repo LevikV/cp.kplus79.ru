@@ -1215,6 +1215,48 @@ class Db extends Sys {
         }
     }
 
+    public function editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            // Получаем id значения attribute_value
+            //
+            $attrib_id = $this->getOurProviderAttributeIdByName($prov_id, $data['attribute_name'], $data['attribute_group_name']);
+            $attrib_value_id = $this->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $data['attribute_value']);
+            // если значения аттрибута Цвет нет в нашей базе в provider_attribute_value
+            // то добавляем новое значение
+            if ($attrib_value_id == null) {
+                $data_val = array();
+                $data_val['provider_id'] = $prov_id;
+                $data_val['attribute_id'] = $attrib_id;
+                $data_val['value'] = $data['attribute_value'];
+                //
+                $attrib_value_id = $this->addProviderAttributeValue($data_val);
+            }
+            $sql = 'UPDATE provider_attribute_product SET attribute_value_id = '. (int)$attrib_value_id .
+                ' WHERE product_id = '. (int)$product_id .
+                ' AND  attribute_value_id IN (SELECT id FROM provider_attribute_value WHERE provider_id = '. (int)$prov_id .
+                ' AND attribute_id = ' . (int)$attrib_id .')';
+
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения аттрибута цвет в таблице provider_attribute_product' . "\r\n";
+                $message .= 'provider_id: ' . $prov_id . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function updateProviderProductTotal($prov_id, $product_id) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
