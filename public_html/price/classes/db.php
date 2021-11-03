@@ -395,8 +395,10 @@ class Db extends Sys {
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $attrib_value = $row[0];
-                return $attrib_value;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
