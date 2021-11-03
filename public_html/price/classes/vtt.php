@@ -923,9 +923,11 @@ class Vtt {
                         // сравниваем имя товара
                         if ($product_vtt['name'] != $product_our_base['name'])
                             $data['name'] = $product_vtt['name'];
+
                         // сравниваем описание товара
                         if ($product_vtt['description'] != $product_our_base['description'])
                             $data['description'] = $product_vtt['description'];
+
                         // сравниваем категорию товара
                         $our_prov_cat_id = $db->getCatIdByProvCatName($prov_id, $product_vtt['group'], $product_vtt['root_group']);
                         if ($our_prov_cat_id)
@@ -942,30 +944,125 @@ class Vtt {
                             //
                             $db->setStatusProviderProduct($product_our_base['id'], 2);
                         }
-                        // Сравнваем модель товара
-                        $our_prov_model_id = $db->getModelIdByProvModelName($prov_id, $product_vtt['original_number']);
-                        if ((int)$our_prov_model_id != $product_our_base['model_id'])
-                            $data['model_id'] = (int)$our_prov_model_id;
+
+                        // Сравниваем модель товара
+                        //
+                        if ($product_vtt['original_number'] != '') {
+                            $our_prov_model_id = $db->getModelIdByProvModelName($prov_id, $product_vtt['original_number']);
+                            if ($our_prov_model_id != false) {
+                                // если модель отсутствует в таблице моделей provider_model то формируем данные
+                                // и добавляем модель
+                                if ($our_prov_model_id == null) {
+                                    $data_model = array();
+                                    $data_model['provider_id'] = $prov_id;
+                                    $data_model['name'] = $product_vtt['original_number'];
+                                    $our_prov_model_id = $db->addProviderModel($data_model);
+                                }
+                                // теперь сравниваем значения моделей
+                                if ($our_prov_model_id != $product_our_base['model_id'])
+                                    $data['model_id'] = $our_prov_model_id;
+                            } else {
+                                // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
+                                //
+                                $message = 'По имеющемуся товару в выгрузке изменилась модель, которая не может быть сопоставлена!' . "\r\n";
+                                $message .= 'provider_id: ' . $prov_id . "\r\n";
+                                $message .= 'product_id: ' . $product_our_base['id'] . "\r\n";
+                                $message .= 'model из выгрузки: ' . $product_vtt['original_number'] . "\r\n";
+                                $db->addLog('ERROR', 'VTT', $message);
+                                //
+                                $db->setStatusProviderProduct($product_our_base['id'], 2);
+                            }
+                        } else {
+                            // проверяем, не установлена ли модель у товара и если установлена, обнуляем
+                            //
+                            if ($product_our_base['model_id'] != 0)
+                                $data['model_id'] = 0;
+                        }
+
                         // Сравнваем Вендора товара
-                        $our_prov_vendor_id = $db->getVendorIdByProvVendorName($prov_id, $product_vtt['vendor']);
-                        if ((int)$our_prov_vendor_id != $product_our_base['vendor_id'])
-                            $data['vendor_id'] = (int)$our_prov_vendor_id;
+                        //
+                        if ($product_vtt['vendor'] != '') {
+                            $our_prov_vendor_id = $db->getVendorIdByProvVendorName($prov_id, $product_vtt['vendor']);
+                            if ($our_prov_vendor_id != false) {
+                                // если vendor отсутствует в таблице vendor provider_vendor то формируем данные
+                                // и добавляем vendor
+                                if ($our_prov_vendor_id == null) {
+                                    $data_vendor = array();
+                                    $data_vendor['provider_id'] = $prov_id;
+                                    $data_vendor['name'] = $product_vtt['vendor'];
+                                    $our_prov_vendor_id = $db->addProviderVendor($data_vendor);
+                                }
+                                // теперь сравниваем значения моделей
+                                if ($our_prov_vendor_id != $product_our_base['vendor'])
+                                    $data['vendor'] = $our_prov_vendor_id;
+                            } else {
+                                // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
+                                //
+                                $message = 'По имеющемуся товару в выгрузке изменилась vendor, которая не может быть сопоставлена!' . "\r\n";
+                                $message .= 'provider_id: ' . $prov_id . "\r\n";
+                                $message .= 'product_id: ' . $product_our_base['id'] . "\r\n";
+                                $message .= 'vendor из выгрузки: ' . $product_vtt['vendor'] . "\r\n";
+                                $db->addLog('ERROR', 'VTT', $message);
+                                //
+                                $db->setStatusProviderProduct($product_our_base['id'], 2);
+                            }
+                        } else {
+                            // проверяем, не установлена ли vendor у товара и если установлена, обнуляем
+                            //
+                            if ($product_our_base['vendor_id'] != 0)
+                                $data['vendor_id'] = 0;
+                        }
+
                         // Сравнваем Производителя товара
-                        $our_prov_manuf_id = $db->getManufIdByProvManufName($prov_id, $product_vtt['brand']);
-                        if ((int)$our_prov_manuf_id != $product_our_base['manufacturer_id'])
-                            $data['manufacturer_id'] = (int)$our_prov_manuf_id;
+                        //
+                        if ($product_vtt['brand'] != '') {
+                            $our_prov_manuf_id = $db->getManufIdByProvManufName($prov_id, $product_vtt['brand']);
+                            if ($our_prov_manuf_id != false) {
+                                // если manuf отсутствует в таблице manuf provider_manufacturer то формируем данные
+                                // и добавляем manufacturer
+                                if ($our_prov_manuf_id == null) {
+                                    $data_manuf = array();
+                                    $data_manuf['provider_id'] = $prov_id;
+                                    $data_manuf['name'] = $product_vtt['brand'];
+                                    $our_prov_manuf_id = $db->addProviderManufacturer($data_manuf);
+                                }
+                                // теперь сравниваем значения моделей
+                                if ($our_prov_manuf_id != $product_our_base['manufacturer_id'])
+                                    $data['manufacturer_id'] = $our_prov_manuf_id;
+                            } else {
+                                // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
+                                //
+                                $message = 'По имеющемуся товару в выгрузке изменилась manufacturer, которая не может быть сопоставлена!' . "\r\n";
+                                $message .= 'provider_id: ' . $prov_id . "\r\n";
+                                $message .= 'product_id: ' . $product_our_base['id'] . "\r\n";
+                                $message .= 'manufacturer из выгрузки: ' . $product_vtt['brand'] . "\r\n";
+                                $db->addLog('ERROR', 'VTT', $message);
+                                //
+                                $db->setStatusProviderProduct($product_our_base['id'], 2);
+                            }
+                        } else {
+                            // проверяем, не установлена ли manufacturer у товара и если установлена, обнуляем
+                            //
+                            if ($product_our_base['manufacturer_id'] != 0)
+                                $data['manufacturer_id'] = 0;
+                        }
+
                         // сравниваем ширину товара
                         if ((float)$product_vtt['width'] != $product_our_base['width'])
                             $data['width'] = (float)$product_vtt['width'];
+
                         // сравниваем высоту товара
                         if ((float)$product_vtt['height'] != $product_our_base['height'])
                             $data['height'] = (float)$product_vtt['height'];
+
                         // сравниваем длину (глубину) товара
                         if ((float)$product_vtt['depth'] != $product_our_base['length'])
                             $data['length'] = (float)$product_vtt['depth'];
+
                         // сравниваем вес товара
                         if ((float)$product_vtt['weight'] != $product_our_base['weight'])
                             $data['weight'] = (float)$product_vtt['weight'];
+
                         // Проверяем, были ли какие либо изменения
                         if (!empty($data)) {
                             // если данные по продукту в базе отличаются от полученных данных
@@ -1099,7 +1196,6 @@ class Vtt {
                                 $db->addLog('ERROR', 'VTT', $message);
                             }
 
-
                             // проверяем были ли изменения в каких либо данных, и если были, увеличиваем счетчик
                             if ($product_edits OR $product_attrib_color_edits OR $product_attrib_life_time_edits OR $product_image_edits) {
                                 $product_count_edit++;
@@ -1109,17 +1205,132 @@ class Vtt {
                         } else {
                             // если изменений по основным данным нет, или их не удалось разрешить (категория)
                             // то сравниваем изменения по аттрибутам и картинкам
-                            // и просто обновляем дату проверки (обновления) у товара
-
-
-
-
-
+                            // Если изменений нет просто обновляем дату проверки (обновления) у товара
+                            // Сравниваем аттрибуты
                             //
-                            $product_updates = $db->updateProviderProduct($product_id);
-                            if ($product_updates) {
-                                $product_count_update++;
+                            // Цвет
+                            $color = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные');
+                            if ($product_vtt['color_name'] != (string)$color) {
+                                //
+                                if ($color == null) {
+                                    // Если записи об аттрибуте продукта нет, то формируем и добавляем
+                                    $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
+                                    // Получаем id значения аттрибута
+                                    $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['color_name']);
+                                    // если значения аттрибута Цвет нет в нашей базе в provider_attribute_value
+                                    // то добавляем новое значение
+                                    if ($attrib_value_id == null) {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['attribute_id'] = $attrib_id;
+                                        $data['value'] = $product_vtt['color_name'];
+                                        //
+                                        $attrib_value_id = $db->addProviderAttributeValue($data);
+                                    }
+                                    $data = array();
+                                    $data['product_id'] = $product_id;
+                                    $data['attribute_value_id'] = $attrib_value_id;
+
+                                    $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
+                                } else {
+                                    // Если записи об аттрибуте продукта есть, то обновляем ее
+                                    $data = array();
+                                    $data['attribute_name'] = 'Цвет';
+                                    $data['attribute_group_name'] = 'Основные';
+                                    $data['attribute_value'] = $product_vtt['color_name'];
+
+                                    $product_attrib_color_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                }
+                            }
+
+                            // Ресурс
+                            $life_time = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Ресурс', 'Основные');
+                            if ($product_vtt['item_life_time'] != (string)$life_time) {
+                                //
+                                if ($life_time == null) {
+                                    // Если записи об аттрибуте продукта нет, то формируем и добавляем
+                                    $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
+                                    // Получаем id значения аттрибута
+                                    $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['item_life_time']);
+                                    // если значения аттрибута Ресурс нет в нашей базе в provider_attribute_value
+                                    // то добавляем новое значение
+                                    if ($attrib_value_id == null) {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['attribute_id'] = $attrib_id;
+                                        $data['value'] = $product_vtt['item_life_time'];
+                                        //
+                                        $attrib_value_id = $db->addProviderAttributeValue($data);
+                                    }
+                                    $data = array();
+                                    $data['product_id'] = $product_id;
+                                    $data['attribute_value_id'] = $attrib_value_id;
+
+                                    $product_attrib_life_time_edits = $db->addProviderAttributeProduct($data);
+                                } else {
+                                    // Если записи об аттрибуте продукта есть, то обновляем ее
+                                    $data = array();
+                                    $data['attribute_name'] = 'Ресурс';
+                                    $data['attribute_group_name'] = 'Основные';
+                                    $data['attribute_value'] = $product_vtt['item_life_time'];
+
+                                    $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                }
+                            }
+
+                            // Сравниваем изображение
+                            //
+                            $images = $db->getProviderProductImages($prov_id, $product_id);
+                            if ($images != false) {
+                                if ($images == null) {
+                                    // сверяем не появилось ли изображение в выгрузке и если появилось
+                                    // то добавляем новую запись в таблицу изображений товаров поставщика
+                                    //
+                                    if ($product_vtt['photo_url'] != '') {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['product_id'] = $product_id;
+                                        $data['image'] = $product_vtt['photo_url'];
+
+                                        $product_image_edits = $db->addProviderProductImage($data);
+                                    }
+                                } else {
+                                    // если запись об изображении в provider_image есть, то сравниваем
+                                    // ее значения со значением из выгрузки и если отличается, обновляем
+                                    //
+                                    if ($product_vtt['photo_url'] != $images[0]['image']) {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['product_id'] = $product_id;
+                                        $data['image'] = $product_vtt['photo_url'];
+                                        $data['main'] = 0;
+                                        $product_image_edits = $db->editProviderProductImage($images[0]['id'], $data);
+                                    }
+                                }
+                            } else {
+                                // Записываем в лог ошибку при получении изображения, помечаем товар
+                                // НА ПРОВЕРКУ и идем дальше
+                                //
+                                $db->setStatusProviderProduct($product_our_base['id'], 2);
+                                //
+                                $message = 'Ошибка при получении изображения товара из provider_image'. "\r\n";
+                                $message .= 'Товар помечен НА ПРОВЕРКУ.'. "\r\n";
+                                $message .= 'product_id: '. $product_id . "\r\n";
+                                $message .= 'Имя товара: '. $product_our_base['name'] . "\r\n";
+                                $db->addLog('ERROR', 'VTT', $message);
+                            }
+
+                            // проверяем были ли изменения в каких либо данных, и если были, увеличиваем счетчик
+                            if ($product_attrib_color_edits OR $product_attrib_life_time_edits OR $product_image_edits) {
+                                $product_count_edit++;
                                 array_diff($id_products_vtt_our_base, $product_vtt['id']);
+                            } else {
+                                // Если изменений нет, обновляем дату проверки (обновления) у товара
+                                $product_updates = $db->updateProviderProduct($product_id);
+                                if ($product_updates) {
+                                    $product_count_update++;
+                                    array_diff($id_products_vtt_our_base, $product_vtt['id']);
+                                }
                             }
                         }
                     }

@@ -196,8 +196,11 @@ class Db extends Sys {
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $model_id = $row[0];
-                return $model_id;
+
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -836,9 +839,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления модели в таблицу моделей поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>name: ' . $data['name'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления модели в таблицу моделей поставщиков в provider_model' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
