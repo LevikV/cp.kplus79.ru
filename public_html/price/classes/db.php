@@ -553,6 +553,44 @@ class Db extends Sys {
         }
     }
 
+    public function getProviderProductImages($prov_id, $product_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_image WHERE provider_id = '. (int)$prov_id . ' AND product_id = ' . (int)$product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения изображения продукта поставщика из provider_image' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'product_id' => $row["product_id"],
+                        'image' => $row["image"],
+                        'main' => $row["main"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProduct($data) {
         if ($this->status) {
 
@@ -1001,10 +1039,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления изображения для продукта поставщика' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>product_id: ' . $data['product_id'] .
-                    '<br>image: ' . $data['image'];
+                $message = 'Ошибка добавления изображения для продукта поставщика' . "\r\n";
+                $message .= 'provider_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
+                $message .= 'image: ' . $data['image'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1203,6 +1243,36 @@ class Db extends Sys {
                 $message .= 'weight: ' . $data['weight'] . "\r\n";
                 $message .= 'version: ' . $data['version'] . "\r\n";
                 $message .= 'status: ' . $data['status'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function editProviderProductImage($prod_image_id, $data) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status AND $this->checkProviderProductData($data)) {
+            $sql = 'UPDATE provider_image SET provider_id = '. (int)$data['provider_id'] .
+                ', product_id = ' . (int)$data['product_id'] .
+                ', image = "' . $data['image'] .
+                '", main = ' . (int)$data['main'] .
+                ' WHERE id = ' . $prod_image_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения изображения товара в таблице provider_image' . "\r\n";
+                $message .= 'provider_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
+                $message .= 'image: ' . $data['image'] . "\r\n";
+                $message .= 'main: ' . $data['main'] . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
 
                 return false;

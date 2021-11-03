@@ -17,14 +17,19 @@ $ERROR = array();
 //loadProductBaseDataVtt();
 //updateProductTotalDataVtt();
 
-//$prov_id = 1;
-//$product_id = 86;
+$prov_id = 1;
+$product_id = 1;
 //$data['attribute_name'] = 'Цвет';
 //$data['attribute_group_name'] = 'Основные';
-//$data['attribute_value'] = 'Orange'; // По умолчаниюк цвет Bk для этого товара
+//$data['attribute_value'] = 'Orange'; // По умолчаниюк цвет Bk для этого товара id = 86
 //
 //
-//$my_db = new Db;
+$my_db = new Db;
+//$images = $my_db->getProviderProductImages($prov_id, $product_id);
+$images = null;
+if ((string)$images == '') echo 'ThinkDo';
+
+
 //$my_db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
 
 //echo $my_db->getProviderProductCount(1);

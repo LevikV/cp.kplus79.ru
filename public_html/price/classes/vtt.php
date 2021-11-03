@@ -1059,12 +1059,49 @@ class Vtt {
 
                             // Сравниваем изображение
                             //
-                            $image = $db->getProviderProductImage();
+                            $images = $db->getProviderProductImages($prov_id, $product_id);
+                            if ($images != false) {
+                                if ($images == null) {
+                                    // сверяем не появилось ли изображение в выгрузке и если появилось
+                                    // то добавляем новую запись в таблицу изображений товаров поставщика
+                                    //
+                                    if ($product_vtt['photo_url'] != '') {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['product_id'] = $product_id;
+                                        $data['image'] = $product_vtt['photo_url'];
 
+                                        $product_image_edits = $db->addProviderProductImage($data);
+                                    }
+                                } else {
+                                    // если запись об изображении в provider_image есть, то сравниваем
+                                    // ее значения со значением из выгрузки и если отличается, обновляем
+                                    //
+                                    if ($product_vtt['photo_url'] != $images[0]['image']) {
+                                        $data = array();
+                                        $data['provider_id'] = $prov_id;
+                                        $data['product_id'] = $product_id;
+                                        $data['image'] = $product_vtt['photo_url'];
+                                        $data['main'] = 0;
+                                        $product_image_edits = $db->editProviderProductImage($images[0]['id'], $data);
+                                    }
+                                }
+                            } else {
+                                // Записываем в лог ошибку при получении изображения, помечаем товар
+                                // НА ПРОВЕРКУ и идем дальше
+                                //
+                                $db->setStatusProviderProduct($product_our_base['id'], 2);
+                                //
+                                $message = 'Ошибка при получении изображения товара из provider_image'. "\r\n";
+                                $message .= 'Товар помечен НА ПРОВЕРКУ.'. "\r\n";
+                                $message .= 'product_id: '. $product_id . "\r\n";
+                                $message .= 'Имя товара: '. $product_our_base['name'] . "\r\n";
+                                $db->addLog('ERROR', 'VTT', $message);
+                            }
 
 
                             // проверяем были ли изменения в каких либо данных, и если были, увеличиваем счетчик
-                            if ($product_edits OR $product_attrib_color_edits OR $product_attrib_life_time_edits) {
+                            if ($product_edits OR $product_attrib_color_edits OR $product_attrib_life_time_edits OR $product_image_edits) {
                                 $product_count_edit++;
                                 array_diff($id_products_vtt_our_base, $product_vtt['id']);
                             }
@@ -1073,6 +1110,12 @@ class Vtt {
                             // если изменений по основным данным нет, или их не удалось разрешить (категория)
                             // то сравниваем изменения по аттрибутам и картинкам
                             // и просто обновляем дату проверки (обновления) у товара
+
+
+
+
+
+                            //
                             $product_updates = $db->updateProviderProduct($product_id);
                             if ($product_updates) {
                                 $product_count_update++;
