@@ -2007,6 +2007,53 @@ class Db extends Sys {
 
         return true;
     }
+
+    public function deleteProviderProductImage($id_prov_product_image) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DELETE FROM provider_image WHERE id = ' . $id_prov_product_image;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления изображения товара в таблице provider_image' . "\r\n";
+                $message .= 'id_prov_product_image: ' . $id_prov_product_image . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DELETE FROM provider_attribute_product WHERE product_id = ' . $product_id .
+            ' AND attrib_value_id IN (SELECT id FROM provider_attribute_value WHERE attribute_id = '. $attrib_id . ')';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления изображения товара в таблице provider_image' . "\r\n";
+                $message .= 'id_prov_product_image: ' . $id_prov_product_image . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>
