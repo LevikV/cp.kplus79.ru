@@ -1408,9 +1408,139 @@ class Vtt {
                                 }
                             }
                         }
+                    } else {
+                        // если при получении товара из нашей базы возникла ошибка, необходимо ее записать в лог
+                        $message = 'При получении товара из нашей базы возникла ошибка' . "\r\n";
+                        $message .= 'provider_product_id из выгрузки: ' . $product_vtt['id'] . "\r\n";
+                        $message .= 'provider_product_name из выгрузки: ' . $product_vtt['name'] . "\r\n";
+                        $db->addLog('ERROR', 'VTT', $message);
                     }
                 } else {
                     // Если товара нет, то подготавливаем данные и производим добавление товара
+                    $data = array();
+
+                    // Получаем id поставщика товара
+                    $data['provider_id'] = $prov_id;
+
+                    // Получаем id поставщика товара
+                    if ($product_vtt['id'] != '')
+                        $data['provider_product_id'] = $product_vtt['id'];
+                    else {
+                        $message = 'У товара в выгрузке отсутствует id (provider_product_id)' . "\r\n";
+                        $message = 'Запись товара пропушена' . "\r\n";
+                        $message .= 'provider_id: ' . $prov_id . "\r\n";
+                        $message .= 'Имя продукта из выгрузки: ' . $product_vtt['name'] . "\r\n";
+                        $db->addLog('ERROR', 'VTT', $message);
+
+                        continue;
+                    }
+
+                    // Получаем имя товара
+                    if ($product_vtt['name'] != '')
+                        $data['name'] = $product_vtt['name'];
+                    else {
+                        $message = 'У товара в выгрузке отсутствует наименование товара' . "\r\n";
+                        $message = 'Запись товара пропушена' . "\r\n";
+                        $message .= 'provider_id: ' . $prov_id . "\r\n";
+                        $message .= 'Id продукта из выгрузки: ' . $product_vtt['id'] . "\r\n";
+                        $db->addLog('ERROR', 'VTT', $message);
+
+                        continue;
+                    }
+
+                    // Получаем описание товара
+                    if ($product_vtt['description'] != '') {
+                        $data['description'] = $product_vtt['description'];
+                    }
+
+                    // Получаем ширину товара
+                    if ($product_vtt['width'] != '') {
+                        $data['width'] = $product_vtt['width'];
+                    }
+
+                    // Получаем высоту товара
+                    if ($product_vtt['height'] != '') {
+                        $data['height'] = $product_vtt['height'];
+                    }
+
+                    // Получаем длину (глубину) товара
+                    if ($product_vtt['depth'] != '') {
+                        $data['length'] = $product_vtt['depth'];
+                    }
+
+                    // Получаем вес товара
+                    if ($product_vtt['weight'] != '') {
+                        $data['weight'] = $product_vtt['weight'];
+                    }
+
+                    // Получаем id категории товара в таблице поставщика
+                    $id_prov_cat_id = $db->getCatIdByProvCatName($prov_id, $product_vtt['group'], $product_vtt['root_group']);
+                    if ($id_prov_cat_id)
+                        $data['category_id'] = $id_prov_cat_id;
+                    else {
+                        $message = 'Ошибка получения id категории поставщика по имени категории и родительской категории при импорте товаров с ВТТ' . "\r\n";
+                        $message .= 'Необходимо обновить категории поставщика. Импорт товара пропущен' . "\r\n";
+                        $message .= 'product_id из выгрузки: ' . $product_vtt['id'] . "\r\n";
+                        $message .= 'Имя товара из выгрузки: ' . $product_vtt['name'] . "\r\n";
+                        $db->addLog('ERROR', 'VTT', $message);
+
+                        continue;
+                    }
+
+                    // Получаем id модели (парт-номера) товара в таблице поставщика
+                    if ($product_vtt['original_number'] != '') {
+                        $model_id = $db->getModelIdByProvModelName($prov_id, $product_vtt['original_number']);
+                        if ($model_id == null) {
+                            $data_model = array();
+                            $data_model['provider_id'] = $prov_id;
+                            $data_model['name'] = $product_vtt['original_number'];
+                            $model_id = $db->addProviderModel($data_model);
+
+                            $data['model_id'] = $model_id;
+                        } elseif ($model_id != false) {
+                            $data['model_id'] = $model_id;
+                        } else {
+                            $message = 'Ошибка при получения id модели продукта поставщика' . "\r\n";
+                            $message .= 'Импорт товара пропущен' . "\r\n";
+                            $message .= 'product_id из выгрузки: ' . $product_vtt['id'] . "\r\n";
+                            $message .= 'Имя товара из выгрузки: ' . $product_vtt['name'] . "\r\n";
+                            $message .= 'Имя модели из выгрузки: ' . $product_vtt['original_number'] . "\r\n";
+                            $db->addLog('ERROR', 'VTT', $message);
+
+                            continue;
+                        }
+                    }
+
+                    // Получаем id вендора товара в таблице поставщика
+                    if ($product_vtt['vendor'] != '') {
+                        $vendor_id  = $db->getVendorIdByProvVendorName($prov_id, $product_vtt['vendor']);
+                        if ($vendor_id == null) {
+                            $data_vendor = array();
+                            $data_vendor['provider_id'] = $prov_id;
+                            $data_vendor['name'] = $product_vtt['vendor'];
+                            $vendor_id = $db->addProviderVendor($data_vendor);
+
+                            $data['vendor_id'] = $vendor_id;
+                        } elseif ($vendor_id != false) {
+                            $data['vendor_id'] = $vendor_id;
+                        } else {
+                            $message = 'Ошибка при получения id вендора продукта поставщика' . "\r\n";
+                            $message .= 'Импорт товара пропущен' . "\r\n";
+                            $message .= 'product_id из выгрузки: ' . $product_vtt['id'] . "\r\n";
+                            $message .= 'Имя товара из выгрузки: ' . $product_vtt['name'] . "\r\n";
+                            $message .= 'Имя вендора из выгрузки: ' . $product_vtt['vendor'] . "\r\n";
+                            $db->addLog('ERROR', 'VTT', $message);
+
+                            continue;
+                        }
+                    }
+
+
+
+
+
+
+
 
 
 
