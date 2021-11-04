@@ -1417,12 +1417,13 @@ class Vtt {
                     }
                 } else {
                     // Если товара нет, то подготавливаем данные и производим добавление товара
+                    //
                     $data = array();
 
                     // Получаем id поставщика товара
                     $data['provider_id'] = $prov_id;
 
-                    // Получаем id поставщика товара
+                    // Получаем id товара поставщика товара
                     if ($product_vtt['id'] != '')
                         $data['provider_product_id'] = $product_vtt['id'];
                     else {
@@ -1535,16 +1536,93 @@ class Vtt {
                         }
                     }
 
+                    // Получаем id производителя товара в таблице поставщика
+                    if ($product_vtt['brand'] != '') {
+                        $manuf_id  = $db->getManufIdByProvManufName($prov_id, $product_vtt['brand']);
+                        if ($manuf_id == null) {
+                            $data_manuf = array();
+                            $data_manuf['provider_id'] = $prov_id;
+                            $data_manuf['name'] = $product_vtt['brand'];
+                            $manuf_id = $db->addProviderManufacturer($data_manuf);
 
+                            $data['manufacturer_id'] = $manuf_id;
+                        } elseif ($manuf_id != false) {
+                            $data['manufacturer_id'] = $manuf_id;
+                        } else {
+                            $message = 'Ошибка при получения id производителя продукта поставщика' . "\r\n";
+                            $message .= 'Импорт товара пропущен' . "\r\n";
+                            $message .= 'product_id из выгрузки: ' . $product_vtt['id'] . "\r\n";
+                            $message .= 'Имя товара из выгрузки: ' . $product_vtt['name'] . "\r\n";
+                            $message .= 'Имя производителя из выгрузки: ' . $product_vtt['brand'] . "\r\n";
+                            $db->addLog('ERROR', 'VTT', $message);
 
+                            continue;
+                        }
+                    }
 
+                    // Добавляем товар в таблицу поставщиков
+                    $id_prov_product = $db->addProviderProduct($data);
 
+                    // Проверяем, если запись товара произведена успешно, то увеличиваем счетчик
+                    // добавленных товаров и производим загрузку остальных данных по товару
+                    if ($id_prov_product) {
+                        $product_count_add++;
 
+                        // Производим запись аттрибутов для добавленного товара
+                        // аттрибут "Цвет"
+                        if ($product_vtt['color_name'] != '') {
+                            $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
+                            if ($attrib_id)
+                                $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['color_name']);
+                            // если значения аттрибута Цвет нет в нашей базе в provider_attribute_value
+                            // то добавляем новое значение
+                            if ($attrib_value_id == null) {
+                                $data = array();
+                                $data['provider_id'] = $prov_id;
+                                $data['attribute_id'] = $attrib_id;
+                                $data['value'] = $product_vtt['color_name'];
+                                $attrib_value_id = $db->addProviderAttributeValue($data);
+                            }
+                            if ($attrib_value_id != false) {
+                                $data = array();
+                                $data['product_id'] = $id_prov_product;
+                                $data['attribute_value_id'] = $attrib_value_id;
 
+                                $id_attrib_product = $db->addProviderAttributeProduct($data);
+                            }
+                        }
 
+                        // аттрибут "Ресурс"
+                        if ($product_vtt['item_life_time'] != '') {
+                            $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
+                            if ($attrib_id)
+                                $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['item_life_time']);
+                            // если значения аттрибута Ресурс нет в нашей базе в provider_attribute_value
+                            // то добавляем новое значение
+                            if ($attrib_value_id == null) {
+                                $data = array();
+                                $data['provider_id'] = $prov_id;
+                                $data['attribute_id'] = $attrib_id;
+                                $data['value'] = $product_vtt['item_life_time'];
+                                $attrib_value_id = $db->addProviderAttributeValue($data);
+                            }
+                            if ($attrib_value_id != false) {
+                                $data = array();
+                                $data['product_id'] = $id_prov_product;
+                                $data['attribute_value_id'] = $attrib_value_id;
+                                $id_attrib_product = $db->addProviderAttributeProduct($data);
+                            }
+                        }
 
-
-
+                        // Производим запись изображений для добавленного товара
+                        if ($product_vtt['photo_url'] != '') {
+                            $data = array();
+                            $data['provider_id'] = $prov_id;
+                            $data['product_id'] = $id_prov_product;
+                            $data['image'] = $product_vtt['photo_url'];
+                            $id_image_product = $db->addProviderProductImage($data);
+                        }
+                    }
                 }
             }
 
