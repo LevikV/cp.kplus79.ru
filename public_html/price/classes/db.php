@@ -1127,20 +1127,23 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления продукта в таблицу продуктов поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>provider_product_id: ' . $data['provider_product_id'] .
-                    '<br>name: ' . $data['name'] .
-                    '<br>description: ' . $data['description'] .
-                    '<br>category_id: ' . $data['category_id'] .
-                    '<br>model_id: ' . $data['model_id'] .
-                    '<br>vendor_id: ' . $data['vendor_id'] .
-                    '<br>manufacturer_id: ' . $data['manufacturer_id'] .
-                    '<br>width: ' . $data['width'] .
-                    '<br>height: ' . $data['height'] .
-                    '<br>length: ' . $data['length'] .
-                    '<br>weight: ' . $data['weight'] .
-                    '<br>version: ' . $data['version'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id категории по имени' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'prov_cat_name: ' . $data['provider_product_id'] . "\r\n";
+                $message .= 'prov_root_cat_name: ' . $data['name'] . "\r\n";
+                $message .= 'description: ' . $data['description'] . "\r\n";
+                $message .= 'category_id: ' . $data['category_id'] . "\r\n";
+                $message .= 'model_id: ' . $data['model_id'] . "\r\n";
+                $message .= 'vendor_id: ' . $data['vendor_id'] . "\r\n";
+                $message .= 'manufacturer_id: ' . $data['manufacturer_id'] . "\r\n";
+                $message .= 'width: ' . $data['width'] . "\r\n";
+                $message .= 'height: ' . $data['height'] . "\r\n";
+                $message .= 'length: ' . $data['length'] . "\r\n";
+                $message .= 'weight: ' . $data['weight'] . "\r\n";
+                $message .= 'version: ' . $data['version'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1201,14 +1204,17 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления provider_product_total для продукта поставщика' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>product_id: ' . $data['product_id'] .
-                    '<br>total: ' . $data['total'] .
-                    '<br>price_usd: ' . $data['price_usd'] .
-                    '<br>price_rub: ' . $data['price_rub'] .
-                    '<br>transit: ' . $data['transit'] .
-                    '<br>transit_date: ' . $data['transit_date'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления provider_product_total для продукта поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'prov_cat_name: ' . $data['product_id'] . "\r\n";
+                $message .= 'total: ' . $data['total'] . "\r\n";
+                $message .= 'price_usd: ' . $data['price_usd'] . "\r\n";
+                $message .= 'price_rub: ' . $data['price_rub'] . "\r\n";
+                $message .= 'transit: ' . $data['transit'] . "\r\n";
+                $message .= 'transit_date: ' . $data['transit_date'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1231,10 +1237,13 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления записи в таблицу сопоставления' .
-                    '<br>code: ' . $code .
-                    '<br>our_item_id: ' . $our_id .
-                    '<br>our_provider_item_id: ' . $provider_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления provider_product_total для продукта поставщика' . "\r\n";
+                $message .= 'code: ' . $code . "\r\n";
+                $message .= 'our_item_id: ' . $our_id . "\r\n";
+                $message .= 'our_provider_item_id: ' . $provider_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1258,8 +1267,11 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка обновления записи в таблице' .
-                    '<br>cat_id: ' . $cat_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка обновления записи в таблице category' . "\r\n";
+                $message .= 'cat_id: ' . $cat_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1283,8 +1295,11 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка обновления записи в таблице категорий поставщиков' .
-                    '<br>cat_id: ' . $cat_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка обновления записи в таблице категорий поставщиков' . "\r\n";
+                $message .= 'cat_id: ' . $cat_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1313,14 +1328,17 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка изменения записи в таблице provider_product_total' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>product_id: ' . $data['product_id'] .
-                    '<br>total: ' . $data['total'] .
-                    '<br>price_usd: ' . $data['price_usd'] .
-                    '<br>price_rub: ' . $data['price_rub'] .
-                    '<br>transit: ' . $data['transit'] .
-                    '<br>transit_date: ' . $data['transit_date'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения записи в таблице provider_product_total' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'prov_cat_name: ' . $data['product_id'] . "\r\n";
+                $message .= 'total: ' . $data['total'] . "\r\n";
+                $message .= 'price_usd: ' . $data['price_usd'] . "\r\n";
+                $message .= 'price_rub: ' . $data['price_rub'] . "\r\n";
+                $message .= 'transit: ' . $data['transit'] . "\r\n";
+                $message .= 'transit_date: ' . $data['transit_date'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1464,9 +1482,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка обновления записи в таблице provider_product_total' .
-                    '<br>provider_id: ' . $prov_id .
-                    '<br>product_id: ' . $product_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id категории по имени' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -1486,8 +1507,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка обновления записи в таблице provider_product' .
-                    '<br>product_id: ' . $product_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка обновления записи в таблице provider_product' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
