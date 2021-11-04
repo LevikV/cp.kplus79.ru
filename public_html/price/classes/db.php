@@ -54,7 +54,10 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка получения всех наших категорий';
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения всех наших категорий из таблицы category' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -68,7 +71,10 @@ class Db extends Sys {
                         'image' => $row["image"]
                     );
                 }
-                return $rows;
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
             }
         } else {
             return false;
@@ -84,8 +90,11 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка получения количества товаров поставщика из нашей БД по pro_id' .
-                    '<br>prov_id: ' . $prov_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения количества товаров поставщика из нашей БД по prov_id' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -110,15 +119,20 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска аттрибута по имени в нашей базе.' .
-                    '<br>attribute_name: ' . $attribute_name .
-                    '<br>attribute_group_name: ' . $attribute_group_name;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска аттрибута по имени в нашей базе.' . "\r\n";
+                $message .= 'attribute_name: ' . $attribute_name . "\r\n";
+                $message .= 'attribute_group_name: ' . $attribute_group_name . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $our_prov_attrib_id = $row[0];
-                return $our_prov_attrib_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -138,16 +152,21 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска категории для сопоставления.' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>code: ' . $code .
-                    '<br>prov_cat_id: ' . $prov_item_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска сущности для сопоставления.' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'code: ' . $code . "\r\n";
+                $message .= 'сущность_id: ' . $prov_item_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $our_cat_id = $row[0];
-                return $our_cat_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -164,15 +183,21 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска категории для сопоставления.' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>prov_cat_name: ' . $prov_cat_name;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id категории по имени' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'prov_cat_name: ' . $prov_cat_name . "\r\n";
+                $message .= 'prov_root_cat_name: ' . $prov_root_cat_name . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $our_cat_id = $row[0];
-                return $our_cat_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -189,9 +214,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска id модели по имени модели поставщика' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>prov_model_name: ' . $prov_model_name;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id модели по имени модели поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'prov_model_name: ' . $prov_model_name . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -217,15 +245,20 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска id вендора по имени вендора поставщика' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>prov_vendor_name: ' . $prov_vendor_name;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id вендора по имени вендора поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'prov_vendor_name: ' . $prov_vendor_name . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $vendor_id = $row[0];
-                return $vendor_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -242,15 +275,20 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска id производителя (брэнда) по имени брэнда поставщика' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>prov_manuf_name: ' . $prov_manuf_name;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id производителя (брэнда) по имени брэнда поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'prov_manuf_name: ' . $prov_manuf_name . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $manuf_id = $row[0];
-                return $manuf_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -267,17 +305,22 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка получения категории поставщика по provCatId' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>prov_cat_id: ' . $prov_cat_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения категории поставщика по provCatId' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'prov_cat_id: ' . $prov_cat_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 //$row = $result->fetch_row();
                 //$row = mysqli_fetch_array($result);
                 $row = mysqli_fetch_all($result, MYSQLI_ASSOC);
-
-                return $row[0];
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -294,15 +337,20 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска id категории по id категории поставщика' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>prov_cat_id: ' . $prov_cat_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id категории по id категории поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'prov_cat_id: ' . $prov_cat_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $our_cat_id = $row[0];
-                return $our_cat_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -318,16 +366,21 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска аттрибута поставщика по имени.' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>attribute_name: ' . $attribute_name .
-                    '<br>attribute_group_name: ' . $attribute_group_name;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска аттрибута поставщика по имени.' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'attribute_name: ' . $attribute_name . "\r\n";
+                $message .= 'attribute_group_name: ' . $attribute_group_name . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
                 $row = $result->fetch_row();
-                $our_prov_attrib_id = $row[0];
-                return $our_prov_attrib_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -343,10 +396,13 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска id значения аттрибута поставщика по id аттрибута и его значению' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>attribute_id: ' . $attrib_id .
-                    '<br>attribute_value: ' . $value;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id значения аттрибута поставщика по id аттрибута и его значению' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'attribute_id: ' . $attrib_id . "\r\n";
+                $message .= 'attribute_value: ' . $value . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -416,15 +472,20 @@ class Db extends Sys {
                 $result = array();
 -               $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка поиска товара поставщика в таблице поставщиков по provider_id и provider_product_id' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>prov_product_id: ' . $prov_product_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска товара поставщика в таблице поставщиков по provider_id и provider_product_id' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'prov_product_id: ' . $prov_product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result->num_rows > 0) {
                 $row = $result->fetch_row();
-                $prov_product_id = $row[0];
-                return $prov_product_id;
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
             }
         } else {
             return false;
@@ -440,9 +501,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка получения данных total продукта поставщика' .
-                    '<br>prov_id: ' . $prov_id .
-                    '<br>product_id: ' . $product_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения данных total продукта поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -462,7 +526,10 @@ class Db extends Sys {
                         'date_update' => $row["date_update"]
                     );
                 }
-                return $rows[0];
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows[0];
             }
         } else {
             return false;
@@ -510,7 +577,10 @@ class Db extends Sys {
                         'date_update' => $row["date_update"]
                     );
                 }
-                return $rows[0];
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows[0];
             }
         } else {
             return false;
@@ -526,8 +596,11 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка получения всех товаров поставщика' .
-                    '<br>prov_id: ' . $prov_id;
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения всех товаров поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -553,7 +626,10 @@ class Db extends Sys {
                         'date_update' => $row["date_update"]
                     );
                 }
-                return $rows;
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
             }
         } else {
             return false;
@@ -616,11 +692,14 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления категории в нашу базу категорий.' .
-                    '<br>name: ' . $data['name'] .
-                    '<br>description: ' . $data['description'] .
-                    '<br>parent_id: ' . $data['parent_id'] .
-                    '<br>image: ' . $data['image'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления категории в нашу базу категорий' . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'description: ' . $data['description'] . "\r\n";
+                $message .= 'parent_id: ' . $data['parent_id'] . "\r\n";
+                $message .= 'image: ' . $data['image'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -643,10 +722,13 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления производителя в нашу таблицу производителей' .
-                    '<br>name: ' . $data['name'] .
-                    '<br>description: ' . $data['description'] .
-                    '<br>image: ' . $data['image'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления производителя в нашу таблицу производителей' . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'description: ' . $data['description'] . "\r\n";
+                $message .= 'image: ' . $data['image'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -667,8 +749,11 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления модели в нашу таблицу моделей' .
-                    '<br>name: ' . $data['name'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления модели в нашу таблицу моделей' . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -691,8 +776,11 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления вендора в нашу таблицу вендоров' .
-                    '<br>name: ' . $data['name'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления вендора в vendor' . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -714,9 +802,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления группы аттрибутов в таблицу нашей БД' .
-                    '<br>name: ' . $data['name'] .
-                    '<br>parent_id: ' . $data['parent_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления группы атрибутов в attribute_group' . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'parent_id: ' . $data['parent_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -738,9 +829,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления аттрибута в таблицу нашей БД' .
-                    '<br>name: ' . $data['name'] .
-                    '<br>group_id: ' . $data['group_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления аттрибута в таблицу нашей БД' . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'group_id: ' . $data['group_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -762,9 +856,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута в нашу таблицу' .
-                    '<br>value: ' . $data['value'] .
-                    '<br>attribute_id: ' . $data['attribute_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления значения аттрибута в нашу таблицу' . "\r\n";
+                $message .= 'value: ' . $data['value'] . "\r\n";
+                $message .= 'attribute_id: ' . $data['attribute_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -789,11 +886,14 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления категории в таблицу категорий поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>provider_category_id: ' . $data['provider_category_id'] .
-                    '<br>provider_category_name: ' . $data['provider_category_name'] .
-                    '<br>provider_category_parent_id: ' . $data['provider_category_parent_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления категории в таблицу категорий поставщиков' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'provider_category_id: ' . $data['provider_category_id'] . "\r\n";
+                $message .= 'provider_category_name: ' . $data['provider_category_name'] . "\r\n";
+                $message .= 'provider_category_parent_id: ' . $data['provider_category_parent_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -817,11 +917,14 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления производителя в таблицу производителей поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>name: ' . $data['name'] .
-                    '<br>description: ' . $data['description'] .
-                    '<br>image: ' . $data['image'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления производителя в таблицу производителей поставщиков' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'description: ' . $data['description'] . "\r\n";
+                $message .= 'image: ' . $data['image'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -872,9 +975,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления вендора в таблицу вендоров поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>name: ' . $data['name'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления вендора в таблицу вендоров поставщиков' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -897,10 +1003,13 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления группы аттрибутов в таблицу поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>name: ' . $data['name'] .
-                    '<br>parent_id: ' . $data['parent_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления группы аттрибутов в таблицу поставщиков' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'parent_id: ' . $data['parent_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -923,10 +1032,13 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления аттрибута в таблицу поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>name: ' . $data['name'] .
-                    '<br>group_id: ' . $data['group_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления аттрибута в таблицу поставщиков' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'name: ' . $data['name'] . "\r\n";
+                $message .= 'group_id: ' . $data['group_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -949,10 +1061,13 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута в таблицу поставщиков' .
-                    '<br>provider_id: ' . $data['provider_id'] .
-                    '<br>value: ' . $data['value'] .
-                    '<br>attribute_id: ' . $data['attribute_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления значения аттрибута в таблицу поставщиков' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'value: ' . $data['value'] . "\r\n";
+                $message .= 'attribute_id: ' . $data['attribute_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
@@ -974,9 +1089,12 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                $ERROR['Db'][] = 'Ошибка добавления значения аттрибута для продукта' .
-                    '<br>product_id: ' . $data['product_id'] .
-                    '<br>attribute_value_id: ' . $data['attribute_value_id'];
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления значения аттрибута для продукта' . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
+                $message .= 'attribute_value_id: ' . $data['attribute_value_id'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
                 return false;
             }
             if ($result != false) {
