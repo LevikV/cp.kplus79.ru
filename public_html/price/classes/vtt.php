@@ -1162,12 +1162,18 @@ class Vtt {
                                     $product_attrib_life_time_edits = $db->addProviderAttributeProduct($data);
                                 } elseif ($life_time != false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
-                                    $data = array();
-                                    $data['attribute_name'] = 'Ресурс';
-                                    $data['attribute_group_name'] = 'Основные';
-                                    $data['attribute_value'] = $product_vtt['item_life_time'];
+                                    // если в выгрузке эта запись отстутствует, то и в нашей БД ее надо удалить
+                                    if ($product_vtt['item_life_time'] != '') {
+                                        $data = array();
+                                        $data['attribute_name'] = 'Ресурс';
+                                        $data['attribute_group_name'] = 'Основные';
+                                        $data['attribute_value'] = $product_vtt['item_life_time'];
 
-                                    $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                        $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                    } else {
+                                        $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
+                                        $product_attrib_life_time_edits = $db->deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id);
+                                    }
                                 } else {
                                     // Ошибка при получении getProviderProductAttributeValueByAttribName
                                     // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
@@ -1266,12 +1272,18 @@ class Vtt {
                                     $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
                                 } elseif ($color != false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
-                                    $data = array();
-                                    $data['attribute_name'] = 'Цвет';
-                                    $data['attribute_group_name'] = 'Основные';
-                                    $data['attribute_value'] = $product_vtt['color_name'];
+                                    // если в выгрузке эта запись отстутствует, то и в нашей БД ее надо удалить
+                                    if ($product_vtt['color_name'] != '') {
+                                        $data = array();
+                                        $data['attribute_name'] = 'Цвет';
+                                        $data['attribute_group_name'] = 'Основные';
+                                        $data['attribute_value'] = $product_vtt['color_name'];
 
-                                    $product_attrib_color_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                        $product_attrib_color_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                    } else {
+                                        $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
+                                        $product_attrib_color_edits = $db->deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id);
+                                    }
                                 } else {
                                     // Ошибка при получении getProviderProductAttributeValueByAttribName
                                     // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
@@ -1311,12 +1323,18 @@ class Vtt {
                                     $product_attrib_life_time_edits = $db->addProviderAttributeProduct($data);
                                 } elseif ($life_time != false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
-                                    $data = array();
-                                    $data['attribute_name'] = 'Ресурс';
-                                    $data['attribute_group_name'] = 'Основные';
-                                    $data['attribute_value'] = $product_vtt['item_life_time'];
+                                    // если в выгрузке эта запись отстутствует, то и в нашей БД ее надо удалить
+                                    if ($product_vtt['item_life_time'] != '') {
+                                        $data = array();
+                                        $data['attribute_name'] = 'Ресурс';
+                                        $data['attribute_group_name'] = 'Основные';
+                                        $data['attribute_value'] = $product_vtt['item_life_time'];
 
-                                    $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                        $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                    } else {
+                                        $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
+                                        $product_attrib_life_time_edits = $db->deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id);
+                                    }
                                 } else {
                                     // Ошибка при получении getProviderProductAttributeValueByAttribName
                                     // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ

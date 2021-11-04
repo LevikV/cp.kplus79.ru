@@ -2041,8 +2041,9 @@ class Db extends Sys {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
-                $message = 'Ошибка удаления изображения товара в таблице provider_image' . "\r\n";
-                $message .= 'id_prov_product_image: ' . $id_prov_product_image . "\r\n";
+                $message = 'Ошибка удаления аттрибута товара в таблице provider_attribute_product' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'attrib_id: ' . $attrib_id . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
 
                 return false;
