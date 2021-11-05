@@ -1733,14 +1733,29 @@ class Vtt {
                 }
 
             // Сравниваем количество обновленных, добавленных и отключенных товаров
+            //
+            // Получаем все товары поставщика из нашей базы после обновления
+            $products_vtt_our_base = $db->getProviderProducts($prov_id);
+            // общее количество товаров от поставщика в нашей базе
+            $product_count_new_our_base = count($products_vtt_our_base);
+            // Количество отключенных и со статусом НА ПРОВЕРКЕ товаров
+            $product_count_off_new_our_base = 0;
+            $product_count_check_new_our_base = 0;
+            foreach ($products_vtt_our_base as $product) {
+                if ($product['status'] == 0)
+                    $product_count_off_new_our_base++;
+                elseif ($product['status'] == 2)
+                    $product_count_check_new_our_base++;
 
 
             // Записываем в лог
             $message = 'Итоговый отчет по процедуре обновления товаров с портала ВТТ.' . "\r\n";
-            $message .= 'Товаров от ВТТ в нашей базе: ' . $product_count_old_our_base .
+            $message .= 'Товаров от ВТТ в нашей базе до начала обновления: ' . $product_count_old_our_base .
                 ' из них отключенных: ' . $product_count_off_old_our_base .
                 ' и на проверке: ' . $product_count_check_old_our_base .  "\r\n";
-
+            $message .= 'Товаров от ВТТ в нашей базе после обновления: ' . $product_count_new_our_base .
+                ' из них отключенных: ' . $product_count_off_new_our_base .
+                ' и на проверке: ' . $product_count_check_new_our_base .  "\r\n";
 
             $db->addLog('INFO', 'VTT', $message);
 
