@@ -889,7 +889,7 @@ class Vtt {
                 return false;
             }
             // Записываем в лог
-            $message = 'СТАРТ начала обновления товаров с ВТТ';
+            $message = 'СТАРТ начала обновления товаров с ВТТ' . "\r\n";
             $db->addLog('INFO', 'VTT', $message);
 
             $prov_id = 1; // устанавливаем id поставщика
@@ -899,7 +899,7 @@ class Vtt {
 
             if ($products_vtt) {
                 // Записываем в лог
-                $message = 'Данные с портала ВТТ получены.';
+                $message = 'Данные с портала ВТТ получены.' . "\r\n";
                 $db->addLog('INFO', 'VTT', $message);
             }
 
@@ -913,6 +913,22 @@ class Vtt {
             // Перебираем все товары с выгрузки, обновляем данные по имеющимся и если есть новые добавляем.
             //
             // устанавливаем счетчики
+            //
+            // общее количество товаров от поставщика в нашей базе
+            $product_count_old_our_base = count($products_vtt_our_base);
+            // Количество отключенных и со статусом НА ПРОВЕРКЕ товаров
+            $product_count_off_old_our_base = 0;
+            $product_count_check_old_our_base = 0;
+            foreach ($products_vtt_our_base as $product) {
+                if ($product['status'] == 0)
+                    $product_count_off_old_our_base++;
+                elseif ($product['status'] == 2)
+                    $product_count_check_old_our_base++;
+            }
+            // Количество товаров в выгрузке поставщика
+            $product_count_vtt_base = count($products_vtt);
+
+
             $product_count_edit = 0;
             $product_count_add = 0;
             $product_count_update = 0;
@@ -1718,6 +1734,15 @@ class Vtt {
 
             // Сравниваем количество обновленных, добавленных и отключенных товаров
 
+
+            // Записываем в лог
+            $message = 'Итоговый отчет по процедуре обновления товаров с портала ВТТ.' . "\r\n";
+            $message .= 'Товаров от ВТТ в нашей базе: ' . $product_count_old_our_base .
+                ' из них отключенных: ' . $product_count_off_old_our_base .
+                ' и на проверке: ' . $product_count_check_old_our_base .  "\r\n";
+
+
+            $db->addLog('INFO', 'VTT', $message);
 
 
 
