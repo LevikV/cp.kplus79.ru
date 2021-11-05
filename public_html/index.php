@@ -16,18 +16,19 @@ $ERROR = array();
 //loadAllSettingVtt();
 //loadProductBaseDataVtt();
 //updateProductTotalDataVtt();
+updateProductsVtt();
 
-$prov_id = 1;
-$product_id = 1;
+//$prov_id = 1;
+//$product_id = 1;
 //$data['attribute_name'] = 'Цвет';
 //$data['attribute_group_name'] = 'Основные';
 //$data['attribute_value'] = 'Orange'; // По умолчаниюк цвет Bk для этого товара id = 86
 //
 //
-$my_db = new Db;
+//$my_db = new Db;
 //$images = $my_db->getProviderProductImages($prov_id, $product_id);
-$images = null;
-if ((string)$images == '') echo 'ThinkDo';
+//$images = null;
+//if ((string)$images == '') echo 'ThinkDo';
 
 
 //$my_db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
@@ -391,21 +392,25 @@ function updateProductTotalDataVtt () {
         return false;
     } else {
         echo '<br>Загрузка total товаров выполнена';
+        return true;
     }
 
-    if (empty($ERROR)) {
-        echo '<br>При загрузка total не было ошибок!';
-        return true;
+
+}
+
+function updateProductsVtt () {
+    // Функция загрузки, создания и обновления total ВТТ
+    global $ERROR;
+    $vtt = new Vtt;
+    $updates_vtt = $vtt->updateProducts();
+    if ($updates_vtt == false) {
+        echo '<br>Не удалось обновить товары с портала ВТТ.';
+        return false;
     } else {
-        echo '<br>';
-        foreach ($ERROR as $key => $value) {
-            echo 'Error - ' . $key . ': <br>';
-            foreach ($value as $item) {
-                echo '<br>';
-                echo $item;
-            }
-        }
+        echo '<br>Обновление товаров завершено.';
+        return true;
     }
+
 
 }
 

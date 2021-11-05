@@ -541,7 +541,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT * FROM provider_product WHERE provider_id = '. (int)$prov_id . ' AND product_id = ' . (int)$product_id;
+            $sql = 'SELECT * FROM provider_product WHERE provider_id = '. (int)$prov_id . ' AND id = ' . (int)$product_id;
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -621,6 +621,7 @@ class Db extends Sys {
                         'length' => $row["length"],
                         'weight' => $row["weight"],
                         'version' => $row["version"],
+                        'status' => $row["status"],
                         'date_add' => $row["date_add"],
                         'date_edit' => $row["date_edit"],
                         'date_update' => $row["date_update"]
@@ -1123,7 +1124,7 @@ class Db extends Sys {
                 (float)$data['height'] . '", "' .
                 (float)$data['length'] . '", "' .
                 (float)$data['weight'] . '", "' .
-                $data['version'] . '", 2, NOW())';
+                $data['version'] . '", 1, NOW())';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
