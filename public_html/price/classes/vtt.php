@@ -1746,7 +1746,7 @@ class Vtt {
                     $product_count_off_new_our_base++;
                 elseif ($product['status'] == 2)
                     $product_count_check_new_our_base++;
-
+            }
 
             // Записываем в лог
             $message = 'Итоговый отчет по процедуре обновления товаров с портала ВТТ.' . "\r\n";
