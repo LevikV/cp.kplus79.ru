@@ -1750,12 +1750,34 @@ class Vtt {
 
             // Записываем в лог
             $message = 'Итоговый отчет по процедуре обновления товаров с портала ВТТ.' . "\r\n";
+            $message .= "\r\n";
+            $message .= 'Количество ошибок при обновления товаров: ' . $count_error .  "\r\n";
+            $message .= "\r\n";
             $message .= 'Товаров от ВТТ в нашей базе до начала обновления: ' . $product_count_old_our_base .
                 ' из них отключенных: ' . $product_count_off_old_our_base .
                 ' и на проверке: ' . $product_count_check_old_our_base .  "\r\n";
             $message .= 'Товаров от ВТТ в нашей базе после обновления: ' . $product_count_new_our_base .
                 ' из них отключенных: ' . $product_count_off_new_our_base .
                 ' и на проверке: ' . $product_count_check_new_our_base .  "\r\n";
+            $message .= "\r\n";
+            $message .= 'Количество товаров в выгрузке с портала ВТТ: ' . $product_count_vtt_base .  "\r\n";
+            $message .= 'Количество добавленных товаров в нашу базу: ' . $product_count_add .  "\r\n";
+            $message .= 'Количество измененных товаров: ' . $product_count_add .  "\r\n";
+            $message .= 'Количество отключенных товаров (отсутствуют в выгрузке): ' . $product_count_off .  "\r\n";
+            $message .= 'Количество помеченных НА ПРОВЕРКУ товаров (проблемы при выгрузке): ' . $product_count_check .  "\r\n";
+            $message .= 'Количество товаров по которым не было изменений (обновлены): ' . $product_count_update .  "\r\n";
+            $message .= "\r\n";
+            $message .= 'Количество добавленных изображений товаров в нашу базу: ' . $image_count_add .  "\r\n";
+            $message .= 'Количество измененных изображений товаров в нашей базе: ' . $image_count_edit .  "\r\n";
+            $message .= 'Количество удаленных изображений товаров из нашей базы: ' . $image_count_delete .  "\r\n";
+            $message .= "\r\n";
+            $message .= 'Количество добавленных аттрибутов товаров в нашу базу: ' . $attrib_count_add .  "\r\n";
+            $message .= 'Количество добавленных моделей товаров в нашу базу: ' . $model_count_add .  "\r\n";
+            $message .= 'Количество добавленных вендоров товаров в нашу базу: ' . $vendor_count_add .  "\r\n";
+            $message .= 'Количество добавленных производителей товаров в нашу базу: ' . $manuf_count_add .  "\r\n";
+            $message .= "\r\n";
+            $message .= 'Процедура обновления товаров с портала ВТТ завершена.' . "\r\n";
+
 
             $db->addLog('INFO', 'VTT', $message);
 
