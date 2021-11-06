@@ -949,6 +949,12 @@ class Vtt {
             $count_error = 0;
 
             foreach ($products_vtt as $product_vtt) {
+                // обнуляем промежуточные метки
+                $product_edits = false;
+                $product_attrib_color_edits = false;
+                $product_attrib_life_time_edits = false;
+                $product_image_edits = false;
+
                 $data = array();
                 if (in_array($product_vtt['id'], $id_products_vtt_our_base)) {
                     // Если товар есть в нашей таблице товаров поставщика, то проверяем и обноввляем данные
@@ -1303,7 +1309,7 @@ class Vtt {
                                 $product_count_edit++;
                                 $temp = array();
                                 $temp[] = $product_vtt['id'];
-                                array_diff($id_products_vtt_our_base, $temp);
+                                $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
                             }
 
                         } else {
@@ -1477,7 +1483,7 @@ class Vtt {
                                 $product_count_edit++;
                                 $temp = array();
                                 $temp[] = $product_vtt['id'];
-                                array_diff($id_products_vtt_our_base, $temp);
+                                $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
                             } else {
                                 // Если изменений нет, обновляем дату проверки (обновления) у товара
                                 $product_updates = $db->updateProviderProduct($product_id);
@@ -1485,7 +1491,7 @@ class Vtt {
                                     $product_count_update++;
                                     $temp = array();
                                     $temp[] = $product_vtt['id'];
-                                    array_diff($id_products_vtt_our_base, $temp);
+                                    $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
                                 }
                             }
                         }
@@ -1731,14 +1737,23 @@ class Vtt {
             // Проверяем, остались ли id товаров в массиве товаров поставщика из нашей базы
             // и если остались, то значит этих товаров не было в выгрузке поставщика и их нужно
             // отключить
-            if (!empty($id_products_vtt_our_base))
-                foreach ($id_products_vtt_our_base as $prov_prod_id) {
+            if (!empty($id_products_vtt_our_base)) {
+                foreach ($id_products_vtt_our_base as &$prov_prod_id) {
                     $product_id = $db->getOurProviderProductIdByProviderProductId($prov_id, $prov_prod_id);
                     $product_our_base = $db->getProviderProduct($prov_id, $product_id);
-                    if ($product_our_base['status'] != 0)
-                        if ($db->setStatusProviderProduct($product_id, 0))
+                    if ($product_our_base) {
+                        if ((int)$product_our_base['status'] !== 0) {
+                            $db->setStatusProviderProduct($product_id, 0);
                             $product_count_off++;
+                        }
+                    } else {
+                        $message = 'Ошибка получения товара с нашей базы поставщиков при отключении товара' . "\r\n";
+                        $message .= 'product_id: ' . $product_id . "\r\n";
+                        $db->addLog('ERROR', 'VTT', $message);
+                        $count_error++;
+                    }
                 }
+            }
 
             // Сравниваем количество обновленных, добавленных и отключенных товаров
             //
@@ -1760,6 +1775,7 @@ class Vtt {
             $message = 'Итоговый отчет по процедуре обновления товаров с портала ВТТ.' . "\r\n";
             $message .= "\r\n";
             $message .= 'Количество ошибок при обновления товаров: ' . $count_error .  "\r\n";
+            $message .= 'Количество пропущенных товаров при обновлении: ' . $product_count_skip .  "\r\n";
             $message .= "\r\n";
             $message .= 'Товаров от ВТТ в нашей базе до начала обновления: ' . $product_count_old_our_base .
                 ' из них отключенных: ' . $product_count_off_old_our_base .
