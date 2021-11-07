@@ -1354,8 +1354,11 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductData($data)) {
+            $data['provider_product_id'] = mysqli_real_escape_string($this->link, $data['provider_product_id']);
+            $data['name'] = mysqli_real_escape_string($this->link, $data['name']);
+            $data['description'] = mysqli_real_escape_string($this->link, $data['description']);
             $sql = 'UPDATE provider_product SET provider_id = '. (int)$data['provider_id'] .
-                ', provider_product_id = "' . $data['product_id'] .
+                ', provider_product_id = "' . $data['provider_product_id'] .
                 '", name = "' . $data['name'] .
                 '", description = "' . $data['description'] .
                 '", category_id = ' . (int)$data['category_id'] .
@@ -1370,7 +1373,7 @@ class Db extends Sys {
                 '", status = ' . (int)$data['status'] .
                 ', date_edit = NOW()' .
                 ', date_update = NOW()' .
-                ' WHERE product_id = ' . (int)$product_id . ' AND provider_id = ' . (int)$data['provider_id'];
+                ' WHERE id = ' . (int)$product_id . ' AND provider_id = ' . (int)$data['provider_id'];
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
