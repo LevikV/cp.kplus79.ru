@@ -399,15 +399,32 @@ function updateProductTotalDataVtt () {
 }
 
 function updateProductsVtt () {
+    // Начинаем считать затраченную память
+    $memory = memory_get_usage();
     // Функция загрузки, создания и обновления total ВТТ
     global $ERROR;
     $vtt = new Vtt;
     $updates_vtt = $vtt->updateProducts();
+
+    // Подсчитываем объем затраченной памяти
+    $memory = memory_get_usage() - $memory;
+    $i = 0;
+    while (floor($memory / 1024) > 0) {
+        $i++;
+        $memory /= 1024;
+    }
+    $name = array('байт', 'КБ', 'МБ');
+
+
     if ($updates_vtt == false) {
         echo '<br>Не удалось обновить товары с портала ВТТ.';
+        echo '<br>Объем затраченной памяти: ' . round($memory, 2) . ' ' . $name[$i];
+
         return false;
     } else {
         echo '<br>Обновление товаров завершено.';
+        echo '<br>Объем затраченной памяти: ' . round($memory, 2) . ' ' . $name[$i];
+
         return true;
     }
 
