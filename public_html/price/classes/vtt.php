@@ -958,8 +958,9 @@ class Vtt {
                 $product_image_edits = false;
 
                 $data = array();
+                // Проверяем, есть ли товар из выгрузки в нашей базе товаров поставщика
                 if (in_array((string)$product_vtt['id'], $id_products_vtt_our_base, true)) {
-                    //
+                    // Если товар есть, то удаляем его id из массива id товаров поставщика из нашей базы
                     $temp = array();
                     $temp[] = $product_vtt['id'];
                     $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
@@ -1039,7 +1040,7 @@ class Vtt {
                                 $data['model_id'] = 0;
                         }
 
-                        // Сравнваем Вендора товара
+                        // Сравниваем Вендора товара
                         //
                         if ($product_vtt['vendor'] != '') {
                             $our_prov_vendor_id = $db->getVendorIdByProvVendorName($prov_id, $product_vtt['vendor']);
