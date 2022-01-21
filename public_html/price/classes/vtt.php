@@ -1168,16 +1168,23 @@ class Vtt {
                             // Сравниваем аттрибуты
                             //
                             // Цвет
+                            // получаем значение цвета товара в нашей базе товаров поставщика
                             $color = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Цвет', 'Основные');
+                            // сравниваем полученное значение со значением у товара из выгрузки (с портала)
                             if (strtolower((string)$product_vtt['color_name']) != strtolower((string)$color)) {
-                                //
+                                // если значения не равны то смотрим чему равно значение в нашей базе
+                                // если у товара на портале (из выгрузки) изменилось значение цвета то смотрим
+                                // чему равно наше знаечение:
+                                // 1) если оно не установлено, т.е. поставщик добавил информацию в товар
                                 if ($color == null) {
                                     // Если записи об аттрибуте продукта нет, то формируем и добавляем
+                                    // Получаем id аттрибута Цвет в нашей базе
                                     $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
-                                    // Получаем id значения аттрибута
+                                    // Используя полученный id пытемся получить id Значения аттрибута в нашей базе
+                                    // по значению Цвета в товаре из выгрузки
                                     $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['color_name']);
-                                    // если значения аттрибута Цвет нет в нашей базе в provider_attribute_value
-                                    // то добавляем новое значение
+                                    // После получения проверяем, если значения аттрибута Цвет нет в нашей
+                                    // базе в provider_attribute_value то добавляем новое Значение аттрибута в нашу базу
                                     if ($attrib_value_id == null) {
                                         $data = array();
                                         $data['provider_id'] = $prov_id;
@@ -1187,11 +1194,14 @@ class Vtt {
                                         $attrib_value_id = $db->addProviderAttributeValue($data);
                                         if ($attrib_value_id) $attrib_count_add++;
                                     }
+                                    // После того, как значение аттрибута добавлено в нашу базу добавляем
+                                    // в нашу таблицу аттрибутов товаров значение аттрибута товара
+                                    //
                                     $data = array();
                                     $data['product_id'] = $product_id;
                                     $data['attribute_value_id'] = $attrib_value_id;
-
                                     $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
+                                // 2) если значение установлено, но отличается от нового значения из выгрузки
                                 } elseif ($color !== false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
                                     // если в выгрузке эта запись отстутствует, то и в нашей БД ее надо удалить
