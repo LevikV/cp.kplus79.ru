@@ -961,6 +961,7 @@ class Vtt {
                 // Проверяем, есть ли товар из выгрузки в нашей базе товаров поставщика
                 if (in_array((string)$product_vtt['id'], $id_products_vtt_our_base, true)) {
                     // Если товар есть, то удаляем его id из массива id товаров поставщика из нашей базы
+                    // чтобы потом пометить оставшиеся товары, как отключенные, т.к. поставщик их убрал из своей выгрузки
                     $temp = array();
                     $temp[] = $product_vtt['id'];
                     $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
@@ -1848,6 +1849,7 @@ class Vtt {
                         if ((int)$product_our_base['status'] !== 0) {
                             $db->setStatusProviderProduct($product_id, 0);
                             $product_count_off++;
+                            // необходимо добавить метод обновления даты изменения товара
                         }
                     } else {
                         $message = 'Ошибка получения товара с нашей базы поставщиков при отключении товара' . "\r\n";
