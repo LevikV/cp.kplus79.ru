@@ -46,6 +46,33 @@ class Db extends Sys {
 
     }
 
+    public function addSqlLog($code, $module, $message) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'INSERT INTO log (date, code, module, message) VALUES ("' .
+                $data['name'] . '", "' .
+                $data['description'] . '", "' .
+                $data['image'] . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка обновления даты изменения в таблице provider_product' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getCategories() {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
