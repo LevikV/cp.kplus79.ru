@@ -1527,12 +1527,37 @@ class Db extends Sys {
         }
     }
 
+    public function updateProviderProductDateEdit($product_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'UPDATE provider_product SET date_edit = NOW()' .
+                ' WHERE id = ' . (int)$product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка обновления даты изменения в таблице provider_product' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function setStatusProviderProduct($product_id, $status) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'UPDATE provider_product SET status = ' . (int)$status .
-                ', date_update = NOW() WHERE id = ' . (int)$product_id;
+                ', date_update = NOW(), date_edit = NOW() WHERE id = ' . (int)$product_id;
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {

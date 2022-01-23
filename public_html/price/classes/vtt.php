@@ -1375,6 +1375,8 @@ class Vtt {
                             // проверяем были ли изменения в каких либо данных, и если были, увеличиваем счетчик
                             if ($product_edits OR $product_attrib_color_edits OR $product_attrib_life_time_edits OR $product_image_edits) {
                                 $product_count_edit++;
+                                // обновляем дату изменения продукта
+                                $db->updateProviderProductDateEdit($product_id);
 //                                $temp = array();
 //                                $temp[] = $product_vtt['id'];
 //                                $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
@@ -1582,6 +1584,8 @@ class Vtt {
                             // проверяем были ли изменения в каких либо данных, и если были, увеличиваем счетчик
                             if ($product_attrib_color_edits OR $product_attrib_life_time_edits OR $product_image_edits) {
                                 $product_count_edit++;
+                                // обновляем дату изменения продукта
+                                $db->updateProviderProductDateEdit($product_id);
 //                                $temp = array();
 //                                $temp[] = $product_vtt['id'];
 //                                $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
@@ -1849,7 +1853,6 @@ class Vtt {
                         if ((int)$product_our_base['status'] !== 0) {
                             $db->setStatusProviderProduct($product_id, 0);
                             $product_count_off++;
-                            // необходимо добавить метод обновления даты изменения товара
                         }
                     } else {
                         $message = 'Ошибка получения товара с нашей базы поставщиков при отключении товара' . "\r\n";
