@@ -46,14 +46,16 @@ class Db extends Sys {
 
     }
 
-    public function addSqlLog($code, $module, $message) {
+    public function addDetailLog($module, $product_id, $operation, $old_val, $new_val) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'INSERT INTO log (date, code, module, message) VALUES ("' .
-                $data['name'] . '", "' .
-                $data['description'] . '", "' .
-                $data['image'] . '")';
+            $sql = 'INSERT INTO detail_log (date, module, product_id, operation, old_val, new_val) VALUES (NOW(), "' .
+                $module . '", "' .
+                $product_id . '", "' .
+                $operation . '", "' .
+                $old_val . '", "' .
+                $new_val . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
