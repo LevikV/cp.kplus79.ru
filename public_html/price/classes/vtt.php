@@ -975,18 +975,23 @@ class Vtt {
 
                         // если товар есть сравниваем данные в нашей базе с данными по товару с выгрузки
                         // сравниваем имя товара
-                        if ($product_vtt['name'] != $product_our_base['name'])
+                        if ($product_vtt['name'] != $product_our_base['name']) {
                             $data['name'] = $product_vtt['name'];
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_NAME', $data['name'], $product_vtt['name']);
+                        }
 
                         // сравниваем описание товара
-                        if ($product_vtt['description'] != $product_our_base['description'])
+                        if ($product_vtt['description'] != $product_our_base['description']){
                             $data['description'] = $product_vtt['description'];
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_DESCRIP', $data['description'], $product_vtt['description']);
+                        }
 
                         // сравниваем категорию товара
                         $our_prov_cat_id = $db->getCatIdByProvCatName($prov_id, $product_vtt['group'], $product_vtt['root_group']);
                         if ($our_prov_cat_id) {
                             if ($our_prov_cat_id != $product_our_base['category_id']) {
                                 $data['category_id'] = $our_prov_cat_id;
+                                $db->addDetailLog('VTT', $product_id, 'CHANGE_CATEGORY', $product_our_base['category_id'], $our_prov_cat_id);
                             }
                         }
                         else {
@@ -1016,11 +1021,16 @@ class Vtt {
                                     $data_model['provider_id'] = $prov_id;
                                     $data_model['name'] = $product_vtt['original_number'];
                                     $our_prov_model_id = $db->addProviderModel($data_model);
-                                    if ($our_prov_model_id) $model_count_add++;
+                                    if ($our_prov_model_id) {
+                                        $model_count_add++;
+                                        $db->addDetailLog('VTT', $product_id, 'ADD_MODEL', '', $product_vtt['original_number']);
+                                    }
                                 }
                                 // теперь сравниваем значения моделей
-                                if ($our_prov_model_id != $product_our_base['model_id'])
+                                if ($our_prov_model_id != $product_our_base['model_id']) {
                                     $data['model_id'] = $our_prov_model_id;
+                                    $db->addDetailLog('VTT', $product_id, 'CHANGE_MODEL', $product_our_base['model_id'], $our_prov_model_id);
+                                }
                             } else {
                                 // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
                                 //
@@ -1037,8 +1047,10 @@ class Vtt {
                         } else {
                             // проверяем, не установлена ли модель у товара и если установлена, обнуляем
                             //
-                            if ($product_our_base['model_id'] != 0)
+                            if ($product_our_base['model_id'] != 0) {
                                 $data['model_id'] = 0;
+                                $db->addDetailLog('VTT', $product_id, 'RESET_MODEL', $product_our_base['model_id'], '');
+                            }
                         }
 
                         // Сравниваем Вендора товара
@@ -1053,11 +1065,16 @@ class Vtt {
                                     $data_vendor['provider_id'] = $prov_id;
                                     $data_vendor['name'] = $product_vtt['vendor'];
                                     $our_prov_vendor_id = $db->addProviderVendor($data_vendor);
-                                    if ($our_prov_vendor_id) $vendor_count_add++;
+                                    if ($our_prov_vendor_id) {
+                                        $vendor_count_add++;
+                                        $db->addDetailLog('VTT', $product_id, 'ADD_VENDOR', '', $product_vtt['vendor']);
+                                    }
                                 }
-                                // теперь сравниваем значения моделей
-                                if ($our_prov_vendor_id != $product_our_base['vendor_id'])
+                                // теперь сравниваем значения вендоров
+                                if ($our_prov_vendor_id != $product_our_base['vendor_id']){
                                     $data['vendor'] = $our_prov_vendor_id;
+                                    $db->addDetailLog('VTT', $product_id, 'CHANGE_VENDOR', $product_our_base['vendor_id'], $our_prov_vendor_id);
+                                }
                             } else {
                                 // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
                                 //
@@ -1074,8 +1091,10 @@ class Vtt {
                         } else {
                             // проверяем, не установлена ли vendor у товара и если установлена, обнуляем
                             //
-                            if ($product_our_base['vendor_id'] != 0)
+                            if ($product_our_base['vendor_id'] != 0) {
                                 $data['vendor_id'] = 0;
+                                $db->addDetailLog('VTT', $product_id, 'RESET_VENDOR', $product_our_base['vendor_id'], '');
+                            }
                         }
 
                         // Сравнваем Производителя товара
@@ -1090,11 +1109,16 @@ class Vtt {
                                     $data_manuf['provider_id'] = $prov_id;
                                     $data_manuf['name'] = $product_vtt['brand'];
                                     $our_prov_manuf_id = $db->addProviderManufacturer($data_manuf);
-                                    if ($our_prov_manuf_id) $manuf_count_add++;
+                                    if ($our_prov_manuf_id) {
+                                        $manuf_count_add++;
+                                        $db->addDetailLog('VTT', $product_id, 'ADD_MANUF', '', $product_vtt['brand']);
+                                    }
                                 }
-                                // теперь сравниваем значения моделей
-                                if ($our_prov_manuf_id != $product_our_base['manufacturer_id'])
+                                // теперь сравниваем значения производителей
+                                if ($our_prov_manuf_id != $product_our_base['manufacturer_id']) {
                                     $data['manufacturer_id'] = $our_prov_manuf_id;
+                                    $db->addDetailLog('VTT', $product_id, 'CHANGE_MANUF', $product_our_base['manufacturer_id'], $our_prov_manuf_id);
+                                }
                             } else {
                                 // записываем в лог ошибку и меняем статус товару НА ПРОВЕРКЕ
                                 //
@@ -1111,25 +1135,35 @@ class Vtt {
                         } else {
                             // проверяем, не установлена ли manufacturer у товара и если установлена, обнуляем
                             //
-                            if ($product_our_base['manufacturer_id'] != 0)
+                            if ($product_our_base['manufacturer_id'] != 0) {
                                 $data['manufacturer_id'] = 0;
+                                $db->addDetailLog('VTT', $product_id, 'RESET_MANUF', $product_our_base['manufacturer_id'], '');
+                            }
                         }
 
                         // сравниваем ширину товара
-                        if ((float)$product_vtt['width'] != $product_our_base['width'])
+                        if ((float)$product_vtt['width'] != $product_our_base['width']) {
                             $data['width'] = (float)$product_vtt['width'];
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_WIDTH', $product_our_base['width'], $product_vtt['width']);
+                        }
 
                         // сравниваем высоту товара
-                        if ((float)$product_vtt['height'] != $product_our_base['height'])
+                        if ((float)$product_vtt['height'] != $product_our_base['height']) {
                             $data['height'] = (float)$product_vtt['height'];
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_HEIGHT', $product_our_base['height'], $product_vtt['height']);
+                        }
 
                         // сравниваем длину (глубину) товара
-                        if ((float)$product_vtt['depth'] != $product_our_base['length'])
+                        if ((float)$product_vtt['depth'] != $product_our_base['length']) {
                             $data['length'] = (float)$product_vtt['depth'];
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_LENGTH', $product_our_base['length'], $product_vtt['depth']);
+                        }
 
                         // сравниваем вес товара
-                        if ((float)$product_vtt['weight'] != $product_our_base['weight'])
+                        if ((float)$product_vtt['weight'] != $product_our_base['weight']) {
                             $data['weight'] = (float)$product_vtt['weight'];
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_WEIGHT', $product_our_base['weight'], $product_vtt['weight']);
+                        }
 
                         // Проверяем, были ли какие либо изменения
                         if (!empty($data)) {
@@ -1164,6 +1198,9 @@ class Vtt {
                                 $db->setStatusProviderProduct($product_our_base['id'], 2);
                                 $product_count_check++;
 
+                            } else {
+                                // если обновить данные удалось, то записываем в детальный лог
+                                $db->addDetailLog('VTT', $product_id, 'SAVE_CHANGES', '', '');
                             }
 
                             // Сравниваем аттрибуты
@@ -1193,7 +1230,10 @@ class Vtt {
                                         $data['value'] = $product_vtt['color_name'];
                                         //
                                         $attrib_value_id = $db->addProviderAttributeValue($data);
-                                        if ($attrib_value_id) $attrib_count_add++;
+                                        if ($attrib_value_id) {
+                                            $attrib_count_add++;
+                                            $db->addDetailLog('VTT', $product_id, 'ADD_ATTRIB_VAL', '', $attrib_value_id);
+                                        }
                                     }
                                     // После того, как значение аттрибута добавлено в нашу базу добавляем
                                     // в нашу таблицу аттрибутов товаров значение аттрибута товара
@@ -1202,6 +1242,7 @@ class Vtt {
                                     $data['product_id'] = $product_id;
                                     $data['attribute_value_id'] = $attrib_value_id;
                                     $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
+                                    $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', '', $attrib_value_id);
                                 // 2) если значение установлено, но отличается от нового значения из выгрузки
                                 } elseif ($color !== false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
@@ -1213,6 +1254,7 @@ class Vtt {
                                         $data['attribute_value'] = $product_vtt['color_name'];
 
                                         $product_attrib_color_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                        $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', $color, $product_vtt['color_name']);
                                         // ставим счетчик ошибок
                                         if ($product_attrib_color_edits === false) {
                                             $message = 'Ошибка при изменении аттрибута товара ЦВЕТ' . "\r\n";
@@ -1227,6 +1269,7 @@ class Vtt {
                                     } else {
                                         $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
                                         $product_attrib_color_edits = $db->deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id);
+                                        $db->addDetailLog('VTT', $product_id, 'RESET_ATTRIB', $color, '');
                                     }
 
                                 } else {
@@ -1262,13 +1305,17 @@ class Vtt {
                                         $data['value'] = $product_vtt['item_life_time'];
                                         //
                                         $attrib_value_id = $db->addProviderAttributeValue($data);
-                                        if ($attrib_value_id) $attrib_count_add++;
+                                        if ($attrib_value_id) {
+                                            $attrib_count_add++;
+                                            $db->addDetailLog('VTT', $product_id, 'ADD_ATTRIB_VAL', '', $attrib_value_id);
+                                        }
                                     }
                                     $data = array();
                                     $data['product_id'] = $product_id;
                                     $data['attribute_value_id'] = $attrib_value_id;
 
                                     $product_attrib_life_time_edits = $db->addProviderAttributeProduct($data);
+                                    $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', '', $attrib_value_id);
                                 } elseif ($life_time !== false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
                                     // если в выгрузке эта запись отстутствует, то и в нашей БД ее надо удалить
@@ -1279,6 +1326,7 @@ class Vtt {
                                         $data['attribute_value'] = $product_vtt['item_life_time'];
 
                                         $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                        $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', $life_time, $product_vtt['item_life_time']);
                                         // ставим счетчик ошибок
                                         if ($product_attrib_life_time_edits === false) {
                                             $message = 'Ошибка при изменении аттрибута товара Ресурс' . "\r\n";
@@ -1293,6 +1341,7 @@ class Vtt {
                                     } else {
                                         $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
                                         $product_attrib_life_time_edits = $db->deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id);
+                                        $db->addDetailLog('VTT', $product_id, 'RESET_ATTRIB', $life_time, '');
                                     }
                                 } else {
                                     // Ошибка при получении getProviderProductAttributeValueByAttribName
@@ -1324,7 +1373,10 @@ class Vtt {
                                         $data['image'] = $product_vtt['photo_url'];
 
                                         $product_image_edits = $db->addProviderProductImage($data);
-                                        if ($product_image_edits) $image_count_add++;
+                                        if ($product_image_edits) {
+                                            $image_count_add++;
+                                            $db->addDetailLog('VTT', $product_id, 'ADD_IMAGE', '', $product_vtt['photo_url']);
+                                        }
                                     }
                                 } else {
                                     // если запись об изображении в provider_image есть, то сравниваем
@@ -1335,7 +1387,10 @@ class Vtt {
                                         // то необходимо удалить изображение из нашей базы
                                         $id_prov_product_image = $images[0]['id'];
                                         $product_image_edits = $db->deleteProviderProductImage($id_prov_product_image);
-                                        if ($product_image_edits) $image_count_delete++;
+                                        if ($product_image_edits) {
+                                            $image_count_delete++;
+                                            $db->addDetailLog('VTT', $product_id, 'RESET_IMAGE', $images[0]['image'], '');
+                                        }
                                     } elseif ($product_vtt['photo_url'] != $images[0]['image']) {
                                         $data = array();
                                         $data['provider_id'] = $prov_id;
@@ -1345,6 +1400,7 @@ class Vtt {
                                         $product_image_edits = $db->editProviderProductImage($images[0]['id'], $data);
                                         if ($product_image_edits !== false) {
                                             $image_count_edit++;
+                                            $db->addDetailLog('VTT', $product_id, 'CHANGE_IMAGE', $images[0]['image'], $product_vtt['photo_url']);
                                         } elseif ($product_image_edits === false) {
                                             $message = 'Ошибка при изменении изображения товара' . "\r\n";
                                             $message .= 'provider_id: ' . $prov_id . "\r\n";
@@ -1377,6 +1433,7 @@ class Vtt {
                                 $product_count_edit++;
                                 // обновляем дату изменения продукта
                                 $db->updateProviderProductDateEdit($product_id);
+                                $db->addDetailLog('VTT', $product_id, 'UPDATE_DATE_EDIT', '', '');
 //                                $temp = array();
 //                                $temp[] = $product_vtt['id'];
 //                                $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);

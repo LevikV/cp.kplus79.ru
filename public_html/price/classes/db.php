@@ -60,7 +60,7 @@ class Db extends Sys {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
-                $message = 'Ошибка обновления даты изменения в таблице provider_product' . "\r\n";
+                $message = 'Ошибка добавления записи в Детальный лог' . "\r\n";
                 $message .= 'product_id: ' . $product_id . "\r\n";
 
                 $this->addLog('ERROR', 'DB', $message);
@@ -1481,6 +1481,7 @@ class Db extends Sys {
                 $data_val['value'] = $data['attribute_value'];
                 //
                 $attrib_value_id = $this->addProviderAttributeValue($data_val);
+                $this->addDetailLog('DB', $product_id, 'ADD_ATTRIB_VAL', '', $attrib_value_id);
             }
             $sql = 'UPDATE provider_attribute_product SET attribute_value_id = '. (int)$attrib_value_id .
                 ' WHERE product_id = '. (int)$product_id .
