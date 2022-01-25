@@ -977,13 +977,13 @@ class Vtt {
                         // сравниваем имя товара
                         if ($product_vtt['name'] != $product_our_base['name']) {
                             $data['name'] = $product_vtt['name'];
-                            $db->addDetailLog('VTT', $product_id, 'CHANGE_NAME', $data['name'], $product_vtt['name']);
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_NAME', $product_our_base['name'], $product_vtt['name']);
                         }
 
                         // сравниваем описание товара
                         if ($product_vtt['description'] != $product_our_base['description']){
                             $data['description'] = $product_vtt['description'];
-                            $db->addDetailLog('VTT', $product_id, 'CHANGE_DESCRIP', $data['description'], $product_vtt['description']);
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_DESCRIP', $product_our_base['description'], $product_vtt['description']);
                         }
 
                         // сравниваем категорию товара
