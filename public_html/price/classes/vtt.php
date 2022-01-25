@@ -1463,13 +1463,17 @@ class Vtt {
                                         $data['value'] = $product_vtt['color_name'];
                                         //
                                         $attrib_value_id = $db->addProviderAttributeValue($data);
-                                        if ($attrib_value_id) $attrib_count_add++;
+                                        if ($attrib_value_id) {
+                                            $attrib_count_add++;
+                                            $db->addDetailLog('VTT', $product_id, 'ADD_ATTRIB_VAL', '', $attrib_value_id);
+                                        }
                                     }
                                     $data = array();
                                     $data['product_id'] = $product_id;
                                     $data['attribute_value_id'] = $attrib_value_id;
 
                                     $product_attrib_color_edits = $db->addProviderAttributeProduct($data);
+                                    $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', '', $attrib_value_id);
                                 } elseif ($color !== false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
                                     // если в выгрузке эта запись отстутствует, то и в нашей БД ее надо удалить
@@ -1480,6 +1484,8 @@ class Vtt {
                                         $data['attribute_value'] = $product_vtt['color_name'];
 
                                         $product_attrib_color_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                        $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', $color, $product_vtt['color_name']);
+
                                         // ставим счетчик ошибок
                                         if ($product_attrib_color_edits === false) {
                                             $message = 'Ошибка при изменении аттрибута товара ЦВЕТ' . "\r\n";
@@ -1494,6 +1500,7 @@ class Vtt {
                                     } else {
                                         $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
                                         $product_attrib_color_edits = $db->deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id);
+                                        $db->addDetailLog('VTT', $product_id, 'RESET_ATTRIB', $color, '');
                                     }
                                 } else {
                                     // Ошибка при получении getProviderProductAttributeValueByAttribName
@@ -1528,13 +1535,17 @@ class Vtt {
                                         $data['value'] = $product_vtt['item_life_time'];
                                         //
                                         $attrib_value_id = $db->addProviderAttributeValue($data);
-                                        if ($attrib_value_id) $attrib_count_add++;
+                                        if ($attrib_value_id) {
+                                            $attrib_count_add++;
+                                            $db->addDetailLog('VTT', $product_id, 'ADD_ATTRIB_VAL', '', $attrib_value_id);
+                                        }
                                     }
                                     $data = array();
                                     $data['product_id'] = $product_id;
                                     $data['attribute_value_id'] = $attrib_value_id;
 
                                     $product_attrib_life_time_edits = $db->addProviderAttributeProduct($data);
+                                    $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', '', $attrib_value_id);
                                 } elseif ($life_time !== false) {
                                     // Если записи об аттрибуте продукта есть, то обновляем ее
                                     // если в выгрузке эта запись отстутствует, то и в нашей БД ее надо удалить
@@ -1545,6 +1556,7 @@ class Vtt {
                                         $data['attribute_value'] = $product_vtt['item_life_time'];
 
                                         $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
+                                        $db->addDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', $life_time, $product_vtt['item_life_time']);
                                         // ставим счетчик ошибок
                                         if ($product_attrib_life_time_edits === false) {
                                             $message = 'Ошибка при изменении аттрибута товара РЕСУРС' . "\r\n";
@@ -1559,6 +1571,7 @@ class Vtt {
                                     } else {
                                         $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
                                         $product_attrib_life_time_edits = $db->deleteProviderAttributeProductByIdAttrib($product_id, $attrib_id);
+                                        $db->addDetailLog('VTT', $product_id, 'RESET_ATTRIB', $life_time, '');
                                     }
                                 } else {
                                     // Ошибка при получении getProviderProductAttributeValueByAttribName
@@ -1590,7 +1603,10 @@ class Vtt {
                                         $data['image'] = $product_vtt['photo_url'];
 
                                         $product_image_edits = $db->addProviderProductImage($data);
-                                        if ($product_image_edits) $image_count_add++;
+                                        if ($product_image_edits) {
+                                            $image_count_add++;
+                                            $db->addDetailLog('VTT', $product_id, 'ADD_IMAGE', '', $product_vtt['photo_url']);
+                                        }
                                     }
                                 } else {
                                     // если запись об изображении в provider_image есть, то сравниваем
@@ -1601,7 +1617,10 @@ class Vtt {
                                         // то необходимо удалить изображение из нашей базы
                                         $id_prov_product_image = $images[0]['id'];
                                         $product_image_edits = $db->deleteProviderProductImage($id_prov_product_image);
-                                        if ($product_image_edits) $image_count_delete++;
+                                        if ($product_image_edits) {
+                                            $image_count_delete++;
+                                            $db->addDetailLog('VTT', $product_id, 'RESET_IMAGE', $images[0]['image'], '');
+                                        }
                                     } elseif ($product_vtt['photo_url'] != $images[0]['image']) {
                                         $data = array();
                                         $data['provider_id'] = $prov_id;
@@ -1611,6 +1630,7 @@ class Vtt {
                                         $product_image_edits = $db->editProviderProductImage($images[0]['id'], $data);
                                         if ($product_image_edits !== false) {
                                             $image_count_edit++;
+                                            $db->addDetailLog('VTT', $product_id, 'CHANGE_IMAGE', $images[0]['image'], $product_vtt['photo_url']);
                                         } elseif ($product_image_edits === false) {
                                             $message = 'Ошибка при изменении изображения товара' . "\r\n";
                                             $message .= 'provider_id: ' . $prov_id . "\r\n";
@@ -1643,6 +1663,7 @@ class Vtt {
                                 $product_count_edit++;
                                 // обновляем дату изменения продукта
                                 $db->updateProviderProductDateEdit($product_id);
+                                $db->addDetailLog('VTT', $product_id, 'UPDATE_DATE_EDIT', '', '');
 //                                $temp = array();
 //                                $temp[] = $product_vtt['id'];
 //                                $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
@@ -1651,6 +1672,7 @@ class Vtt {
                                 $product_updates = $db->updateProviderProduct($product_id);
                                 if ($product_updates) {
                                     $product_count_update++;
+                                    $db->addDetailLog('VTT', $product_id, 'UPDATE_DATE_UPDATE', '', '');
 //                                    $temp = array();
 //                                    $temp[] = $product_vtt['id'];
 //                                    $id_products_vtt_our_base = array_diff($id_products_vtt_our_base, $temp);
@@ -1756,7 +1778,10 @@ class Vtt {
                             $data_model['provider_id'] = $prov_id;
                             $data_model['name'] = $product_vtt['original_number'];
                             $model_id = $db->addProviderModel($data_model);
-                            if ($model_id) $model_count_add++;
+                            if ($model_id) {
+                                $model_count_add++;
+                                $db->addDetailLog('VTT', 0, 'ADD_MODEL', '', $product_vtt['original_number']);
+                            }
 
                             $data['model_id'] = $model_id;
                         } elseif ($model_id !== false) {
@@ -1783,7 +1808,10 @@ class Vtt {
                             $data_vendor['provider_id'] = $prov_id;
                             $data_vendor['name'] = $product_vtt['vendor'];
                             $vendor_id = $db->addProviderVendor($data_vendor);
-                            if ($vendor_id) $vendor_count_add++;
+                            if ($vendor_id) {
+                                $vendor_count_add++;
+                                $db->addDetailLog('VTT', 0, 'ADD_VENDOR', '', $product_vtt['vendor']);
+                            }
 
                             $data['vendor_id'] = $vendor_id;
                         } elseif ($vendor_id !== false) {
@@ -1810,7 +1838,10 @@ class Vtt {
                             $data_manuf['provider_id'] = $prov_id;
                             $data_manuf['name'] = $product_vtt['brand'];
                             $manuf_id = $db->addProviderManufacturer($data_manuf);
-                            if ($manuf_id) $manuf_count_add++;
+                            if ($manuf_id) {
+                                $manuf_count_add++;
+                                $db->addDetailLog('VTT', 0, 'ADD_MANUF', '', $product_vtt['brand']);
+                            }
 
                             $data['manufacturer_id'] = $manuf_id;
                         } elseif ($manuf_id !== false) {
@@ -1836,6 +1867,7 @@ class Vtt {
                     // добавленных товаров и производим загрузку остальных данных по товару
                     if ($id_prov_product) {
                         $product_count_add++;
+                        $db->addDetailLog('VTT', $id_prov_product, 'ADD_PRODUCT', '', $data['name']);
 
                         // Производим запись аттрибутов для добавленного товара
                         // аттрибут "Цвет"
@@ -1851,7 +1883,10 @@ class Vtt {
                                 $data['attribute_id'] = $attrib_id;
                                 $data['value'] = $product_vtt['color_name'];
                                 $attrib_value_id = $db->addProviderAttributeValue($data);
-                                if ($attrib_value_id) $attrib_count_add++;
+                                if ($attrib_value_id) {
+                                    $attrib_count_add++;
+                                    $db->addDetailLog('VTT', $id_prov_product, 'ADD_ATTRIB_VAL', '', $attrib_value_id);
+                                }
                             }
                             if ($attrib_value_id !== false) {
                                 $data = array();
@@ -1875,7 +1910,10 @@ class Vtt {
                                 $data['attribute_id'] = $attrib_id;
                                 $data['value'] = $product_vtt['item_life_time'];
                                 $attrib_value_id = $db->addProviderAttributeValue($data);
-                                if ($attrib_value_id) $attrib_count_add++;
+                                if ($attrib_value_id) {
+                                    $attrib_count_add++;
+                                    $db->addDetailLog('VTT', $id_prov_product, 'ADD_ATTRIB_VAL', '', $attrib_value_id);
+                                }
                             }
                             if ($attrib_value_id !== false) {
                                 $data = array();
@@ -1910,6 +1948,7 @@ class Vtt {
                         if ((int)$product_our_base['status'] !== 0) {
                             $db->setStatusProviderProduct($product_id, 0);
                             $product_count_off++;
+                            $db->addDetailLog('VTT', $product_id, 'CHANGE_STATUS', $product_our_base['status'], 0);
                         }
                     } else {
                         $message = 'Ошибка получения товара с нашей базы поставщиков при отключении товара' . "\r\n";
