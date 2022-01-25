@@ -975,13 +975,15 @@ class Vtt {
 
                         // если товар есть сравниваем данные в нашей базе с данными по товару с выгрузки
                         // сравниваем имя товара
-                        if ($product_vtt['name'] != $product_our_base['name']) {
+                        //if ($product_vtt['name'] != $product_our_base['name']) {
+                        if (strcmp($product_vtt['name'], $product_our_base['name']) != 0) {
                             $data['name'] = $product_vtt['name'];
                             $db->addDetailLog('VTT', $product_id, 'CHANGE_NAME', $product_our_base['name'], $product_vtt['name']);
                         }
 
                         // сравниваем описание товара
-                        if ($product_vtt['description'] != $product_our_base['description']){
+                        //if ($product_vtt['description'] != $product_our_base['description']){
+                        if (strcmp($product_vtt['description'], $product_our_base['description']) != 0){
                             $data['description'] = $product_vtt['description'];
                             $db->addDetailLog('VTT', $product_id, 'CHANGE_DESCRIP', $product_our_base['description'], $product_vtt['description']);
                         }
