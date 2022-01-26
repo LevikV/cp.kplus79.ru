@@ -75,6 +75,35 @@ class Db extends Sys {
         }
     }
 
+    public function addProvDetailLog($module, $product_id, $operation, $old_val, $new_val) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'INSERT INTO provider_detail_log (date, module, product_id, operation, old_val, new_val) VALUES (NOW(), "' .
+                $module . '", "' .
+                $product_id . '", "' .
+                $operation . '", "' .
+                $old_val . '", "' .
+                $new_val . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления записи в Детальный лог' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getCategories() {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
