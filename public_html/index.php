@@ -16,7 +16,8 @@ $ERROR = array();
 //loadAllSettingVtt();
 //loadProductBaseDataVtt();
 //updateProductTotalDataVtt();
-updateProductsVtt();
+//updateProductsVtt();
+updateProducts();
 //echo 'ThinkDo';
 
 //$prov_id = 1;
@@ -429,6 +430,12 @@ function updateProductsVtt () {
         return true;
     }
 
+
+}
+
+function updateProducts() {
+    $price = new Price;
+    $result = $price->updateProducts();
 
 }
 

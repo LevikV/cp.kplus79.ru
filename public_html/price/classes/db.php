@@ -139,6 +139,53 @@ class Db extends Sys {
         }
     }
 
+    public function getProducts() {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM product';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения всех товаров из таблицы product' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'category_id' => $row["category_id"],
+                        'model_id' => $row["model_id"],
+                        'vendor_id' => $row["vendor_id"],
+                        'manufacturer_id' => $row["manufacturer_id"],
+                        'width' => $row["width"],
+                        'height' => $row["height"],
+                        'length' => $row["length"],
+                        'weight' => $row["weight"],
+                        'version' => $row["version"],
+                        'status' => $row["status"],
+                        'date_add' => $row["date_add"],
+                        'date_edit' => $row["date_edit"],
+                        'date_update' => $row["date_update"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getProviderProductCount($prov_id) {
         //
         global $ERROR;
@@ -721,6 +768,76 @@ class Db extends Sys {
                         'product_id' => $row["product_id"],
                         'image' => $row["image"],
                         'main' => $row["main"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProviders() {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения списка поставщиков из таблицы provider' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'parent_id' => $row["parent_id"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getMaps($code) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM map WHERE code = "' . $code . '"';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения карт сущности из таблицы map' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'code' => $row["code"],
+                        'our_id' => $row["our_id"],
+                        'provider_id' => $row["provider_id"]
                     );
                 }
                 if (empty($rows))
