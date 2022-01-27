@@ -138,10 +138,25 @@ class Price {
                                     // Найдено соответствие по модели, ставим флаг
                                     $flag_manuf = 1;
                                 }
-
+                                // а здесь дальше надо написать код по сопоставлению или добавлению
                             }
                         } else {
                             // если база пустая, то подготавливаем данные и производим первоначальное заполнение
+                            $data = array();
+                            $data['name'] = $provider_product['name'];
+                            $data['description'] = $provider_product['description'];
+                            $data['category_id'] = $db->getMapByProvItemId('category', $provider_product['category_id']);
+                            $data['model_id'] = $db->getMapByProvItemId('model', $provider_product['model_id']);
+                            $data['vendor_id'] = $db->getMapByProvItemId('vendor', $provider_product['vendor_id']);
+                            $data['manufacturer_id'] = $db->getMapByProvItemId('manufacturer', $provider_product['manufacturer_id']);
+                            $data['width'] = $provider_product['width'];
+                            $data['height'] = $provider_product['height'];
+                            $data['length'] = $provider_product['length'];
+                            $data['weight'] = $provider_product['weight'];
+                            $data['version'] = $provider_product['version'];
+                            $data['status'] = $provider_product['status'];
+
+
                         }
                     }
                 }
