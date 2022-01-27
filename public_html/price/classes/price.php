@@ -156,6 +156,8 @@ class Price {
                             $data['version'] = $provider_product['version'];
                             $data['status'] = $provider_product['status'];
 
+                            $add_product_id = $db->addProduct($data);
+
 
                         }
                     }
