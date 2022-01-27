@@ -850,6 +850,35 @@ class Db extends Sys {
         }
     }
 
+    public function getMapByProvItemId($code, $prov_item_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT our_id FROM map WHERE code = "'. $code . '" AND provider_id = ' . (int)$prov_item_id;
+
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id нашей сущности для сопоставления по id сущности поставщика.' . "\r\n";
+                $message .= 'code: ' . $code . "\r\n";
+                $message .= 'id сущн. пост.: ' . $prov_item_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $row = $result->fetch_row();
+                if (empty($row))
+                    return null;
+                else
+                    return $row[0];
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getProviderModels($prov_id) {
         //
         global $ERROR;
@@ -873,6 +902,80 @@ class Db extends Sys {
                         'id' => $row["id"],
                         'provider_id' => $row["provider_id"],
                         'name' => $row["name"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProviderManufs($prov_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_manufacturer WHERE provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения производителей поставщика из provider_manufacturer' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'image' => $row["image"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProviderVendors($prov_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_vendor WHERE provider_id = '. (int)$prov_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения вендоров поставщика из provider_vendor' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'image' => $row["image"]
                     );
                 }
                 if (empty($rows))
