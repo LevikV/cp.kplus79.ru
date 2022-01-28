@@ -3,6 +3,10 @@ class Price {
     public function updateProducts() {
         $db = new Db;
 
+        // Устанавливаем счетчики
+        $product_add_count = 0;
+        $product_count_add_error = 0;
+
         // Получаем список всех поставщиков
         $providers = $db->getProviders();
 
@@ -155,8 +159,21 @@ class Price {
                             $data['weight'] = $provider_product['weight'];
                             $data['version'] = $provider_product['version'];
                             $data['status'] = $provider_product['status'];
-
+                            // Добавляем продукт в эталонную базу
                             $add_product_id = $db->addProduct($data);
+                            if ($add_product_id) {
+                                // Добавляем запись в карту сопоставлений
+                                $map_id = $db->addMap('product', $add_product_id, $provider_product['id']);
+                                // Увеличиваем счетчик добавленных товаров
+                                $product_add_count++;
+                                // Добавляем запись в детальный лог
+                                $db->addDetailLog('PRICE', $add_product_id, 'ADD_PRODUCT', $provider['id'], $provider_product['name']);
+                            } else {
+                                // если произошла ошибка при добавлении товара пишем в лог и пропускаем товар
+                                $db->addDetailLog('PRICE', 0, 'ERROR_ADD_PRODUCT', 'prov_prod_id', $provider_product['id']);
+                                $product_count_add_error++;
+                            }
+
 
 
                         }
