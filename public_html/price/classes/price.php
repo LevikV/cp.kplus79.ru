@@ -6,6 +6,8 @@ class Price {
         // Устанавливаем счетчики
         $product_add_count = 0;
         $product_count_add_error = 0;
+        $image_add_count = 0;
+        $image_count_add_error = 0;
 
         // Получаем список всех поставщиков
         $providers = $db->getProviders();
@@ -172,8 +174,31 @@ class Price {
                                 // если произошла ошибка при добавлении товара пишем в лог и пропускаем товар
                                 $db->addDetailLog('PRICE', 0, 'ERROR_ADD_PRODUCT', 'prov_prod_id', $provider_product['id']);
                                 $product_count_add_error++;
+                                continue;
                             }
-
+                            // Добавляем изображение к новому продукту, если они имеются
+                            $provider_product_images = $db->getProviderProductImages($provider['id'], $provider_product['id']);
+                            if ($provider_product_images) {
+                                foreach ($provider_product_images as $provider_product_image) {
+                                    $data = array();
+                                    $data['product_id'] = $add_product_id;
+                                    $data['image'] = $provider_product_image['image'];
+                                    $add_product_image_id = $db->addProductImage($data);
+                                    if ($add_product_image_id) {
+                                        // Увеличиваем счетчик добавленных изображений
+                                        $image_add_count++;
+                                        // Добавляем запись в детальный лог
+                                        $db->addDetailLog('PRICE', $add_product_id, 'ADD_IMAGE', $provider['id'], $data['image']);
+                                    } else {
+                                        // если произошла ошибка при добавлении изображения пишем в лог и пропускаем товар
+                                        $db->addDetailLog('PRICE', $add_product_id, 'ERROR_ADD_IMAGE', 'prov_prod_id', $provider_product['id']);
+                                        $image_count_add_error++;
+                                        continue;
+                                    }
+                                }
+                            }
+                            // Добавляем аттрибуты к новому продукту, если они имеются
+                            $prov_prod_attrib_values = $db->getProviderProductAttributes($provider['id'], $provider_product['id']);
 
 
                         }

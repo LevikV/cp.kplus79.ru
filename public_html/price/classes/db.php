@@ -988,9 +988,71 @@ class Db extends Sys {
         }
     }
 
+    public function getProviderProductAttributes($prov_id, $product_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_attribute_product WHERE product_id = ' . (int)$product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения аттрибутов продукта поставщика из provider_attribute_product' . "\r\n";
+                $message .= 'prov_id: ' . $prov_id . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'product_id' => $row["product_id"],
+                        'attribute_value_id' => $row["attribute_value_id"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProduct($data) {
         if ($this->status) {
 
+        }
+    }
+
+    public function addProductImage($data) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status AND $this->checkProviderProductImageData($data)) {
+            $sql = 'INSERT INTO image (product_id, image) VALUES (' .
+                (int)$data['product_id'] . ', "' .
+                mysqli_real_escape_string($this->link, $data['image']) . '")';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                $message = 'Ошибка добавления изображения для продукта' . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
+                $message .= 'image: ' . $data['image'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $image_product_id = mysqli_insert_id($this->link);
+                return $image_product_id;
+            }
+        } else {
+            return false;
         }
     }
 

@@ -17,7 +17,7 @@ $ERROR = array();
 //loadProductBaseDataVtt();
 //updateProductTotalDataVtt();
 //updateProductsVtt();
-updateProducts();
+//updateProducts();
 //echo 'ThinkDo';
 
 //$prov_id = 1;
