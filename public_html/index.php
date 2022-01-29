@@ -13,6 +13,11 @@ spl_autoload_register(function ($class) {
 require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php');
 // Объявляем глобальный массив ошибок
 $ERROR = array();
+//
+include 'header.php';
+include 'content.php';
+include 'footer.php';
+
 
 //loadCategoryVtt();
 //loadManufacturertVtt();
@@ -24,7 +29,7 @@ $ERROR = array();
 //updateProductTotalDataVtt();
 //updateProductsVtt();
 //updateProducts();
-echo 'ThinkDo';
+//echo 'ThinkDo';
 
 //$prov_id = 1;
 //$product_id = 1;
