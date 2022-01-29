@@ -8,6 +8,8 @@ class Price {
         $product_count_add_error = 0;
         $image_add_count = 0;
         $image_count_add_error = 0;
+        $attrib_add_count = 0;
+        $attrib_count_add_error = 0;
 
         // Получаем список всех поставщиков
         $providers = $db->getProviders();
@@ -94,6 +96,7 @@ class Price {
                         break;
                     }
                 }
+
                 // Смотрим результат проверки основных данных
                 // если какие либо из основных данных не сопоставлены, то пропускаем текущего поставщика
                 // и переходим к следующему
@@ -190,7 +193,7 @@ class Price {
                                         // Добавляем запись в детальный лог
                                         $db->addDetailLog('PRICE', $add_product_id, 'ADD_IMAGE', $provider['id'], $data['image']);
                                     } else {
-                                        // если произошла ошибка при добавлении изображения пишем в лог и пропускаем товар
+                                        // если произошла ошибка при добавлении изображения пишем в лог и пропускаем текущее изобр
                                         $db->addDetailLog('PRICE', $add_product_id, 'ERROR_ADD_IMAGE', 'prov_prod_id', $provider_product['id']);
                                         $image_count_add_error++;
                                         continue;
@@ -198,7 +201,26 @@ class Price {
                                 }
                             }
                             // Добавляем аттрибуты к новому продукту, если они имеются
-                            $prov_prod_attrib_values = $db->getProviderProductAttributes($provider['id'], $provider_product['id']);
+                            $prov_prod_attribs = $db->getProviderProductAttributes($provider['id'], $provider_product['id']);
+                            if ($prov_prod_attribs) {
+                                foreach ($prov_prod_attribs as $prov_prod_attrib) {
+                                    $data = array();
+                                    $data['product_id'] = $add_product_id;
+                                    $data['attribute_value_id'] = $db->getMapByProvItemId('attribute_value', $prov_prod_attrib['attribute_value_id']);
+                                    $add_product_attribute_id = $db->addProductAttribute($data);
+                                    if ($add_product_attribute_id) {
+                                        // Увеличиваем счетчик добавленных аттрибутов
+                                        $attrib_add_count++;
+                                        // Добавляем запись в детальный лог
+                                        $db->addDetailLog('PRICE', $add_product_id, 'ADD_ATTRIB_PRODUCT', '', $data['attribute_value_id']);
+                                    } else {
+                                        // если произошла ошибка при добавлении аттрибута пишем в лог и пропускаем текущий аттриб
+                                        $db->addDetailLog('PRICE', $add_product_id, 'ERROR_ADD_ATTRIB_PROD', 'prov_prod_id', $provider_product['id']);
+                                        $attrib_count_add_error++;
+                                        continue;
+                                    }
+                                }
+                            }
 
 
                         }
@@ -207,4 +229,50 @@ class Price {
             }
         }
     }
+
+    public function updateModels() {
+        $db = new Db;
+
+        // Устанавливаем счетчики
+        $product_add_count = 0;
+        $product_count_add_error = 0;
+        $image_add_count = 0;
+        $image_count_add_error = 0;
+        $attrib_add_count = 0;
+        $attrib_count_add_error = 0;
+
+        // Получаем список всех поставщиков
+        $providers = $db->getProviders();
+
+
+        // Получаем карту сопоставлений по моделям
+        $maps = $db->getMaps('model');
+        //Собираем id моделей поставщиков сопоставленных с нашей эталонной базой
+        $map_models_id = array();
+        if ($maps !== false) {
+            if ($maps !== null) {
+                foreach ($maps as $map) {
+                    $map_models_id[] = $map['provider_id'];
+                }
+            }
+        }
+
+        foreach ($providers as $provider) {
+            $provider_models = $db->getProviderModels($provider['id']);
+            $models = $db->getModels();
+            foreach ($provider_models as $provider_model) {
+                if (!in_array($provider_model['id'], $map_models_id)) {
+                    //
+                    if ($models != null) {
+
+                    } else {
+
+                    }
+
+                }
+            }
+        }
+
+    }
+
 }
