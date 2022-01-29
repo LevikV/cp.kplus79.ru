@@ -1,4 +1,10 @@
 <?php
+session_start();
+if($_SESSION['admin'] != "admin"){
+    header("Location: login.php");
+    exit;
+}
+
 // Включаем автоподгрузку классов
 spl_autoload_register(function ($class) {
     include 'price/classes/' . $class . '.php';
@@ -18,7 +24,7 @@ $ERROR = array();
 //updateProductTotalDataVtt();
 //updateProductsVtt();
 //updateProducts();
-//echo 'ThinkDo';
+echo 'ThinkDo';
 
 //$prov_id = 1;
 //$product_id = 1;

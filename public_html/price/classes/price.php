@@ -264,7 +264,21 @@ class Price {
                 if (!in_array($provider_model['id'], $map_models_id)) {
                     //
                     if ($models != null) {
+                        $flag_name = 0;
+                        foreach ($models as $model) {
+                            if (strcasecmp($model['name'], $provider_model['name']) == 0) {
+                                // если имя модели из таблицы поставщиков равно имени эталонной модели, то
+                                // необходимо ее сопоставить
+                                $add_map_id = $db->addMap('model', $model['id'], $provider_model['id']);
+                                $flag_name = 1;
+                                break;
+                            }
+                        }
+                        // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую модель в
+                        // эталонную базу
+                        if ($flag_name == 0) {
 
+                        }
                     } else {
 
                     }
