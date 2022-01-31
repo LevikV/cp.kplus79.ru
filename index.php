@@ -14,9 +14,15 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/public_html/price/system/config.php')
 // Объявляем глобальный массив ошибок
 $ERROR = array();
 //
-include 'header.php';
-include 'content.php';
-include 'footer.php';
+if (isset($_POST['route']) AND isset($_POST['code'])) {
+    if ($_POST['route'] == 'price') {
+        if ($_POST['code'] == 'update_model') {
+
+        }
+    }
+} else {
+    include 'main.php';
+}
 
 
 //loadCategoryVtt();
