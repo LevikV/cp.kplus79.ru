@@ -14,16 +14,16 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
 // Объявляем глобальный массив ошибок
 $ERROR = array();
 //
-if (isset($_POST['route']) AND isset($_POST['code'])) {
-    if ($_POST['route'] == 'price') {
-        if ($_POST['code'] == 'update_model') {
+if (isset($_GET['route']) AND isset($_GET['code'])) {
+    if ($_GET['route'] == 'price') {
+        if ($_GET['code'] == 'update_model') {
             // Вызываем метод обновления моделей
             //
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист - обновление моделей';
             // Указываем страницу отображения
             $content = 'price/pages/update_model.php';
-        } elseif ($_POST['code'] == 'main') {
+        } elseif ($_GET['code'] == 'main') {
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист';
             // Устанавливаем страницу отображения
@@ -31,7 +31,7 @@ if (isset($_POST['route']) AND isset($_POST['code'])) {
         } else {
             $content = 'main.php';
         }
-    } elseif ($_POST['route'] == 'main') {
+    } elseif ($_GET['route'] == 'main') {
 
     } else {
         $content = 'main.php';

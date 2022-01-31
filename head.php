@@ -14,7 +14,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center">Панель управления СЦ Картридж+</h1>
+            <h2 class="text-center">Панель управления СЦ Картридж+</h2>
             <hr>
         </div>
     </div>
