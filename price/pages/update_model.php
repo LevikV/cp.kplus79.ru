@@ -8,7 +8,7 @@
             </ol>
             <div class="col">
                 <p class="mb-0">Список добавленных карт сопоставления</p>
-                <table class="table">
+                <table class="table table-sm">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -42,7 +42,7 @@
             </div>
             <div class="col">
                 <p class="mb-0">Список моделей для добавления в эталонную базу</p>
-                <table class="table">
+                <table class="table table-sm">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -50,6 +50,7 @@
                         <th>Имя поставщика</th>
                         <th>id модели поставщика</th>
                         <th>Имя модели поставщика</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -63,6 +64,7 @@
                             echo '<td>' .$model['provider_name'] . '</td>';
                             echo '<td>' .$model['prov_model_id'] . '</td>';
                             echo '<td>' .$model['prov_model_name'] . '</td>';
+                            echo '<td>Добавить</td>';
                             echo '</tr>';
                             $i++;
                         }

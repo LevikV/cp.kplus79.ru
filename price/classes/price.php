@@ -325,7 +325,7 @@ class Price {
         // Возвращаем полученные данные
         $data = array();
         $data['models_map_adds'] = $models_map_adds;
-        $data['$models_to_add'] = $models_to_add;
+        $data['models_to_add'] = $models_to_add;
         return $data;
     }
 
