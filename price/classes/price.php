@@ -298,7 +298,7 @@ class Price {
                             if ($flag_name == 0) {
                                 // формируем массив для передачи в отображение т.к. добавляться новые значения
                                 // пока будут только вручную
-                                $models_map_to_add[] = array(
+                                $models_to_add[] = array(
                                     'provider_id' => $provider['id'],
                                     'provider_name' => $provider['name'],
                                     'prov_model_id' => $provider_model['id'],
@@ -308,7 +308,7 @@ class Price {
                         } else {
                             // формируем массив для передачи в отображение т.к. добавляться новые значения
                             // пока будут только вручную
-                            $models_map_to_add[] = array(
+                            $models_to_add[] = array(
                                 'provider_id' => $provider['id'],
                                 'provider_name' => $provider['name'],
                                 'prov_model_id' => $provider_model['id'],
