@@ -17,8 +17,14 @@ $ERROR = array();
 if (isset($_GET['route']) AND isset($_GET['code'])) {
     if ($_GET['route'] == 'price') {
         if ($_GET['code'] == 'update_model') {
+            // Подготавливаем данные
             // Вызываем метод обновления моделей
+            //$price = new Price;
+            //$update_models = $price->updateModels();
             //
+            //$data['models_to_add'] = $update_models['models_to_add'];
+            //$data['models_map_adds'] = $update_models['models_map_adds'];
+
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист - обновление моделей';
             // Указываем страницу отображения

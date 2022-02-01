@@ -231,7 +231,14 @@ class Price {
     }
 
     public function updateModels() {
+        // Метод обновления моделей
+        // Возвращает массив данных $data с ключами:
+        // - models_map_adds - массив добавленных автоматически карт сопоставления по моделям
+        // - models_to_add - массив моделей для добавления в эталонную базу
+
         $db = new Db;
+        $models_to_add = array();
+        $models_map_adds = array();
 
         // Устанавливаем счетчики
         $product_add_count = 0;
@@ -258,35 +265,68 @@ class Price {
         }
 
         foreach ($providers as $provider) {
-            $provider_models = $db->getProviderModels($provider['id']);
-            $models = $db->getModels();
-            foreach ($provider_models as $provider_model) {
-                if (!in_array($provider_model['id'], $map_models_id)) {
-                    //
-                    if ($models != null) {
-                        $flag_name = 0;
-                        foreach ($models as $model) {
-                            if (strcasecmp($model['name'], $provider_model['name']) == 0) {
-                                // если имя модели из таблицы поставщиков равно имени эталонной модели, то
-                                // необходимо ее сопоставить
-                                $add_map_id = $db->addMap('model', $model['id'], $provider_model['id']);
-                                $flag_name = 1;
-                                break;
+            if ($provider['parent_id'] == null) {
+                $provider_models = $db->getProviderModels($provider['id']);
+                $models = $db->getModels();
+                foreach ($provider_models as $provider_model) {
+                    if (!in_array($provider_model['id'], $map_models_id)) {
+                        //
+                        if ($models != null) {
+                            $flag_name = 0;
+                            foreach ($models as $model) {
+                                if (strcasecmp($model['name'], $provider_model['name']) == 0) {
+                                    // если имя модели из таблицы поставщиков равно имени эталонной модели, то
+                                    // необходимо ее сопоставить
+                                    $add_map_id = $db->addMap('model', $model['id'], $provider_model['id']);
+                                    $flag_name = 1;
+                                    // Добавляем запись в детальный лог
+                                    $db->addDetailLog('PRICE', '0', 'ADD_MAP_MODEL', $model['name'], $provider_model['name']);
+                                    // формируем массив для передачи в отображение
+                                    $models_map_adds[] = array(
+                                        'id' => $add_map_id,
+                                        'model_id' => $model['id'],
+                                        'model_name' => $model['name'],
+                                        'prov_model_id' => $provider_model['id'],
+                                        'prov_model_name' => $provider_model['name'],
+                                        'provider_name' => $provider['name']
+                                    );
+                                    break;
+                                }
                             }
+                            // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую модель в
+                            // эталонную базу
+                            if ($flag_name == 0) {
+                                // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                // пока будут только вручную
+                                $models_map_to_add[] = array(
+                                    'provider_id' => $provider['id'],
+                                    'provider_name' => $provider['name'],
+                                    'prov_model_id' => $provider_model['id'],
+                                    'prov_model_name' => $provider_model['name']
+                                );
+                            }
+                        } else {
+                            // формируем массив для передачи в отображение т.к. добавляться новые значения
+                            // пока будут только вручную
+                            $models_map_to_add[] = array(
+                                'provider_id' => $provider['id'],
+                                'provider_name' => $provider['name'],
+                                'prov_model_id' => $provider_model['id'],
+                                'prov_model_name' => $provider_model['name']
+                            );
                         }
-                        // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую модель в
-                        // эталонную базу
-                        if ($flag_name == 0) {
-
-                        }
-                    } else {
 
                     }
-
                 }
             }
+
         }
 
+        // Возвращаем полученные данные
+        $data = array();
+        $data['models_map_adds'] = $models_map_adds;
+        $data['$models_to_add'] = $models_to_add;
+        return $data;
     }
 
 }
