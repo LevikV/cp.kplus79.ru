@@ -68,6 +68,14 @@
                             echo '</tr>';
                             $i++;
                         }
+                        echo '<tr>';
+                        echo '<td></td>';
+                        echo '<td></td>';
+                        echo '<td></td>';
+                        echo '<td></td>';
+                        echo '<td></td>';
+                        echo '<td>Добавить все</td>';
+                        echo '</tr>';
                     }
                     ?>
                     </tbody>
