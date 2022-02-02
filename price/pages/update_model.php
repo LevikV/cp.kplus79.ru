@@ -64,7 +64,7 @@
                             echo '<td>' .$model['provider_name'] . '</td>';
                             echo '<td>' .$model['prov_model_id'] . '</td>';
                             echo '<td>' .$model['prov_model_name'] . '</td>';
-                            echo '<td>Добавить</td>';
+                            echo '<td id="button-add-model">Добавить</td>';
                             echo '</tr>';
                             $i++;
                         }
