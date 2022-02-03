@@ -1,5 +1,19 @@
 <?php
 class Price {
+    public function addModelFromProv($data) {
+        // Метод добавления модели в эатлонную базу из модели поставщика
+        // поэтому происходит два действия
+        // 1) Добавление модели в эталонную базу
+        // 2) Добавление карты сопоставления
+        $db = new Db;
+        $temp = array();
+        $temp['name'] = $data['name'];
+        $model_id = $db->addModel($temp);
+        if ($model_id) {
+            $map_id = $db->addMap('model', $model_id, $data['prov_model_id']);
+        }
+    }
+
     public function updateProducts() {
         $db = new Db;
 
