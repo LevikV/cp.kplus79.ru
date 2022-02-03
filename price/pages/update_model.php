@@ -8,7 +8,7 @@
             </ol>
             <div class="col">
                 <p class="mb-0">Список добавленных карт сопоставления</p>
-                <table class="table table-sm">
+                <table id="tableMaps" class="table table-sm">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -42,7 +42,7 @@
             </div>
             <div class="col">
                 <p class="mb-0">Список моделей для добавления в эталонную базу</p>
-                <table class="table table-sm">
+                <table id="tableModels" class="table table-sm">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -58,14 +58,15 @@
                     if (!empty($data['models_to_add'])) {
                         $i = 1;
                         foreach ($data['models_to_add'] as $model) {
-                            echo '<tr>';
+                            echo '<tr id="' . $i . '">';
                             echo '<td>' .$i . '</td>';
                             echo '<td>' .$model['provider_id'] . '</td>';
                             echo '<td>' .$model['provider_name'] . '</td>';
                             echo '<td>' .$model['prov_model_id'] . '</td>';
                             echo '<td>' .$model['prov_model_name'] . '</td>';
                             echo '<td><a class="link_add_model" href="#" data-model-name="' . $model['prov_model_name'] .
-                                '" data-prov-model-id="' . $model['prov_model_id'] . '">Добавить</a></td>';
+                                '" data-prov-model-id="' . $model['prov_model_id'] . '" data-prov-name="' . $model['provider_name'] .
+                                '" data-row-id="' . $i . '">Добавить</a></td>';
                             echo '</tr>';
                             $i++;
                         }
