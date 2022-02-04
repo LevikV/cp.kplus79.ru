@@ -35,5 +35,44 @@ if (isset($_GET['operation'])) {
             $json['error'][] = 'Ошибка при добавлении модели в эталонную базу.';
         }
         echo json_encode($json);
+    } elseif ($_GET['operation'] == 'add_manuf_from_prov') {
+        $db = new Db;
+        // формируем данные
+        $data = array();
+        $data['name'] = $_GET['manuf_name'];
+        // добавляем производителя
+        $manuf_id = $db->addManufacturer($data);
+        if ($manuf_id) {
+            $json['manuf_id'] = $manuf_id;
+            // добавляем карту сопоставления
+            $map_id = $db->addMap('manufacturer', $manuf_id, $_GET['prov_manuf_id']);
+            if ($map_id) {
+                $json['map_id'] = $map_id;
+            } else {
+                $json['error'][] = 'Ошибка при добавлении карты производителя';
+            }
+        } else {
+            $json['error'][] = 'Ошибка при добавлении производителя в эталонную базу.';
+        }
+        echo json_encode($json);
+    } elseif ($_GET['operation'] == 'add_vendor_from_prov') {
+        $db = new Db;
+        // формируем данные
+        $data = array();
+        $data['name'] = $_GET['vendor_name'];
+        // добавляем вендора
+        $vendor_id = $db->addVendor($data);
+        if ($vendor_id) {
+            $json['vendor_id'] = $vendor_id;
+            // добавляем карту сопоставления
+            $map_id = $db->addMap('vendor', $vendor_id, $_GET['prov_vendor_id']);
+            if ($map_id) {
+                $json['map_id'] = $map_id;
+            } else {
+                $json['error'][] = 'Ошибка при добавлении карты вендора';
+            }
+        } else {
+            $json['error'][] = 'Ошибка при добавлении вендора в эталонную базу.';
+        }
     }
 }

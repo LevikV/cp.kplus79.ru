@@ -70,7 +70,7 @@
                             echo '<td>' .$manuf['description'] . '</td>';
                             echo '<td>' .$manuf['image'] . '</td>';
                             echo '<td><a class="link_add_manuf" href="#" data-manuf-name="' . $manuf['prov_manuf_name'] .
-                                '" data-prov-manuf-id="' . $manuf['prov_manuf_id'] . '" data-manuf-name="' . $manuf['provider_name'] .
+                                '" data-prov-manuf-id="' . $manuf['prov_manuf_id'] . '" data-prov-name="' . $manuf['provider_name'] .
                                 '" data-row-id="' . $i . '" data-manuf-descrip="' . $manuf['description'] .
                                 '" data-manuf-image="' . $manuf['image'] . '">Добавить</a></td>';
                             echo '</tr>';

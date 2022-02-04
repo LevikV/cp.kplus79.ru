@@ -29,6 +29,8 @@ $(document).delegate('.link_add_vendor', 'click', function() {
     var vendorName = $(this).data('vendor-name');
     var provVendorId = $(this).data('prov-vendor-id');
     var provName = $(this).data('prov-name');
+    var vendorDescrip = $(this).data('vendor-descrip');
+    var vendorImage = $(this).data('vendor-image');
     var rowId = '#' + $(this).data('row-id');
     var oper = 'add_vendor_from_prov';
     $.ajax({
@@ -58,6 +60,8 @@ $(document).delegate('.link_add_manuf', 'click', function() {
     var manufName = $(this).data('manuf-name');
     var provManufId = $(this).data('prov-manuf-id');
     var provName = $(this).data('prov-name');
+    var manufDescrip = $(this).data('manuf-descrip');
+    var manufImage = $(this).data('manuf-image');
     var rowId = '#' + $(this).data('row-id');
     var oper = 'add_manuf_from_prov';
     $.ajax({

@@ -70,7 +70,7 @@
                             echo '<td>' .$vendor['description'] . '</td>';
                             echo '<td>' .$vendor['image'] . '</td>';
                             echo '<td><a class="link_add_vendor" href="#" data-vendor-name="' . $vendor['prov_vendor_name'] .
-                                '" data-prov-vendor-id="' . $vendor['prov_vendor_id'] . '" data-vendor-name="' . $vendor['provider_name'] .
+                                '" data-prov-vendor-id="' . $vendor['prov_vendor_id'] . '" data-prov-name="' . $vendor['provider_name'] .
                                 '" data-row-id="' . $i . '" data-vendor-descrip="' . $vendor['description'] .
                                 '" data-vendor-image="' . $vendor['image'] . '">Добавить</a></td>';
                             echo '</tr>';

@@ -533,4 +533,99 @@ class Price {
         return $data;
     }
 
+    private function updateAttribGtoup() {
+        // Метод обновления групп аттрибутов
+        // Возвращает массив данных $data с ключами:
+        // - attrib_groups_map_adds - массив добавленных автоматически карт сопоставления по вендорам
+        // - attrib_groups_to_add - массив вендоров для добавления в эталонную базу
+
+        $db = new Db;
+        $attrib_groups_to_add = array();
+        $attrib_groups_map_adds = array();
+
+        // Получаем список всех поставщиков
+        $providers = $db->getProviders();
+
+
+        // Получаем карту сопоставлений по группам аттрибутов
+        $maps = $db->getMaps('attrib_group');
+        //Собираем id групп аттрибутов поставщиков сопоставленных с нашей эталонной базой
+        $map_attrib_groups_id = array();
+        if ($maps !== false) {
+            if ($maps !== null) {
+                foreach ($maps as $map) {
+                    $map_manufs_id[] = $map['provider_id'];
+                }
+            }
+        }
+
+        foreach ($providers as $provider) {
+            if ($provider['parent_id'] == null) {
+                $provider_manufs = $db->getProviderManufs($provider['id']);
+                $manufs = $db->getManufs();
+                foreach ($provider_manufs as $provider_manuf) {
+                    if (!in_array($provider_manuf['id'], $map_manufs_id)) {
+                        //
+                        if ($manufs != null) {
+                            $flag_name = 0;
+                            foreach ($manufs as $manuf) {
+                                if (strcasecmp($manuf['name'], $provider_manuf['name']) == 0) {
+                                    // если имя вендора из таблицы поставщиков равно имени эталонного вендора, то
+                                    // необходимо его сопоставить
+                                    $add_map_id = $db->addMap('manufacturer', $manuf['id'], $provider_manuf['id']);
+                                    $flag_name = 1;
+                                    // Добавляем запись в детальный лог
+                                    $db->addDetailLog('PRICE', '0', 'ADD_MAP_MANUF', $manuf['name'], $provider_manuf['name']);
+                                    // формируем массив для передачи в отображение
+                                    $manufs_map_adds[] = array(
+                                        'id' => $add_map_id,
+                                        'manuf_id' => $manuf['id'],
+                                        'manuf_name' => $manuf['name'],
+                                        'prov_manuf_id' => $provider_manuf['id'],
+                                        'prov_manuf_name' => $provider_manuf['name'],
+                                        'provider_name' => $provider['name']
+                                    );
+                                    break;
+                                }
+                            }
+                            // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем нового вендора в
+                            // эталонную базу
+                            if ($flag_name == 0) {
+                                // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                // пока будут только вручную
+                                $manufs_to_add[] = array(
+                                    'provider_id' => $provider['id'],
+                                    'provider_name' => $provider['name'],
+                                    'prov_manuf_id' => $provider_manuf['id'],
+                                    'prov_manuf_name' => $provider_manuf['name'],
+                                    'prov_manuf_descrip' => $provider_manuf['description'],
+                                    'prov_manuf_image' => $provider_manuf['image']
+                                );
+                            }
+                        } else {
+                            // формируем массив для передачи в отображение т.к. добавляться новые значения
+                            // пока будут только вручную
+                            $manufs_to_add[] = array(
+                                'provider_id' => $provider['id'],
+                                'provider_name' => $provider['name'],
+                                'prov_manuf_id' => $provider_manuf['id'],
+                                'prov_manuf_name' => $provider_manuf['name'],
+                                'prov_manuf_descrip' => $provider_manuf['description'],
+                                'prov_manuf_image' => $provider_manuf['image']
+                            );
+                        }
+
+                    }
+                }
+            }
+
+        }
+
+        // Возвращаем полученные данные
+        $data = array();
+        $data['manufs_map_adds'] = $manufs_map_adds;
+        $data['manufs_to_add'] = $manufs_to_add;
+        return $data;
+    }
+
 }
