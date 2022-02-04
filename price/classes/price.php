@@ -343,4 +343,99 @@ class Price {
         return $data;
     }
 
+    public function updateVendors() {
+        // Метод обновления вендоров
+        // Возвращает массив данных $data с ключами:
+        // - vendors_map_adds - массив добавленных автоматически карт сопоставления по вендорам
+        // - vendors_to_add - массив вендоров для добавления в эталонную базу
+
+        $db = new Db;
+        $vendors_to_add = array();
+        $vendors_map_adds = array();
+
+        // Получаем список всех поставщиков
+        $providers = $db->getProviders();
+
+
+        // Получаем карту сопоставлений по вендорам
+        $maps = $db->getMaps('vendor');
+        //Собираем id вендоров поставщиков сопоставленных с нашей эталонной базой
+        $map_vendors_id = array();
+        if ($maps !== false) {
+            if ($maps !== null) {
+                foreach ($maps as $map) {
+                    $map_vendors_id[] = $map['provider_id'];
+                }
+            }
+        }
+
+        foreach ($providers as $provider) {
+            if ($provider['parent_id'] == null) {
+                $provider_vendors = $db->getProviderVendors($provider['id']);
+                $vendors = $db->getVendors();
+                foreach ($provider_vendors as $provider_vendor) {
+                    if (!in_array($provider_vendor['id'], $map_vendors_id)) {
+                        //
+                        if ($vendors != null) {
+                            $flag_name = 0;
+                            foreach ($vendors as $vendor) {
+                                if (strcasecmp($vendor['name'], $provider_vendor['name']) == 0) {
+                                    // если имя вендора из таблицы поставщиков равно имени эталонного вендора, то
+                                    // необходимо его сопоставить
+                                    $add_map_id = $db->addMap('vendor', $vendor['id'], $provider_vendor['id']);
+                                    $flag_name = 1;
+                                    // Добавляем запись в детальный лог
+                                    $db->addDetailLog('PRICE', '0', 'ADD_MAP_VENDOR', $vendor['name'], $provider_vendor['name']);
+                                    // формируем массив для передачи в отображение
+                                    $vendors_map_adds[] = array(
+                                        'id' => $add_map_id,
+                                        'vendor_id' => $vendor['id'],
+                                        'vendor_name' => $vendor['name'],
+                                        'prov_vendor_id' => $provider_vendor['id'],
+                                        'prov_vendor_name' => $provider_vendor['name'],
+                                        'provider_name' => $provider['name']
+                                    );
+                                    break;
+                                }
+                            }
+                            // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем нового вендора в
+                            // эталонную базу
+                            if ($flag_name == 0) {
+                                // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                // пока будут только вручную
+                                $vendors_to_add[] = array(
+                                    'provider_id' => $provider['id'],
+                                    'provider_name' => $provider['name'],
+                                    'prov_vendor_id' => $provider_vendor['id'],
+                                    'prov_vendor_name' => $provider_vendor['name'],
+                                    'prov_vendor_descrip' => $provider_vendor['description'],
+                                    'prov_vendor_image' => $provider_vendor['image']
+                                );
+                            }
+                        } else {
+                            // формируем массив для передачи в отображение т.к. добавляться новые значения
+                            // пока будут только вручную
+                            $vendors_to_add[] = array(
+                                'provider_id' => $provider['id'],
+                                'provider_name' => $provider['name'],
+                                'prov_vendor_id' => $provider_vendor['id'],
+                                'prov_vendor_name' => $provider_vendor['name'],
+                                'prov_vendor_descrip' => $provider_vendor['description'],
+                                'prov_vendor_image' => $provider_vendor['image']
+                            );
+                        }
+
+                    }
+                }
+            }
+
+        }
+
+        // Возвращаем полученные данные
+        $data = array();
+        $data['vendors_map_adds'] = $vendors_map_adds;
+        $data['vendors_to_add'] = $vendors_to_add;
+        return $data;
+    }
+
 }

@@ -29,6 +29,19 @@ if (isset($_GET['route']) AND isset($_GET['code'])) {
             $data['title'] = 'Прайс лист - обновление моделей';
             // Указываем страницу отображения
             $content = 'price/pages/update_model.php';
+        } elseif ($_GET['code'] == 'update_vendor') {
+            // Подготавливаем данные
+            // Вызываем метод обновления вендоров
+            $price = new Price;
+            $update_vendors = $price->updateVendors();
+            //
+            $data['vendors_to_add'] = $update_vendors['vendors_to_add'];
+            $data['vendors_map_adds'] = $update_vendors['vendors_map_adds'];
+
+            // Устанавливаем заголовок
+            $data['title'] = 'Прайс лист - обновление вендоров';
+            // Указываем страницу отображения
+            $content = 'price/pages/update_vendor.php';
         } elseif ($_GET['code'] == 'main') {
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист';

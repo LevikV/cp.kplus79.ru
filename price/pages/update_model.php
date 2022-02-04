@@ -27,11 +27,12 @@
                         foreach ($data['models_map_adds'] as $model_map) {
                             echo '<tr>';
                             echo '<td>' .$i . '</td>';
-                            echo '<td>' .$model_map[''] . '</td>';
-                            echo '<td>' .$model_map[''] . '</td>';
-                            echo '<td>' .$model_map[''] . '</td>';
-                            echo '<td>' .$model_map[''] . '</td>';
-                            echo '<td>' .$model_map[''] . '</td>';
+                            echo '<td>' .$model_map['id'] . '</td>';
+                            echo '<td>' .$model_map['model_name'] . '</td>';
+                            echo '<td>' .$model_map['model_id'] . '</td>';
+                            echo '<td>' .$model_map['prov_model_name'] . '</td>';
+                            echo '<td>' .$model_map['prov_model_id'] . '</td>';
+                            echo '<td>' .$model_map['provider_name'] . '</td>';
                             echo '</tr>';
                             $i++;
                         }
