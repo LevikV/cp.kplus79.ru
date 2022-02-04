@@ -554,52 +554,51 @@ class Price {
         if ($maps !== false) {
             if ($maps !== null) {
                 foreach ($maps as $map) {
-                    $map_manufs_id[] = $map['provider_id'];
+                    $map_attrib_groups_id[] = $map['provider_id'];
                 }
             }
         }
 
         foreach ($providers as $provider) {
             if ($provider['parent_id'] == null) {
-                $provider_manufs = $db->getProviderManufs($provider['id']);
-                $manufs = $db->getManufs();
-                foreach ($provider_manufs as $provider_manuf) {
-                    if (!in_array($provider_manuf['id'], $map_manufs_id)) {
+                $provider_attrib_groups = $db->getProviderAttributeGroups($provider['id']);
+                $attrib_groups = $db->getAttributeGroups();
+                foreach ($provider_attrib_groups as $provider_attrib_group) {
+                    if (!in_array($provider_attrib_group['id'], $map_attrib_groups_id)) {
                         //
-                        if ($manufs != null) {
+                        if ($attrib_groups != null) {
                             $flag_name = 0;
-                            foreach ($manufs as $manuf) {
-                                if (strcasecmp($manuf['name'], $provider_manuf['name']) == 0) {
+                            foreach ($attrib_groups as $attrib_group) {
+                                if (strcasecmp($attrib_group['name'], $provider_attrib_group['name']) == 0) {
                                     // если имя вендора из таблицы поставщиков равно имени эталонного вендора, то
                                     // необходимо его сопоставить
-                                    $add_map_id = $db->addMap('manufacturer', $manuf['id'], $provider_manuf['id']);
+                                    $add_map_id = $db->addMap('attrib_group', $attrib_group['id'], $provider_attrib_group['id']);
                                     $flag_name = 1;
                                     // Добавляем запись в детальный лог
-                                    $db->addDetailLog('PRICE', '0', 'ADD_MAP_MANUF', $manuf['name'], $provider_manuf['name']);
+                                    $db->addDetailLog('PRICE', '0', 'ADD_MAP_ATTRIB_GROUP', $attrib_group['name'], $provider_attrib_group['name']);
                                     // формируем массив для передачи в отображение
-                                    $manufs_map_adds[] = array(
+                                    $attrib_groups_map_adds[] = array(
                                         'id' => $add_map_id,
-                                        'manuf_id' => $manuf['id'],
-                                        'manuf_name' => $manuf['name'],
-                                        'prov_manuf_id' => $provider_manuf['id'],
-                                        'prov_manuf_name' => $provider_manuf['name'],
+                                        'attrib_group_id' => $attrib_group['id'],
+                                        'attrib_group_name' => $attrib_group['name'],
+                                        'prov_attrib_group_id' => $provider_attrib_group['id'],
+                                        'prov_attrib_group_name' => $provider_attrib_group['name'],
                                         'provider_name' => $provider['name']
                                     );
                                     break;
                                 }
                             }
-                            // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем нового вендора в
-                            // эталонную базу
+                            // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую группу
+                            // аттрибутов в эталонную базу
                             if ($flag_name == 0) {
                                 // формируем массив для передачи в отображение т.к. добавляться новые значения
                                 // пока будут только вручную
-                                $manufs_to_add[] = array(
+                                $attrib_groups_to_add[] = array(
                                     'provider_id' => $provider['id'],
                                     'provider_name' => $provider['name'],
-                                    'prov_manuf_id' => $provider_manuf['id'],
-                                    'prov_manuf_name' => $provider_manuf['name'],
-                                    'prov_manuf_descrip' => $provider_manuf['description'],
-                                    'prov_manuf_image' => $provider_manuf['image']
+                                    'prov_attrib_group_id' => $provider_attrib_group['id'],
+                                    'prov_attrib_group_name' => $provider_attrib_group['name'],
+                                    'prov_attrib_group_parent_id' => $provider_attrib_group['parent_id']
                                 );
                             }
                         } else {
@@ -608,10 +607,9 @@ class Price {
                             $manufs_to_add[] = array(
                                 'provider_id' => $provider['id'],
                                 'provider_name' => $provider['name'],
-                                'prov_manuf_id' => $provider_manuf['id'],
-                                'prov_manuf_name' => $provider_manuf['name'],
-                                'prov_manuf_descrip' => $provider_manuf['description'],
-                                'prov_manuf_image' => $provider_manuf['image']
+                                'prov_attrib_group_id' => $provider_attrib_group['id'],
+                                'prov_attrib_group_name' => $provider_attrib_group['name'],
+                                'prov_attrib_group_parent_id' => $provider_attrib_group['parent_id']
                             );
                         }
 
@@ -623,8 +621,8 @@ class Price {
 
         // Возвращаем полученные данные
         $data = array();
-        $data['manufs_map_adds'] = $manufs_map_adds;
-        $data['manufs_to_add'] = $manufs_to_add;
+        $data['attrib_groups_map_adds'] = $attrib_groups_map_adds;
+        $data['attrib_groups_to_add'] = $attrib_groups_to_add;
         return $data;
     }
 
