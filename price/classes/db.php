@@ -254,6 +254,41 @@ class Db extends Sys {
         }
     }
 
+    public function getManufs() {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM manufacturer';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения производителей из manufacturer' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'image' => $row["image"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getProviderProductCount($prov_id) {
         //
         global $ERROR;
