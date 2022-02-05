@@ -43,7 +43,7 @@
             </div>
             <div class="col">
                 <p class="mb-0">Список групп аттрибутов для добавления в эталонную базу</p>
-                <table id="tableManufs" class="table table-sm">
+                <table id="tableAttribGroups" class="table table-sm">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -57,17 +57,17 @@
                     </thead>
                     <tbody>
                     <?
-                    if (!empty($data['manufs_to_add'])) {
+                    if (!empty($data['attrib_groups_to_add'])) {
                         $i = 1;
-                        foreach ($data['manufs_to_add'] as $manuf) {
+                        foreach ($data['attrib_groups_to_add'] as $attrib_group) {
                             echo '<tr id="' . $i . '">';
                             echo '<td>' .$i . '</td>';
-                            echo '<td>' .$manuf['provider_id'] . '</td>';
-                            echo '<td>' .$manuf['provider_name'] . '</td>';
-                            echo '<td>' .$manuf['prov_manuf_id'] . '</td>';
-                            echo '<td>' .$manuf['prov_manuf_name'] . '</td>';
-                            echo '<td>' .$manuf['description'] . '</td>';
-                            echo '<td>' .$manuf['image'] . '</td>';
+                            echo '<td>' .$attrib_group['provider_id'] . '</td>';
+                            echo '<td>' .$attrib_group['provider_name'] . '</td>';
+                            echo '<td>' .$attrib_group['prov_attrib_group_id'] . '</td>';
+                            echo '<td>' .$attrib_group['prov_attrib_group_name'] . '</td>';
+                            echo '<td>' .$attrib_group['prov_attrib_group_parent_id'] . '</td>';
+                            echo '<td>' .$attrib_group['image'] . '</td>';
                             echo '<td><a class="link_add_manuf" href="#" data-manuf-name="' . $manuf['prov_manuf_name'] .
                                 '" data-prov-manuf-id="' . $manuf['prov_manuf_id'] . '" data-prov-name="' . $manuf['provider_name'] .
                                 '" data-row-id="' . $i . '" data-manuf-descrip="' . $manuf['description'] .
