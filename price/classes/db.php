@@ -294,7 +294,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT * FROM provider_attribute_group';
+            $sql = 'SELECT * FROM attribute_group';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {

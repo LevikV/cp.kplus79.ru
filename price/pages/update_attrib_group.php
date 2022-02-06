@@ -67,11 +67,10 @@
                             echo '<td>' .$attrib_group['prov_attrib_group_id'] . '</td>';
                             echo '<td>' .$attrib_group['prov_attrib_group_name'] . '</td>';
                             echo '<td>' .$attrib_group['prov_attrib_group_parent_id'] . '</td>';
-                            echo '<td>' .$attrib_group['image'] . '</td>';
-                            echo '<td><a class="link_add_manuf" href="#" data-manuf-name="' . $manuf['prov_manuf_name'] .
-                                '" data-prov-manuf-id="' . $manuf['prov_manuf_id'] . '" data-prov-name="' . $manuf['provider_name'] .
-                                '" data-row-id="' . $i . '" data-manuf-descrip="' . $manuf['description'] .
-                                '" data-manuf-image="' . $manuf['image'] . '">Добавить</a></td>';
+                            echo '<td><a class="link_add_attrib_group" href="#" data-attrib-group-name="' . $attrib_group['prov_attrib_group_name'] .
+                                '" data-prov-attrib-group-id="' . $attrib_group['prov_attrib_group_id'] . '" data-prov-name="' . $attrib_group['provider_name'] .
+                                '" data-row-id="' . $i . '" data-attrib-group-parent-id="' . $attrib_group['prov_attrib_group_parent_id'] .
+                                '">Добавить</a></td>';
                             echo '</tr>';
                             $i++;
                         }

@@ -55,6 +55,19 @@ if (isset($_GET['route']) AND isset($_GET['code'])) {
             $data['title'] = 'Прайс лист - обновление производителей';
             // Указываем страницу отображения
             $content = 'price/pages/update_manuf.php';
+        } elseif ($_GET['code'] == 'update_attrib_group') {
+            // Подготавливаем данные
+            // Вызываем метод обновления групп аттрибутов
+            $price = new Price;
+            $update_attrib_groups = $price->updateAttribGtoup();
+            //
+            $data['attrib_groups_to_add'] = $update_attrib_groups['attrib_groups_to_add'];
+            $data['attrib_groups_map_adds'] = $update_attrib_groups['attrib_groups_map_adds'];
+
+            // Устанавливаем заголовок
+            $data['title'] = 'Прайс лист - обновление групп аттрибутов';
+            // Указываем страницу отображения
+            $content = 'price/pages/update_attrib_group.php';
         } elseif ($_GET['code'] == 'main') {
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист';

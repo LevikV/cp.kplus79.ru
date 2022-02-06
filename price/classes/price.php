@@ -533,7 +533,7 @@ class Price {
         return $data;
     }
 
-    private function updateAttribGtoup() {
+    public function updateAttribGtoup() {
         // Метод обновления групп аттрибутов
         // Возвращает массив данных $data с ключами:
         // - attrib_groups_map_adds - массив добавленных автоматически карт сопоставления по вендорам
@@ -604,7 +604,7 @@ class Price {
                         } else {
                             // формируем массив для передачи в отображение т.к. добавляться новые значения
                             // пока будут только вручную
-                            $manufs_to_add[] = array(
+                            $attrib_groups_to_add[] = array(
                                 'provider_id' => $provider['id'],
                                 'provider_name' => $provider['name'],
                                 'prov_attrib_group_id' => $provider_attrib_group['id'],
@@ -612,7 +612,6 @@ class Price {
                                 'prov_attrib_group_parent_id' => $provider_attrib_group['parent_id']
                             );
                         }
-
                     }
                 }
             }
