@@ -62,11 +62,11 @@
                         foreach ($data['attrib_groups_to_add'] as $attrib_group) {
                             echo '<tr id="' . $i . '">';
                             echo '<td>' .$i . '</td>';
-                            echo '<td>' .$attrib_group['provider_id'] . '</td>';
+                            echo '<td class="prov-id">' .$attrib_group['provider_id'] . '</td>';
                             echo '<td>' .$attrib_group['provider_name'] . '</td>';
-                            echo '<td>' .$attrib_group['prov_attrib_group_id'] . '</td>';
-                            echo '<td>' .$attrib_group['prov_attrib_group_name'] . '</td>';
-                            echo '<td>' .$attrib_group['prov_attrib_group_parent_id'] . '</td>';
+                            echo '<td class="attrib-group-id">' .$attrib_group['prov_attrib_group_id'] . '</td>';
+                            echo '<td class="attrib-group-name">' .$attrib_group['prov_attrib_group_name'] . '</td>';
+                            echo '<td class="prov-attrib-group-parent-id">' .$attrib_group['prov_attrib_group_parent_id'] . '</td>';
                             echo '<td><a class="link_add_attrib_group" href="#" data-attrib-group-name="' . $attrib_group['prov_attrib_group_name'] .
                                 '" data-prov-attrib-group-id="' . $attrib_group['prov_attrib_group_id'] . '" data-prov-name="' . $attrib_group['provider_name'] .
                                 '" data-row-id="' . $i . '" data-attrib-group-parent-id="' . $attrib_group['prov_attrib_group_parent_id'] .
@@ -74,18 +74,11 @@
                             echo '</tr>';
                             $i++;
                         }
-                        echo '<tr>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td>Добавить все</td>';
-                        echo '</tr>';
                     }
                     ?>
                     </tbody>
                 </table>
+                <p class="text-right m-0"><a class="link_add_attrib_group_all" href="#">Добавить все</a></p>
             </div>
         </div>
     </div>
