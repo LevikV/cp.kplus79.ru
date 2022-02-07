@@ -16,5 +16,8 @@ if (isset($_GET['operation'])) {
     if ($_GET['operation'] == 'update_products') {
         $price = new Price;
         $price->updateProducts();
+    } elseif ($_GET['operation'] == 'temp') {
+        $db = new Db;
+        print_r($db->getMapByProvItemId('manufacturer', 22));
     }
 }
