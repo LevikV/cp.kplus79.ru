@@ -76,6 +76,7 @@ if (isset($_POST['operation'])) {
         }
         echo json_encode($json);
     } elseif ($_POST['operation'] == 'add_attrib_group_from_prov_all') {
+        // Операция добавления всех групп аттрибутов
         $db = new Db;
         // формируем данные
         $attrib_groups_to_add = array();
@@ -88,7 +89,19 @@ if (isset($_POST['operation'])) {
             }
         }
 
+        foreach ($providers as $provider) {
+            $temp = array();
+            foreach ($attrib_groups_to_add as $attrib_group) {
+                if ($attrib_group['provider_id'] == $provider) {
+                    if ($attrib_group['prov_attrib_group_parent_id'] == 0) {
+                        $data = array();
+                        $data['name'] = $attrib_group['prov_attrib_group_name'];
 
+
+                    }
+                }
+            }
+        }
 
 
         echo json_encode($data);

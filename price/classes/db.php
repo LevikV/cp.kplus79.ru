@@ -2256,7 +2256,7 @@ class Db extends Sys {
         }
 
         if (!isset($data['parent_id'])) {
-            $data['parent_id'] = '';
+            $data['parent_id'] = 0;
         }
         return true;
 
