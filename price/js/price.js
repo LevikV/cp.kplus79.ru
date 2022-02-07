@@ -6,7 +6,7 @@ $(document).delegate('.link_add_model', 'click', function() {
     var oper = 'add_model_from_prov';
     $.ajax({
         url: 'price/oper.php',
-        type: 'GET',
+        type: 'POST',
         data: {
             operation: oper,
             model_name: modelName,
@@ -35,7 +35,7 @@ $(document).delegate('.link_add_vendor', 'click', function() {
     var oper = 'add_vendor_from_prov';
     $.ajax({
         url: 'price/oper.php',
-        type: 'GET',
+        type: 'POST',
         data: {
             operation: oper,
             vendor_name: vendorName,
@@ -66,7 +66,7 @@ $(document).delegate('.link_add_manuf', 'click', function() {
     var oper = 'add_manuf_from_prov';
     $.ajax({
         url: 'price/oper.php',
-        type: 'GET',
+        type: 'POST',
         data: {
             operation: oper,
             manuf_name: manufName,
@@ -96,7 +96,7 @@ $(document).delegate('.link_add_attrib_group', 'click', function() {
     var oper = 'add_attrib_group_from_prov';
     $.ajax({
         url: 'price/oper.php',
-        type: 'GET',
+        type: 'POST',
         data: {
             operation: oper,
             attrib_group_name: attribGroupName,
@@ -117,21 +117,45 @@ $(document).delegate('.link_add_attrib_group', 'click', function() {
 });
 
 $(document).delegate('.link_add_attrib_group_all', 'click', function() {
-    var attribsToAdd = [];
+    var oper = 'add_attrib_group_from_prov_all';
+    var attribGroupsToAdd = [];
     $('#tableAttribGroups tbody>tr').each(function () {
         $this = $(this);
         var provId = $this.find('.prov-id').text();
         var attribGroupId = $this.find('.attrib-group-id').text();
         var attribGroupName = $this.find('.attrib-group-name').text();
         var provAttribGroupParentId = $this.find('.prov-attrib-group-parent-id').text();
-        attribsToAdd.push({
+        attribGroupsToAdd.push({
             provider_id: provId,
             prov_attrib_group_id: attribGroupId,
             prov_attrib_group_name: attribGroupName,
             prov_attrib_group_parent_id: provAttribGroupParentId
         })
+    });
+    $.ajax({
+        url: 'price/oper.php',
+        type: 'POST',
+        data: {
+            operation: oper,
+            attrib_groups_to_add: attribGroupsToAdd
+        },
+        dataType: 'json',
+        success: function(json) {
+            if (json['error']) {
+                alert('Какая то ошибка произошла...!');
+            } else {
+                $.each(json, function (key, data) {
+                    $.each(data, function (index, value) {
+                        $('#tableMaps tr:last').after('<tr><td></td><td>' + value['map_id'] + '</td><td>' +
+                            value['attrib_group_name'] + '</td><td>' + value['attrib_group_id'] + '</td><td>' + value['prov_attrib_group_name'] + '</td><td>'+
+                            value['prov_attrib_group_id'] + '</td><td>' + value['provider_name'] +'</td></tr>');
+                    })
+                })
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
         }
-    );
-
+    });
 
 });
