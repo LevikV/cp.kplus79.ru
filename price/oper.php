@@ -78,24 +78,19 @@ if (isset($_POST['operation'])) {
     } elseif ($_POST['operation'] == 'add_attrib_group_from_prov_all') {
         $db = new Db;
         // формируем данные
-        $data = array();
-        $data = $_POST['attrib_groups_to_add'];
+        $attrib_groups_to_add = array();
+        $attrib_groups_to_add = $_POST['attrib_groups_to_add'];
 
-
-
-        // добавляем вендора
-        $vendor_id = $db->addVendor($data);
-        if ($vendor_id) {
-            $json['vendor_id'] = $vendor_id;
-            // добавляем карту сопоставления
-            $map_id = $db->addMap('vendor', $vendor_id, $_POST['prov_vendor_id']);
-            if ($map_id) {
-                $json['map_id'] = $map_id;
-            } else {
-                $json['error'][] = 'Ошибка при добавлении карты вендора';
+        $providers = array();
+        foreach ($attrib_groups_to_add as $attrib_group) {
+            if (!in_array($attrib_group['provider_id'], $providers, true)) {
+                $providers[] = $attrib_group['provider_id'];
             }
-        } else {
-            $json['error'][] = 'Ошибка при добавлении вендора в эталонную базу.';
         }
+
+
+
+
+        echo json_encode($data);
     }
 }
