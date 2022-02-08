@@ -143,45 +143,42 @@ if (isset($_POST['operation'])) {
                         }
                     }
                 }
-                if (!empty($temp)) {
-                    while (!empty($temp)) {
-                        foreach ($temp as $key => $attrib_group) {
-                            $map = $db->getMapByProvItemId('attribute_group', $attrib_group['prov_attrib_group_parent_id']);
-                            if ($map) {
-                                $data = array();
-                                $data['name'] = $attrib_group['prov_attrib_group_name'];
-                                $data['parent_id'] = $map;
-                                $attrib_group_id = $db->addAttributeGroup($data);
-                                if ($attrib_group_id) {
-                                    $db->addDetailLog('OPER', 0, 'ADD_ATTRIBUTE_GROUP', '', $data['name']);
-                                    $attrib_group_map_id = $db->addMap('attribute_group', $attrib_group_id, $attrib_group['prov_attrib_group_id']);
-                                    if ($attrib_group_map_id) {
-                                        $db->addDetailLog('OPER', 0, 'ADD_MAP_ATTRIBUTE_GRPOUP', $attrib_group_id, $attrib_group['prov_attrib_group_id']);
-                                        $provider_data = $db->getProvider($provider);
-                                        $attrib_groups_map_adds[] = array(
-                                            'id' => $attrib_group_map_id,
-                                            'attrib_group_id' => $attrib_group_id,
-                                            'attrib_group_name' => $data['name'],
-                                            'prov_attrib_group_id' => $attrib_group['prov_attrib_group_id'],
-                                            'prov_attrib_group_name' => $attrib_group['prov_attrib_group_name'],
-                                            'provider_name' => $provider_data['name']
-                                        );
-                                        // Если все добавилось успешно, то удаляем из массива группу аттрибутов
-                                        unset($temp[$key]);
+            }
+            if (!empty($temp)) {
+                while (!empty($temp)) {
+                    foreach ($temp as $key => $attrib_group) {
+                        $map = $db->getMapByProvItemId('attribute_group', $attrib_group['prov_attrib_group_parent_id']);
+                        if ($map) {
+                            $data = array();
+                            $data['name'] = $attrib_group['prov_attrib_group_name'];
+                            $data['parent_id'] = $map;
+                            $attrib_group_id = $db->addAttributeGroup($data);
+                            if ($attrib_group_id) {
+                                $db->addDetailLog('OPER', 0, 'ADD_ATTRIBUTE_GROUP', '', $data['name']);
+                                $attrib_group_map_id = $db->addMap('attribute_group', $attrib_group_id, $attrib_group['prov_attrib_group_id']);
+                                if ($attrib_group_map_id) {
+                                    $db->addDetailLog('OPER', 0, 'ADD_MAP_ATTRIBUTE_GRPOUP', $attrib_group_id, $attrib_group['prov_attrib_group_id']);
+                                    $provider_data = $db->getProvider($provider);
+                                    $attrib_groups_map_adds[] = array(
+                                        'id' => $attrib_group_map_id,
+                                        'attrib_group_id' => $attrib_group_id,
+                                        'attrib_group_name' => $data['name'],
+                                        'prov_attrib_group_id' => $attrib_group['prov_attrib_group_id'],
+                                        'prov_attrib_group_name' => $attrib_group['prov_attrib_group_name'],
+                                        'provider_name' => $provider_data['name']
+                                    );
+                                    // Если все добавилось успешно, то удаляем из массива группу аттрибутов
+                                    unset($temp[$key]);
 
-                                    }
                                 }
                             }
-                            //
                         }
                         //
                     }
+                    //
                 }
-
             }
         }
-
-
-        echo json_encode($data);
+        echo json_encode($attrib_groups_map_adds);
     }
 }
