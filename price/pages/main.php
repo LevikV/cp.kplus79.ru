@@ -6,10 +6,12 @@
                 <li class="breadcrumb-item active">Модуль управления Прайс листом</li>
             </ol>
             <div>
-                <a class="btn btn-primary" href="index.php?route=price&code=update_vendor">Обновить вендоров</a>
-                <a class="btn btn-primary" href="index.php?route=price&code=update_model">Обновить модели</a>
-                <a class="btn btn-primary" href="index.php?route=price&code=update_manuf">Обновить производителей</a>
-                <a class="btn btn-primary" href="index.php?route=price&code=update_attrib_group">Обновить группы аттрибутов</a>
+                <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_vendor">Обновить вендоров</a>
+                <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_model">Обновить модели</a>
+                <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_manuf">Обновить производителей</a>
+                <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_attrib_group">Обновить группы аттрибутов</a>
+                <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_attrib">Обновить аттрибуты</a>
+                <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_attrib_value">Обновить значения аттрибутов</a>
             </div>
             <p class="mb-0 mt-2">Сводная информация о базе данных</p>
             <table class="table table-hover">

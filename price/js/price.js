@@ -205,5 +205,4 @@ $(document).delegate('.link_add_model_all', 'click', function() {
             alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
         }
     });
-
 });
