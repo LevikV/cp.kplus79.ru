@@ -180,5 +180,35 @@ if (isset($_POST['operation'])) {
             }
         }
         echo json_encode($attrib_groups_map_adds);
+    } elseif ($_POST['operation'] == 'add_model_from_prov_all') {
+        // Операция добавления всех моделей
+        $models_map_adds = array();
+        $db = new Db;
+        // формируем данные
+        $models_to_add = array();
+        $models_to_add = $_POST['models_to_add'];
+        //
+        foreach ($models_to_add as $model_to_add) {
+            $data = array();
+            $data['name'] = $model_to_add['prov_model_name'];
+            $model_add_id = $db->addModel($data);
+            if ($model_add_id) {
+                $db->addDetailLog('OPER', 0, 'ADD_MODEL', '', $data['name']);
+                $model_map_add_id = $db->addMap('model', $model_add_id, $model_to_add['prov_model_id']);
+                if ($model_map_add_id) {
+                    $db->addDetailLog('OPER', 0, 'ADD_MAP_MODEL', $model_add_id, $model_to_add['prov_model_id']);
+                    $provider_data = $db->getProvider($model_to_add['provider_id']);
+                    $models_map_adds[] = array(
+                        'id' => $model_map_add_id,
+                        'model_id' => $model_add_id,
+                        'model_name' => $data['name'],
+                        'prov_model_id' => $model_to_add['prov_model_id'],
+                        'prov_model_name' => $model_to_add['prov_model_name'],
+                        'provider_name' => $provider_data['name']
+                    );
+                }
+            }
+        }
+        echo json_encode($models_map_adds);
     }
 }

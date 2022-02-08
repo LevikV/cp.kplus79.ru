@@ -78,7 +78,11 @@
                     ?>
                     </tbody>
                 </table>
-                <p class="text-right m-0"><a class="link_add_attrib_group_all" href="#">Добавить все</a></p>
+                <?
+                if (!empty($data['attrib_groups_to_add'])) {
+                    echo '<p class="text-right m-0"><a class="link_add_attrib_group_all" href="#">Добавить все</a></p>';
+                }
+                ?>
             </div>
         </div>
     </div>

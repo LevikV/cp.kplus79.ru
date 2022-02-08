@@ -61,28 +61,25 @@
                         foreach ($data['models_to_add'] as $model) {
                             echo '<tr id="' . $i . '">';
                             echo '<td>' .$i . '</td>';
-                            echo '<td>' .$model['provider_id'] . '</td>';
+                            echo '<td class="prov-id">' .$model['provider_id'] . '</td>';
                             echo '<td>' .$model['provider_name'] . '</td>';
-                            echo '<td>' .$model['prov_model_id'] . '</td>';
-                            echo '<td>' .$model['prov_model_name'] . '</td>';
+                            echo '<td class="model-id">' .$model['prov_model_id'] . '</td>';
+                            echo '<td class="model-name">' .$model['prov_model_name'] . '</td>';
                             echo '<td><a class="link_add_model" href="#" data-model-name="' . $model['prov_model_name'] .
                                 '" data-prov-model-id="' . $model['prov_model_id'] . '" data-prov-name="' . $model['provider_name'] .
                                 '" data-row-id="' . $i . '">Добавить</a></td>';
                             echo '</tr>';
                             $i++;
                         }
-                        echo '<tr>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td></td>';
-                        echo '<td>Добавить все</td>';
-                        echo '</tr>';
                     }
                     ?>
                     </tbody>
                 </table>
+                <?
+                if (!empty($data['models_to_add'])) {
+                    echo '<p class="text-right m-0"><a class="link_add_model_all" href="#">Добавить все</a></p>';
+                }
+                ?>
             </div>
         </div>
     </div>

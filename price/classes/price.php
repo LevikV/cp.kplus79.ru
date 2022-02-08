@@ -548,7 +548,7 @@ class Price {
 
 
         // Получаем карту сопоставлений по группам аттрибутов
-        $maps = $db->getMaps('attrib_group');
+        $maps = $db->getMaps('attribute_group');
         //Собираем id групп аттрибутов поставщиков сопоставленных с нашей эталонной базой
         $map_attrib_groups_id = array();
         if ($maps !== false) {
@@ -572,7 +572,7 @@ class Price {
                                 if (strcasecmp($attrib_group['name'], $provider_attrib_group['name']) == 0) {
                                     // если имя вендора из таблицы поставщиков равно имени эталонного вендора, то
                                     // необходимо его сопоставить
-                                    $add_map_id = $db->addMap('attrib_group', $attrib_group['id'], $provider_attrib_group['id']);
+                                    $add_map_id = $db->addMap('attribute_group', $attrib_group['id'], $provider_attrib_group['id']);
                                     $flag_name = 1;
                                     // Добавляем запись в детальный лог
                                     $db->addDetailLog('PRICE', '0', 'ADD_MAP_ATTRIB_GROUP', $attrib_group['name'], $provider_attrib_group['name']);

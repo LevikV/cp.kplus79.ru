@@ -119,6 +119,7 @@ $(document).delegate('.link_add_attrib_group', 'click', function() {
 $(document).delegate('.link_add_attrib_group_all', 'click', function() {
     var oper = 'add_attrib_group_from_prov_all';
     var attribGroupsToAdd = [];
+    $this_link = $(this);
     $('#tableAttribGroups tbody>tr').each(function () {
         $this = $(this);
         var provId = $this.find('.prov-id').text();
@@ -145,12 +146,59 @@ $(document).delegate('.link_add_attrib_group_all', 'click', function() {
                 alert('Какая то ошибка произошла...!');
             } else {
                 $.each(json, function (key, data) {
-                    $.each(data, function (index, value) {
-                        $('#tableMaps tr:last').after('<tr><td></td><td>' + value['map_id'] + '</td><td>' +
-                            value['attrib_group_name'] + '</td><td>' + value['attrib_group_id'] + '</td><td>' + value['prov_attrib_group_name'] + '</td><td>'+
-                            value['prov_attrib_group_id'] + '</td><td>' + value['provider_name'] +'</td></tr>');
-                    })
-                })
+                    $('#tableMaps tr:last').after('<tr><td></td><td>' + data['id'] + '</td><td>' +
+                        data['attrib_group_name'] + '</td><td>' + data['attrib_group_id'] + '</td><td>' + data['prov_attrib_group_name'] + '</td><td>'+
+                        data['prov_attrib_group_id'] + '</td><td>' + data['provider_name'] +'</td></tr>');
+                });
+                $('#tableAttribGroups tbody>tr').each(function () {
+                    $(this).remove();
+                });
+                $this_link.remove();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+
+});
+
+$(document).delegate('.link_add_model_all', 'click', function() {
+    var oper = 'add_model_from_prov_all';
+    var modelsToAdd = [];
+    $this_link = $(this);
+    $('#tableModels tbody>tr').each(function () {
+        $this = $(this);
+        var provId = $this.find('.prov-id').text();
+        var modelId = $this.find('.model-id').text();
+        var modelName = $this.find('.model-name').text();
+        modelsToAdd.push({
+            provider_id: provId,
+            prov_model_id: modelId,
+            prov_model_name: modelName
+        })
+    });
+    $.ajax({
+        url: 'price/oper.php',
+        type: 'POST',
+        data: {
+            operation: oper,
+            models_to_add: modelsToAdd
+        },
+        dataType: 'json',
+        success: function(json) {
+            if (json['error']) {
+                alert('Какая то ошибка произошла...!');
+            } else {
+                $.each(json, function (key, data) {
+                    $('#tableMaps tr:last').after('<tr><td></td><td>' + data['id'] + '</td><td>' +
+                        data['model_name'] + '</td><td>' + data['model_id'] + '</td><td>' + data['prov_model_name'] + '</td><td>'+
+                        data['prov_model_id'] + '</td><td>' + data['provider_name'] +'</td></tr>');
+                });
+                $('#tableModels tbody>tr').each(function () {
+                    $(this).remove();
+                });
+                $this_link.remove();
             }
         },
         error: function(xhr, ajaxOptions, thrownError) {
