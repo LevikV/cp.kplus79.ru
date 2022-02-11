@@ -76,6 +76,11 @@ if (isset($_GET['route']) AND isset($_GET['code'])) {
             //
             $data['attribs_to_add'] = $update_attribs['attribs_to_add'];
             $data['attribs_map_adds'] = $update_attribs['attribs_map_adds'];
+            $data['attribs_check_to_add'] = $update_attribs['attribs_check_to_add'];
+            //
+            if (isset($update_attribs['warning'])) {
+                $data['warning'] = $update_attribs['warning'];
+            }
 
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист - обновление аттрибутов';

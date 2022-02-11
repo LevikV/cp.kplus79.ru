@@ -568,24 +568,31 @@ class Price {
                         //
                         if ($attrib_groups != null) {
                             $flag_name = 0;
+                            $flag_group = 0;
                             foreach ($attrib_groups as $attrib_group) {
                                 if (strcasecmp($attrib_group['name'], $provider_attrib_group['name']) == 0) {
                                     // если имя вендора из таблицы поставщиков равно имени эталонного вендора, то
-                                    // необходимо его сопоставить
-                                    $add_map_id = $db->addMap('attribute_group', $attrib_group['id'], $provider_attrib_group['id']);
                                     $flag_name = 1;
-                                    // Добавляем запись в детальный лог
-                                    $db->addDetailLog('PRICE', '0', 'ADD_MAP_ATTRIB_GROUP', $attrib_group['name'], $provider_attrib_group['name']);
-                                    // формируем массив для передачи в отображение
-                                    $attrib_groups_map_adds[] = array(
-                                        'id' => $add_map_id,
-                                        'attrib_group_id' => $attrib_group['id'],
-                                        'attrib_group_name' => $attrib_group['name'],
-                                        'prov_attrib_group_id' => $provider_attrib_group['id'],
-                                        'prov_attrib_group_name' => $provider_attrib_group['name'],
-                                        'provider_name' => $provider['name']
-                                    );
-                                    break;
+                                    // проверяем родительскую группу
+                                    // получаем id родительской группы
+                                    $our_attrib_group_id = $db->getMapByProvItemId('attribute_group', $provider_attrib_group['parent_id']);
+                                    if ($attrib_group['parent_id'] == $our_attrib_group_id) {
+                                        $flag_group = 1;
+                                        // необходимо его сопоставить
+                                        $add_map_id = $db->addMap('attribute_group', $attrib_group['id'], $provider_attrib_group['id']);
+                                        // Добавляем запись в детальный лог
+                                        $db->addDetailLog('PRICE', '0', 'ADD_MAP_ATTRIB_GROUP', $attrib_group['name'], $provider_attrib_group['name']);
+                                        // формируем массив для передачи в отображение
+                                        $attrib_groups_map_adds[] = array(
+                                            'id' => $add_map_id,
+                                            'attrib_group_id' => $attrib_group['id'],
+                                            'attrib_group_name' => $attrib_group['name'],
+                                            'prov_attrib_group_id' => $provider_attrib_group['id'],
+                                            'prov_attrib_group_name' => $provider_attrib_group['name'],
+                                            'provider_name' => $provider['name']
+                                        );
+                                        break;
+                                    }
                                 }
                             }
                             // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую группу
@@ -635,6 +642,7 @@ class Price {
         $db = new Db;
         $attribs_to_add = array();
         $attribs_map_adds = array();
+        $attribs_check_to_add = array();
 
         // Получаем список всех поставщиков
         $providers = $db->getProviders();
@@ -656,7 +664,7 @@ class Price {
         // проверку самих аттрибутов, т.к. это базовые данные
         foreach ($providers as $provider) {
             if ($provider['parent_id'] == null) {
-                $flag = $db->checkMapProviderAttributeGroups($provider[id]);
+                $flag = $db->checkMapProviderAttributeGroups($provider['id']);
                 if ($flag) {
                     continue;
                 } else {
@@ -713,6 +721,17 @@ class Price {
                                             'prov_attrib_name' => $provider_attrib['name'],
                                             'prov_attrib_group_id' => $provider_attrib['group_id']
                                         );
+                                    } else {
+                                        $attribs_check_to_add[] = array(
+                                            'provider_id' => $provider['id'],
+                                            'provider_name' => $provider['name'],
+                                            'prov_attrib_id' => $provider_attrib['id'],
+                                            'prov_attrib_name' => $provider_attrib['name'],
+                                            'prov_attrib_group_id' => $provider_attrib['group_id'],
+                                            'similar_attrib_id' => $attrib['id'],
+                                            'similar_attrib_name' => $attrib['name'],
+                                            'similar_attrib_group_id' => $attrib['group_id']
+                                        );
                                     }
                                 }
 
@@ -737,6 +756,7 @@ class Price {
         // Возвращаем полученные данные
         $data['attribs_map_adds'] = $attribs_map_adds;
         $data['attribs_to_add'] = $attribs_to_add;
+        $data['attribs_check_to_add'] = $attribs_check_to_add;
         return $data;
     }
 
