@@ -630,6 +630,7 @@ class Price {
         // Возвращает массив данных $data с ключами:
         // - attribs_map_adds - массив добавленных автоматически карт сопоставления по вендорам
         // - attribs_to_add - массив вендоров для добавления в эталонную базу
+        $data = array();
 
         $db = new Db;
         $attribs_to_add = array();
@@ -655,82 +656,85 @@ class Price {
         // проверку самих аттрибутов, т.к. это базовые данные
         foreach ($providers as $provider) {
             if ($provider['parent_id'] == null) {
-                $db->getProviderAttributeGroups($provider['id']);
-
-                $provider_attribs = $db->getProviderAttributes($provider['id']);
-
+                $flag = $db->checkMapProviderAttributeGroups($provider[id]);
+                if ($flag) {
+                    continue;
+                } else {
+                    $data['warning'][] = 'Необходимо обновить группы аттрибутов по поставщику id: ' . $provider['id'];
+                }
             }
         }
 
-        foreach ($providers as $provider) {
-            if ($provider['parent_id'] == null) {
-                $provider_attribs = $db->getProviderAttributes($provider['id']);
-                $attribs = $db->getAttributes();
-                foreach ($provider_attribs as $provider_attrib) {
-                    if (!in_array($provider_attrib['id'], $map_attribs_id)) {
-                        //
-                        if ($attribs != null) {
-                            foreach ($attribs as $attrib) {
-                                $flag_name = 0;
-                                $flag_group = 0;
-                                if (strcasecmp($attrib['name'], $provider_attrib['name']) == 0) {
-                                    $flag_name = 1;
-                                    $map_prov_attrib_group_id = $db->getMapByProvItemId('attribute', $provider_attrib['group_id']);
-                                    if ($attrib['group_id'] == $map_prov_attrib_group_id) {
-                                        $flag_group = 1;
-                                        // если имя аттрибут из таблицы поставщиков равно имени эталонного аттрибута, и
-                                        // группы аттрибутов тоже равны то необходимо его сопоставить
-                                        $add_map_id = $db->addMap('attribute', $attrib['id'], $provider_attrib['id']);
-                                        //$flag_name = 1;
-                                        // Добавляем запись в детальный лог
-                                        $db->addDetailLog('PRICE', '0', 'ADD_MAP_ATTRIBUTE', $attrib['name'], $provider_attrib['name']);
-                                        // формируем массив для передачи в отображение
-                                        $attribs_map_adds[] = array(
-                                            'id' => $add_map_id,
-                                            'attrib_id' => $attrib['id'],
-                                            'attrib_name' => $attrib['name'],
+        if (!isset($data['warning'])) {
+            foreach ($providers as $provider) {
+                if ($provider['parent_id'] == null) {
+                    $provider_attribs = $db->getProviderAttributes($provider['id']);
+                    $attribs = $db->getAttributes();
+                    foreach ($provider_attribs as $provider_attrib) {
+                        if (!in_array($provider_attrib['id'], $map_attribs_id)) {
+                            //
+                            if ($attribs != null) {
+                                foreach ($attribs as $attrib) {
+                                    $flag_name = 0;
+                                    $flag_group = 0;
+                                    if (strcasecmp($attrib['name'], $provider_attrib['name']) == 0) {
+                                        $flag_name = 1;
+                                        $map_prov_attrib_group_id = $db->getMapByProvItemId('attribute', $provider_attrib['group_id']);
+                                        if ($attrib['group_id'] == $map_prov_attrib_group_id) {
+                                            $flag_group = 1;
+                                            // если имя аттрибут из таблицы поставщиков равно имени эталонного аттрибута, и
+                                            // группы аттрибутов тоже равны то необходимо его сопоставить
+                                            $add_map_id = $db->addMap('attribute', $attrib['id'], $provider_attrib['id']);
+                                            //$flag_name = 1;
+                                            // Добавляем запись в детальный лог
+                                            $db->addDetailLog('PRICE', '0', 'ADD_MAP_ATTRIBUTE', $attrib['name'], $provider_attrib['name']);
+                                            // формируем массив для передачи в отображение
+                                            $attribs_map_adds[] = array(
+                                                'id' => $add_map_id,
+                                                'attrib_id' => $attrib['id'],
+                                                'attrib_name' => $attrib['name'],
+                                                'prov_attrib_id' => $provider_attrib['id'],
+                                                'prov_attrib_name' => $provider_attrib['name'],
+                                                'provider_name' => $provider['name']
+                                            );
+                                            break;
+
+                                        }
+                                    }
+                                    // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую группу
+                                    // аттрибутов в эталонную базу
+                                    if (($flag_name == 0) AND ($flag_group == 0)) {
+                                        // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                        // пока будут только вручную
+                                        $attribs_to_add[] = array(
+                                            'provider_id' => $provider['id'],
+                                            'provider_name' => $provider['name'],
                                             'prov_attrib_id' => $provider_attrib['id'],
                                             'prov_attrib_name' => $provider_attrib['name'],
-                                            'provider_name' => $provider['name']
+                                            'prov_attrib_group_id' => $provider_attrib['group_id']
                                         );
-                                        break;
-
                                     }
                                 }
-                                // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую группу
-                                // аттрибутов в эталонную базу
-                                if (($flag_name == 0) AND ($flag_group == 0)) {
-                                    // формируем массив для передачи в отображение т.к. добавляться новые значения
-                                    // пока будут только вручную
-                                    $attribs_to_add[] = array(
-                                        'provider_id' => $provider['id'],
-                                        'provider_name' => $provider['name'],
-                                        'prov_attrib_id' => $provider_attrib['id'],
-                                        'prov_attrib_name' => $provider_attrib['name'],
-                                        'prov_attrib_group_id' => $provider_attrib['group_id']
-                                    );
-                                }
-                            }
 
-                        } else {
-                            // формируем массив для передачи в отображение т.к. добавляться новые значения
-                            // пока будут только вручную
-                            $attribs_to_add[] = array(
-                                'provider_id' => $provider['id'],
-                                'provider_name' => $provider['name'],
-                                'prov_attrib_id' => $provider_attrib['id'],
-                                'prov_attrib_name' => $provider_attrib['name'],
-                                'prov_attrib_group_id' => $provider_attrib['group_id']
-                            );
+                            } else {
+                                // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                // пока будут только вручную
+                                $attribs_to_add[] = array(
+                                    'provider_id' => $provider['id'],
+                                    'provider_name' => $provider['name'],
+                                    'prov_attrib_id' => $provider_attrib['id'],
+                                    'prov_attrib_name' => $provider_attrib['name'],
+                                    'prov_attrib_group_id' => $provider_attrib['group_id']
+                                );
+                            }
                         }
                     }
                 }
-            }
 
+            }
         }
 
         // Возвращаем полученные данные
-        $data = array();
         $data['attribs_map_adds'] = $attribs_map_adds;
         $data['attribs_to_add'] = $attribs_to_add;
         return $data;

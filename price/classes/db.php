@@ -2895,6 +2895,26 @@ class Db extends Sys {
         return true;
     }
 
+    public function checkMapProviderAttributeGroups($provider_id) {
+        // Метод проверки на сопоставление групп аттрибутов поставщика
+        // группам аттрибутов эталонной базы
+        // Возвращает true или false
+        $provider_attribute_groups = $this->getProviderAttributeGroups($provider_id);
+        if ($provider_attribute_groups) {
+            foreach ($provider_attribute_groups as $provider_attribute_group) {
+                $our_attribute_group_id = $this->getMapByProvItemId('attribute_group', $provider_attribute_group['id']);
+                if ($our_attribute_group_id) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function deleteProviderProductImage($id_prov_product_image) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
