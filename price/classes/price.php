@@ -575,7 +575,12 @@ class Price {
                                     $flag_name = 1;
                                     // проверяем родительскую группу
                                     // получаем id родительской группы
-                                    $our_attrib_group_id = $db->getMapByProvItemId('attribute_group', $provider_attrib_group['parent_id']);
+                                    if ($provider_attrib_group['parent_id'] == 0) {
+                                        $our_attrib_group_id = 0;
+                                    } else {
+                                        $our_attrib_group_id = $db->getMapByProvItemId('attribute_group', $provider_attrib_group['parent_id']);
+                                    }
+
                                     if ($attrib_group['parent_id'] == $our_attrib_group_id) {
                                         $flag_group = 1;
                                         // необходимо его сопоставить
@@ -597,7 +602,7 @@ class Price {
                             }
                             // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую группу
                             // аттрибутов в эталонную базу
-                            if ($flag_name == 0) {
+                            if (($flag_name == 0) OR ($flag_group == 0)) {
                                 // формируем массив для передачи в отображение т.к. добавляться новые значения
                                 // пока будут только вручную
                                 $attrib_groups_to_add[] = array(
@@ -682,9 +687,9 @@ class Price {
                         if (!in_array($provider_attrib['id'], $map_attribs_id)) {
                             //
                             if ($attribs != null) {
+                                $flag_name = 0;
+                                $flag_group = 0;
                                 foreach ($attribs as $attrib) {
-                                    $flag_name = 0;
-                                    $flag_group = 0;
                                     if (strcasecmp($attrib['name'], $provider_attrib['name']) == 0) {
                                         $flag_name = 1;
                                         $map_prov_attrib_group_id = $db->getMapByProvItemId('attribute', $provider_attrib['group_id']);
@@ -706,33 +711,21 @@ class Price {
                                                 'provider_name' => $provider['name']
                                             );
                                             break;
-
                                         }
                                     }
-                                    // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую группу
-                                    // аттрибутов в эталонную базу
-                                    if (($flag_name == 0) AND ($flag_group == 0)) {
-                                        // формируем массив для передачи в отображение т.к. добавляться новые значения
-                                        // пока будут только вручную
-                                        $attribs_to_add[] = array(
-                                            'provider_id' => $provider['id'],
-                                            'provider_name' => $provider['name'],
-                                            'prov_attrib_id' => $provider_attrib['id'],
-                                            'prov_attrib_name' => $provider_attrib['name'],
-                                            'prov_attrib_group_id' => $provider_attrib['group_id']
-                                        );
-                                    } else {
-                                        $attribs_check_to_add[] = array(
-                                            'provider_id' => $provider['id'],
-                                            'provider_name' => $provider['name'],
-                                            'prov_attrib_id' => $provider_attrib['id'],
-                                            'prov_attrib_name' => $provider_attrib['name'],
-                                            'prov_attrib_group_id' => $provider_attrib['group_id'],
-                                            'similar_attrib_id' => $attrib['id'],
-                                            'similar_attrib_name' => $attrib['name'],
-                                            'similar_attrib_group_id' => $attrib['group_id']
-                                        );
-                                    }
+                                }
+                                // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую группу
+                                // аттрибутов в эталонную базу
+                                if (($flag_name == 0) OR ($flag_group == 0)) {
+                                    // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                    // пока будут только вручную
+                                    $attribs_to_add[] = array(
+                                        'provider_id' => $provider['id'],
+                                        'provider_name' => $provider['name'],
+                                        'prov_attrib_id' => $provider_attrib['id'],
+                                        'prov_attrib_name' => $provider_attrib['name'],
+                                        'prov_attrib_group_id' => $provider_attrib['group_id']
+                                    );
                                 }
 
                             } else {
@@ -756,7 +749,7 @@ class Price {
         // Возвращаем полученные данные
         $data['attribs_map_adds'] = $attribs_map_adds;
         $data['attribs_to_add'] = $attribs_to_add;
-        $data['attribs_check_to_add'] = $attribs_check_to_add;
+        //$data['attribs_check_to_add'] = $attribs_check_to_add;
         return $data;
     }
 
