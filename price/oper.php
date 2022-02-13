@@ -76,7 +76,8 @@ if (isset($_POST['operation'])) {
         }
         echo json_encode($json);
     } elseif ($_POST['operation'] == 'add_attrib_group_from_prov') {
-        //
+        //******** Операция добавления группы аттрибута ********
+        $json = array();
         $db = new Db;
         if ($_POST['prov_attrib_group_parent_id'] == 0) {
             $data = array();
@@ -92,27 +93,25 @@ if (isset($_POST['operation'])) {
                 }
             }
         } else {
-            $our_item_id = $db->getMapByProvItemId();
-        }
-
-        // формируем данные
-        $data = array();
-        $data['name'] = $_POST['vendor_name'];
-        // добавляем вендора
-        $vendor_id = $db->addVendor($data);
-        if ($vendor_id) {
-            $json['vendor_id'] = $vendor_id;
-            // добавляем карту сопоставления
-            $map_id = $db->addMap('vendor', $vendor_id, $_POST['prov_vendor_id']);
-            if ($map_id) {
-                $json['map_id'] = $map_id;
+            $our_item_id = $db->getMapByProvItemId('attribute_group', $_POST['prov_attrib_group_parent_id']);
+            if ($our_item_id) {
+                $data = array();
+                $data['name'] = $_POST['prov_attrib_group_name'];
+                $data['parent_id'] = $_POST['prov_attrib_group_parent_id'];
+                $attrib_group_id = $db->addAttributeGroup($data);
+                if ($attrib_group_id) {
+                    $db->addDetailLog('OPER', 0, 'ADD_ATTRIBUTE_GROUP', '', $data['name']);
+                    $attrib_group_map_id = $db->addMap('attribute_group', $attrib_group_id, $_POST['prov_attrib_group_id']);
+                    if ($attrib_group_map_id) {
+                        $db->addDetailLog('OPER', 0, 'ADD_MAP_ATTRIBUTE_GRPOUP', $attrib_group_id, $_POST['prov_attrib_group_id']);
+                        $json['map_id'] = $attrib_group_map_id;
+                        $json['attrib_group_id'] = $attrib_group_id;
+                    }
+                }
             } else {
-                $json['error'][] = 'Ошибка при добавлении карты вендора';
+                $json['warning'] = 'Группа не может быть добавлена, т.к. еще не создана родительская группа!';
             }
-        } else {
-            $json['error'][] = 'Ошибка при добавлении вендора в эталонную базу.';
         }
-        //
         echo json_encode($json);
     } elseif ($_POST['operation'] == 'add_attrib_group_from_prov_all') {
         // Операция добавления всех групп аттрибутов

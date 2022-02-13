@@ -91,7 +91,7 @@ $(document).delegate('.link_add_attrib_group', 'click', function() {
     var attribGroupName = $(this).data('attrib-group-name');
     var provAttribGroupId = $(this).data('prov-attrib-group-id');
     var provName = $(this).data('prov-name');
-    var provAttribGroupParentId = $(this).data('prov-attrib-group-parent-id');
+    var provAttribGroupParentId = $(this).data('attrib-group-parent-id');
     var rowId = '#' + $(this).data('row-id');
     var oper = 'add_attrib_group_from_prov';
     $.ajax({
