@@ -99,16 +99,20 @@ $(document).delegate('.link_add_attrib_group', 'click', function() {
         type: 'POST',
         data: {
             operation: oper,
-            attrib_group_name: attribGroupName,
-            prov_manuf_id: provAttribGroupId,
-            attrib_group_parent_id: attribGroupParentId
+            prov_attrib_group_name: attribGroupName,
+            prov_attrib_group_id: provAttribGroupId,
+            prov_attrib_group_parent_id: provAttribGroupParentId
         },
         dataType: 'json',
         success: function(json) {
-            $('#tableMaps tr:last').after('<tr><td></td><td>' + json['map_id'] + '</td><td>' +
-                attribGroupName + '</td><td>' + json['attrib_group_id'] + '</td><td>' + attribGroupName + '</td><td>'+
-                provAttribGroupId + '</td><td>' + provName +'</td></tr>');
-            $(rowId).remove();
+            if (json['warning']) {
+                alert(json['warning']);
+            } else {
+                $('#tableMaps tr:last').after('<tr><td></td><td>' + json['map_id'] + '</td><td>' +
+                    attribGroupName + '</td><td>' + json['attrib_group_id'] + '</td><td>' + attribGroupName + '</td><td>'+
+                    provAttribGroupId + '</td><td>' + provName +'</td></tr>');
+                $(rowId).remove();
+            }
         },
         error: function(xhr, ajaxOptions, thrownError) {
             alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);

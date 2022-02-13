@@ -692,7 +692,7 @@ class Price {
                                 foreach ($attribs as $attrib) {
                                     if (strcasecmp($attrib['name'], $provider_attrib['name']) == 0) {
                                         $flag_name = 1;
-                                        $map_prov_attrib_group_id = $db->getMapByProvItemId('attribute', $provider_attrib['group_id']);
+                                        $map_prov_attrib_group_id = $db->getMapByProvItemId('attribute_group', $provider_attrib['group_id']);
                                         if ($attrib['group_id'] == $map_prov_attrib_group_id) {
                                             $flag_group = 1;
                                             // если имя аттрибут из таблицы поставщиков равно имени эталонного аттрибута, и
