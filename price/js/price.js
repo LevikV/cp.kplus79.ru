@@ -212,10 +212,10 @@ $(document).delegate('.link_add_model_all', 'click', function() {
 });
 
 $(document).delegate('.link_add_attrib', 'click', function() {
-    var attribName = $(this).data('attrib-name');
+    var provAttribName = $(this).data('prov-attrib-name');
     var provAttribId = $(this).data('prov-attrib-id');
     var provName = $(this).data('prov-name');
-    var provAttribGroupId = $(this).data('attrib-group-id');
+    var provAttribParentId = $(this).data('prov-attrib-parent-id');
     var rowId = '#' + $(this).data('row-id');
     var oper = 'add_attrib_from_prov';
     $.ajax({
@@ -223,9 +223,9 @@ $(document).delegate('.link_add_attrib', 'click', function() {
         type: 'POST',
         data: {
             operation: oper,
-            prov_attrib_group_name: attribGroupName,
-            prov_attrib_group_id: provAttribGroupId,
-            prov_attrib_group_parent_id: provAttribGroupParentId
+            prov_attrib_name: provAttribName,
+            prov_attrib_id: provAttribId,
+            prov_attrib_parent_id: provAttribParentId
         },
         dataType: 'json',
         success: function(json) {
@@ -233,8 +233,8 @@ $(document).delegate('.link_add_attrib', 'click', function() {
                 alert(json['warning']);
             } else {
                 $('#tableMaps tr:last').after('<tr><td></td><td>' + json['map_id'] + '</td><td>' +
-                    attribGroupName + '</td><td>' + json['attrib_group_id'] + '</td><td>' + attribGroupName + '</td><td>'+
-                    provAttribGroupId + '</td><td>' + provName +'</td></tr>');
+                    provAttribName + '</td><td>' + json['attrib_id'] + '</td><td>' + provAttribName + '</td><td>'+
+                    provAttribId + '</td><td>' + provName +'</td></tr>');
                 $(rowId).remove();
             }
         },

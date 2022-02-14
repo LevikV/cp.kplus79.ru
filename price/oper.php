@@ -56,6 +56,7 @@ if (isset($_POST['operation'])) {
         }
         echo json_encode($json);
     } elseif ($_POST['operation'] == 'add_vendor_from_prov') {
+        //******** Операция добавления вендора ********
         $db = new Db;
         // формируем данные
         $data = array();
@@ -114,6 +115,7 @@ if (isset($_POST['operation'])) {
         }
         echo json_encode($json);
     } elseif ($_POST['operation'] == 'add_attrib_group_from_prov_all') {
+        //******** Операция добавления разом всех групп аттрибутов ********
         // Операция добавления всех групп аттрибутов
         $attrib_groups_map_adds = array();
         $db = new Db;
@@ -219,6 +221,7 @@ if (isset($_POST['operation'])) {
         }
         echo json_encode($attrib_groups_map_adds);
     } elseif ($_POST['operation'] == 'add_model_from_prov_all') {
+        //******** Операция добавления всех моделей разом ********
         // Операция добавления всех моделей
         $models_map_adds = array();
         $db = new Db;
@@ -248,5 +251,24 @@ if (isset($_POST['operation'])) {
             }
         }
         echo json_encode($models_map_adds);
+    } elseif ($_POST['operation'] == 'add_attrib_from_prov') {
+        //******** Операция добавления аттрибута ********
+        $json = array();
+        $db = new Db;
+        $attrib_group_id = $db->getMapByProvItemId('attribute_group', $_POST['prov_attrib_group_id']);
+        $data = array();
+        $data['name'] = $_POST['prov_attrib_name'];
+        $data['group_id'] = $attrib_group_id;
+        $our_attrib_id = $db->addAttribute($data);
+        if ($our_attrib_id) {
+            $db->addDetailLog('OPER', 0, 'ADD_ATTRIBUTE', '', $data['name']);
+            $attrib_map_add_id = $db->addMap('attribute', $our_attrib_id, $_POST['prov_attrib_id']);
+            if ($attrib_map_add_id) {
+                $db->addDetailLog('OPER', 0, 'ADD_MAP_ATTRIBUTE', $our_attrib_id, $_POST['prov_attrib_id']);
+                $json['map_id'] = $attrib_map_add_id;
+                $json['attrib_id'] = $our_attrib_id;
+            }
+        }
+        echo json_encode($json);
     }
 }

@@ -77,9 +77,9 @@
                             echo '<td class="attrib-id">' .$attrib['prov_attrib_id'] . '</td>';
                             echo '<td class="attrib-name">' .$attrib['prov_attrib_name'] . '</td>';
                             echo '<td class="prov-attrib-group-id">' .$attrib['prov_attrib_group_id'] . '</td>';
-                            echo '<td><a class="link_add_attrib" href="#" data-attrib-name="' . $attrib['prov_attrib_name'] .
+                            echo '<td><a class="link_add_attrib" href="#" data-prov-attrib-name="' . $attrib['prov_attrib_name'] .
                                 '" data-prov-attrib-id="' . $attrib['prov_attrib_id'] . '" data-prov-name="' . $attrib['provider_name'] .
-                                '" data-row-id="' . $i . '" data-attrib-group-id="' . $attrib['prov_attrib_group_id'] .
+                                '" data-row-id="' . $i . '" data-prov-attrib-group-id="' . $attrib['prov_attrib_group_id'] .
                                 '">Добавить</a></td>';
                             echo '</tr>';
                             $i++;
