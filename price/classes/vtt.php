@@ -1292,20 +1292,29 @@ class Vtt {
                             // Ресурс
                             $life_time = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Ресурс', 'Основные');
 
-                            if (strtolower($product_vtt['item_life_time']) != strtolower((string)$life_time)) {
+                            $prod_vtt_life_time = $product_vtt['item_life_time'];
+                            if ($prod_vtt_life_time == '') {
+                                $prod_vtt_life_time = 0;
+                            } else {
+                                $prod_vtt_life_time = rtrim($prod_vtt_life_time, 'K');
+                                $prod_vtt_life_time = str_replace(',','.', $prod_vtt_life_time);
+                                $prod_vtt_life_time = (float)$prod_vtt_life_time * 1000;
+                            }
+
+                            if ((int)$prod_vtt_life_time != (int)$life_time) {
                                 //
                                 if ($life_time == null) {
                                     // Если записи об аттрибуте продукта нет, то формируем и добавляем
                                     $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
                                     // Получаем id значения аттрибута
-                                    $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['item_life_time']);
+                                    $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, (int)$prod_vtt_life_time);
                                     // если значения аттрибута Ресурс нет в нашей базе в provider_attribute_value
                                     // то добавляем новое значение
                                     if ($attrib_value_id == null) {
                                         $data = array();
                                         $data['provider_id'] = $prov_id;
                                         $data['attribute_id'] = $attrib_id;
-                                        $data['value'] = $product_vtt['item_life_time'];
+                                        $data['value'] = (int)$prod_vtt_life_time;
                                         //
                                         $attrib_value_id = $db->addProviderAttributeValue($data);
                                         if ($attrib_value_id) {
@@ -1326,10 +1335,10 @@ class Vtt {
                                         $data = array();
                                         $data['attribute_name'] = 'Ресурс';
                                         $data['attribute_group_name'] = 'Основные';
-                                        $data['attribute_value'] = $product_vtt['item_life_time'];
+                                        $data['attribute_value'] = (int)$prod_vtt_life_time;
 
                                         $product_attrib_life_time_edits = $db->editProviderProductAttributeValueByAttribName($prov_id, $product_id, $data);
-                                        $db->addProvDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', $life_time, $product_vtt['item_life_time']);
+                                        $db->addProvDetailLog('VTT', $product_id, 'CHANGE_ATTRIB_VAL', (int)$life_time, (int)$prod_vtt_life_time);
                                         // ставим счетчик ошибок
                                         if ($product_attrib_life_time_edits === false) {
                                             $message = 'Ошибка при изменении аттрибута товара Ресурс' . "\r\n";
