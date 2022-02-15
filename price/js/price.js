@@ -215,7 +215,7 @@ $(document).delegate('.link_add_attrib', 'click', function() {
     var provAttribName = $(this).data('prov-attrib-name');
     var provAttribId = $(this).data('prov-attrib-id');
     var provName = $(this).data('prov-name');
-    var provAttribParentId = $(this).data('prov-attrib-parent-id');
+    var provAttribGroupId = $(this).data('prov-attrib-group-id');
     var rowId = '#' + $(this).data('row-id');
     var oper = 'add_attrib_from_prov';
     $.ajax({
@@ -225,7 +225,7 @@ $(document).delegate('.link_add_attrib', 'click', function() {
             operation: oper,
             prov_attrib_name: provAttribName,
             prov_attrib_id: provAttribId,
-            prov_attrib_parent_id: provAttribParentId
+            prov_attrib_group_id: provAttribGroupId
         },
         dataType: 'json',
         success: function(json) {

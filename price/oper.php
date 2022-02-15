@@ -255,20 +255,26 @@ if (isset($_POST['operation'])) {
         //******** Операция добавления аттрибута ********
         $json = array();
         $db = new Db;
-        $attrib_group_id = $db->getMapByProvItemId('attribute_group', $_POST['prov_attrib_group_id']);
-        $data = array();
-        $data['name'] = $_POST['prov_attrib_name'];
-        $data['group_id'] = $attrib_group_id;
-        $our_attrib_id = $db->addAttribute($data);
-        if ($our_attrib_id) {
-            $db->addDetailLog('OPER', 0, 'ADD_ATTRIBUTE', '', $data['name']);
-            $attrib_map_add_id = $db->addMap('attribute', $our_attrib_id, $_POST['prov_attrib_id']);
-            if ($attrib_map_add_id) {
-                $db->addDetailLog('OPER', 0, 'ADD_MAP_ATTRIBUTE', $our_attrib_id, $_POST['prov_attrib_id']);
-                $json['map_id'] = $attrib_map_add_id;
-                $json['attrib_id'] = $our_attrib_id;
+        if (!isset($_POST['prov_attrib_group_id']) OR !isset($_POST['prov_attrib_name'])) {
+            $json['error'] = 'Ошибка передачи параметров для добавления аттрибута!';
+        }
+        if (!isset($json['error'])) {
+            $attrib_group_id = $db->getMapByProvItemId('attribute_group', $_POST['prov_attrib_group_id']);
+            $data = array();
+            $data['name'] = $_POST['prov_attrib_name'];
+            $data['group_id'] = $attrib_group_id;
+            $our_attrib_id = $db->addAttribute($data);
+            if ($our_attrib_id) {
+                $db->addDetailLog('OPER', 0, 'ADD_ATTRIBUTE', '', $data['name']);
+                $attrib_map_add_id = $db->addMap('attribute', $our_attrib_id, $_POST['prov_attrib_id']);
+                if ($attrib_map_add_id) {
+                    $db->addDetailLog('OPER', 0, 'ADD_MAP_ATTRIBUTE', $our_attrib_id, $_POST['prov_attrib_id']);
+                    $json['map_id'] = $attrib_map_add_id;
+                    $json['attrib_id'] = $our_attrib_id;
+                }
             }
         }
+
         echo json_encode($json);
     }
 }

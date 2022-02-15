@@ -1535,7 +1535,7 @@ class Db extends Sys {
     public function addAttribute($data) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
-        if ($this->status AND $this->checkAttributeGroupData($data)) {
+        if ($this->status AND $this->checkAttributeData($data)) {
             $sql = 'INSERT INTO attribute (name, group_id) VALUES ("' .
                 $data['name'] . '", "' .
                 (int)$data['group_id'] . '")';
@@ -2382,41 +2382,39 @@ class Db extends Sys {
     }
 
     private function checkAttributeGroupData(&$data) {
+        if (!isset($data['name'])) {
+            return false;
+        }
+
         if (isset($data['name'])) {
             if ($data['name'] == '') {
                 return false;
-            } else {
-                return true;
             }
-        } else {
-            return false;
         }
 
         if (!isset($data['parent_id'])) {
             $data['parent_id'] = 0;
         }
+
         return true;
-
-
     }
 
     private function checkAttributeData(&$data) {
+        if (!isset($data['name'])) {
+            return false;
+        }
+        //
         if (isset($data['name'])) {
             if ($data['name'] == '') {
                 return false;
-            } else {
-                return true;
             }
-        } else {
-            return false;
         }
 
         if (!isset($data['group_id'])) {
-            $data['group_id'] = '';
+            return false;
         }
+
         return true;
-
-
     }
 
     private function checkAttributeValueData(&$data) {
