@@ -753,4 +753,96 @@ class Price {
         return $data;
     }
 
+    public function updateAttribValues() {
+        // Метод обновления значений аттрибутов
+        // Возвращает массив данных $data с ключами:
+        // - attrib_values_map_adds - массив добавленных автоматически карт сопоставления по вендорам
+        // - attrib_values_to_add - массив вендоров для добавления в эталонную базу
+        $data = array();
+
+        $db = new Db;
+        $attrib_values_to_add = array();
+        $attrib_values_map_adds = array();
+
+
+        // Получаем список всех поставщиков
+        $providers = $db->getProviders();
+
+
+        // Получаем карту сопоставлений по аттрибутам
+        $maps = $db->getMaps('attribute_value');
+        //Собираем id аттрибутов поставщиков сопоставленных с нашей эталонной базой
+        $map_attrib_values_id = array();
+        if ($maps !== false) {
+            if ($maps !== null) {
+                foreach ($maps as $map) {
+                    $map_attrib_values_id[] = $map['provider_id'];
+                }
+            }
+        }
+
+        // Делаем проверку на сопоставление групп аттрибутов, прежде чем начать
+        // проверку самих аттрибутов, т.к. это базовые данные
+        foreach ($providers as $provider) {
+            if ($provider['parent_id'] == null) {
+                $flag = $db->checkMapProviderAttributeGroups($provider['id']);
+                if ($flag) {
+                    continue;
+                } else {
+                    $data['warning'][] = 'Необходимо обновить группы аттрибутов по поставщику id: ' . $provider['id'];
+                }
+            }
+        }
+
+        // Делаем проверку на сопоставление аттрибутов, прежде чем начать
+        // проверку самих аттрибутов, т.к. это базовые данные
+        foreach ($providers as $provider) {
+            if ($provider['parent_id'] == null) {
+                $flag = $db->checkMapProviderAttributes($provider['id']);
+                if ($flag) {
+                    continue;
+                } else {
+                    $data['warning'][] = 'Необходимо обновить аттрибуты по поставщику id: ' . $provider['id'];
+                }
+            }
+        }
+
+        if (!isset($data['warning'])) {
+            foreach ($providers as $provider) {
+                if ($provider['parent_id'] == null) {
+                    $provider_attributes = $db->getProviderAttributes($provider['id']);
+                    foreach ($provider_attributes as $provider_attribute) {
+                        $provider_attribute_values = $db->getProviderAttributeValues($provider['id'], $provider_attribute['id']);
+                        foreach ($provider_attribute_values as $provider_attribute_value) {
+                            $our_attrib_value_id = $db->getMapByProvItemId('attribute_value', $provider_attribute_value['id']);
+                            if ($our_attrib_value_id) {
+                                continue;
+                            } else {
+                                // Если значение аттрибута не сопоставлено ни с одним значением из эталонной базы,
+                                // то нужно попробовать его сопоставить, а если не получится, то нужно его записать в
+                                // массив значений аттрибутов для добавления
+                                $our_attribute_id = $db->getMapByProvItemId('attribute', $provider_attribute['id']);
+                                $attribute_values = $db->getAttributeValues($our_attribute_id);
+
+
+                            }
+
+
+                        }
+
+                    }
+
+
+                }
+
+            }
+        }
+
+        // Возвращаем полученные данные
+        $data['attrib_values_map_adds'] = $attrib_values_map_adds;
+        $data['attrib_values_to_add'] = $attrib_values_to_add;
+        //$data['attribs_check_to_add'] = $attribs_check_to_add;
+        return $data;
+    }
+
 }

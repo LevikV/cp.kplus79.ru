@@ -1291,6 +1291,7 @@ class Vtt {
 
                             // Ресурс
                             $life_time = $db->getProviderProductAttributeValueByAttribName($prov_id, $product_id, 'Ресурс', 'Основные');
+
                             if (strtolower($product_vtt['item_life_time']) != strtolower((string)$life_time)) {
                                 //
                                 if ($life_time == null) {
