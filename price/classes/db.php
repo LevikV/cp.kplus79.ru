@@ -59,7 +59,7 @@ class Db extends Sys {
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
-                // Записываем в лог данные об ошибке
+                // Записываем в лог данныFе об ошибке
                 $message = 'Ошибка добавления записи в Детальный лог' . "\r\n";
                 $message .= 'module: ' . $module . "\r\n";
                 $message .= 'product_id: ' . $product_id . "\r\n";
@@ -94,7 +94,11 @@ class Db extends Sys {
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
                 $message = 'Ошибка добавления записи в Детальный лог' . "\r\n";
+                $message .= 'module: ' . $module . "\r\n";
                 $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'operation: ' . $operation . "\r\n";
+                $message .= 'old_val: ' . $old_val . "\r\n";
+                $message .= 'new_val: ' . $new_val . "\r\n";
 
                 $this->addLog('ERROR', 'DB', $message);
 
@@ -2181,6 +2185,32 @@ class Db extends Sys {
                 $message .= 'weight: ' . $data['weight'] . "\r\n";
                 $message .= 'version: ' . $data['version'] . "\r\n";
                 $message .= 'status: ' . $data['status'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function editProviderAttributeValue($attrib_value_id, $value) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $value = mysqli_real_escape_string($this->link, $value);
+            $sql = 'UPDATE provider_attribute_value SET value = "'. $value .
+                '" WHERE id = ' . (int)$attrib_value_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения значения аттрибута в таблице provider_attribute_value' . "\r\n";
+                $message .= 'attrib_value_id: ' . $attrib_value_id . "\r\n";
+                $message .= 'value: ' . $value . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
 
                 return false;

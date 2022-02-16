@@ -28,6 +28,17 @@ if (isset($_GET['operation'])) {
 
     } elseif ($_GET['operation'] == 'temp') {
         $db = new Db;
-        print_r($db->getMapByProvItemId('manufacturer', 22));
+        $prov_attrib_values = $db->getProviderAttributeValues(1, 4);
+        foreach ($prov_attrib_values as $prov_attrib_value) {
+            $id = $prov_attrib_value['id'];
+            $prod_vtt_life_time = $prov_attrib_value['value'];
+
+            $prod_vtt_life_time = rtrim($prod_vtt_life_time, 'K');
+            $prod_vtt_life_time = str_replace(',','.', $prod_vtt_life_time);
+            $prod_vtt_life_time = (float)$prod_vtt_life_time * 1000;
+
+            $attrib_value_edit = $db->editProviderAttributeValue($id, (int)$prod_vtt_life_time);
+
+        }
     }
 }

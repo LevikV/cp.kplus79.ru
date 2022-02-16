@@ -1923,17 +1923,26 @@ class Vtt {
                         }
 
                         // аттрибут "Ресурс"
+                        $prod_vtt_life_time = $product_vtt['item_life_time'];
+                        if ($prod_vtt_life_time == '') {
+                            $prod_vtt_life_time = 0;
+                        } else {
+                            $prod_vtt_life_time = rtrim($prod_vtt_life_time, 'K');
+                            $prod_vtt_life_time = str_replace(',','.', $prod_vtt_life_time);
+                            $prod_vtt_life_time = (float)$prod_vtt_life_time * 1000;
+                        }
+                        //
                         if ($product_vtt['item_life_time'] != '') {
                             $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Ресурс', 'Основные');
                             if ($attrib_id)
-                                $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $product_vtt['item_life_time']);
+                                $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, $prod_vtt_life_time);
                             // если значения аттрибута Ресурс нет в нашей базе в provider_attribute_value
                             // то добавляем новое значение
                             if ($attrib_value_id == null) {
                                 $data = array();
                                 $data['provider_id'] = $prov_id;
                                 $data['attribute_id'] = $attrib_id;
-                                $data['value'] = $product_vtt['item_life_time'];
+                                $data['value'] = $prod_vtt_life_time;
                                 $attrib_value_id = $db->addProviderAttributeValue($data);
                                 if ($attrib_value_id) {
                                     $attrib_count_add++;
