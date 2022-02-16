@@ -1,7 +1,7 @@
 <?php
 class Sys {
     public function addLog($code, $module, $message) {
-        $path = $_SERVER['DOCUMENT_ROOT'] . '/public_html/price/log/logs.log';
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/price/log/logs.log';
         if (file_exists($path)) {
             $f = fopen($path, "a");
             fputs($f, date('d.m.Y-H:i:s') . ' ' . $code . '  ' . $module .  '  ' . $message . "\r\n");

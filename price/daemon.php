@@ -16,6 +16,16 @@ if (isset($_GET['operation'])) {
     if ($_GET['operation'] == 'update_products') {
         $price = new Price;
         $price->updateProducts();
+    } elseif ($_GET['operation'] == 'update_vtt_products') {
+        global $ERROR;
+        $vtt = new Vtt;
+        $updates_vtt = $vtt->updateProducts();
+        if ($updates_vtt == false) {
+            echo '<br>Не удалось обновить товары с портала ВТТ.';
+        } else {
+            echo '<br>Обновление товаров завершено.';
+        }
+
     } elseif ($_GET['operation'] == 'temp') {
         $db = new Db;
         print_r($db->getMapByProvItemId('manufacturer', 22));

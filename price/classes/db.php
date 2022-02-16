@@ -61,7 +61,11 @@ class Db extends Sys {
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
                 $message = 'Ошибка добавления записи в Детальный лог' . "\r\n";
+                $message .= 'module: ' . $module . "\r\n";
                 $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'operation: ' . $operation . "\r\n";
+                $message .= 'old_val: ' . $old_val . "\r\n";
+                $message .= 'new_val: ' . $new_val . "\r\n";
 
                 $this->addLog('ERROR', 'DB', $message);
 
