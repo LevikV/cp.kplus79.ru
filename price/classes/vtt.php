@@ -975,6 +975,8 @@ class Vtt {
                     if ($product_our_base) {
 
                         $product_id = $product_our_base['id'];
+                        // если товар был отключен ранее, то необходимо его включить
+                        if ($product_our_base['status'] == 0) $db->setStatusProviderProduct($product_id, 1);
 
                         // если товар есть сравниваем данные в нашей базе с данными по товару с выгрузки
                         // сравниваем имя товара

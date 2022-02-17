@@ -54,8 +54,8 @@ class Db extends Sys {
                 $module . '", "' .
                 $product_id . '", "' .
                 $operation . '", "' .
-                $old_val . '", "' .
-                $new_val . '")';
+                mysqli_real_escape_string($this->link, $old_val) . '", "' .
+                mysqli_real_escape_string($this->link, $new_val) . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -87,8 +87,8 @@ class Db extends Sys {
                 $module . '", "' .
                 $product_id . '", "' .
                 $operation . '", "' .
-                $old_val . '", "' .
-                $new_val . '")';
+                mysqli_real_escape_string($this->link, $old_val) . '", "' .
+                mysqli_real_escape_string($this->link, $new_val) . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
