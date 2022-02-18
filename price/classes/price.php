@@ -821,8 +821,47 @@ class Price {
                                 // Если значение аттрибута не сопоставлено ни с одним значением из эталонной базы,
                                 // то нужно попробовать его сопоставить, а если не получится, то нужно его записать в
                                 // массив значений аттрибутов для добавления
+                                $add_map_attrib_value_id = false;
                                 $our_attribute_id = $db->getMapByProvItemId('attribute', $provider_attribute['id']);
                                 $attribute_values = $db->getAttributeValues($our_attribute_id);
+                                if ($attribute_values == null) {
+                                    $attribute_values = array();
+                                }
+                                foreach ($attribute_values as $attribute_value) {
+                                    if ($attribute_value['value'] == $provider_attribute_value['value']) {
+                                        // Если аттрибуты равны по значению, то необходимо их сопоставить
+                                        $add_map_attrib_value_id = $db->addMap('attribute_value', $attribute_value['id'], $provider_attribute_value['id']);
+                                        // Далее необходимо добавить запись в массив сопоставленных (добавленных) карт
+                                        $db->addDetailLog('PRICE', '0', 'ADD_MAP_ATTRIB_VALUE', $attribute_value['id'], $provider_attribute_value['id']);
+                                        // формируем массив для передачи в отображение
+                                        $attrib_values_map_adds[] = array(
+                                            'id' => $add_map_attrib_value_id,
+                                            'attrib_value_id' => $attribute_value['id'],
+                                            'attrib_value_value' => $attribute_value['value'],
+                                            'prov_attrib_value_id' => $provider_attribute_value['id'],
+                                            'prov_attrib_value_value' => $provider_attribute_value['value'],
+                                            'provider_name' => $provider['name']
+                                        );
+                                        break;
+                                    }
+                                }
+                                if ($add_map_attrib_value_id == false) {
+                                    // Если после перебора выше не удалось сопоставить значение аттрибута поставщика
+                                    // со значением аттрибута из эталонной базы, то его необходимо добавить в массив
+                                    // значения аттрибутов для добавления для передачи в отображение
+                                    $our_attribute = $db->getAttribute($our_attribute_id);
+                                    $attrib_values_to_add[] = array(
+                                        'attrib_id' => $our_attribute['id'],
+                                        'attrib_name' => $our_attribute['name'],
+                                        'prov_attrib_id' => $provider_attribute['id'],
+                                        'prov_attrib_name' => $provider_attribute['name'],
+                                        'prov_attrib_value_id' => $provider_attribute_value['id'],
+                                        'prov_attrib_value' => $provider_attribute_value['value'],
+                                        'provider_id' => $provider['id'],
+                                        'provider_name' => $provider['name']
+                                    );
+
+                                }
 
 
                             }
