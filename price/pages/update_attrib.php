@@ -94,53 +94,6 @@
                 }
                 ?>
             </div>
-            <div class="col">
-                <p class="mb-0">Список новых аттрибутов поставщика сопоставленных по имени, но разных по группам</p>
-                <table id="tableCheckAttribs" class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th rowspan="2">#</th>
-                            <th>id аттриб. пост.</th>
-                            <th>Имя аттриб. пост.</th>
-                            <th>id группы аттриб. пост.</th>
-                            <th>Имя группы аттриб. пост.</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <th>id похожего этал. аттриб.</th>
-                            <th>Имя похожего этал. аттриб.</th>
-                            <th>id группы похожего этал. аттриб.</th>
-                            <th>Имя группы похожего этал. аттриб.</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?
-                    if (!empty($data['attribs_check_to_add'])) {
-                        $i = 1;
-                        foreach ($data['attribs_check_to_add'] as $attrib_check_to_add) {
-                            echo '<tr>';
-                            echo '<td rowspan="2">' . $i . '</td>';
-                            echo '<td>' . $attrib_check_to_add['prov_attrib_id'] . '</td>';
-                            echo '<td>' . $attrib_check_to_add['prov_attrib_name'] . '</td>';
-                            echo '<td>' . $attrib_check_to_add['prov_attrib_group_id'] . '</td>';
-                            echo '<td rowspan="2">Сопоставить</td>';
-                            echo '<td rowspan="2">Добавить</td>';
-                            echo '</tr>';
-
-                            echo '<tr>';
-                            echo '<td>' . $attrib_check_to_add['similar_attrib_id'] . '</td>';
-                            echo '<td>' . $attrib_check_to_add['similar_attrib_name'] . '</td>';
-                            echo '<td>' . $attrib_check_to_add['similar_attrib_group_id'] . '</td>';
-                            echo '</tr>';
-                        }
-                    }
-                    ?>
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
 </div>

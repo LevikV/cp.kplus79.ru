@@ -1713,7 +1713,7 @@ class Db extends Sys {
         if ($this->status AND $this->checkAttributeValueData($data)) {
             $sql = 'INSERT INTO attribute_value (attribute_id, value) VALUES ("' .
                 (int)$data['attribute_id'] . '", "' .
-                $data['value'] . '")';
+                mysqli_real_escape_string($this->link,$data['value']) . '")';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {

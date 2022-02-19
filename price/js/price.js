@@ -243,3 +243,41 @@ $(document).delegate('.link_add_attrib', 'click', function() {
         }
     });
 });
+
+$(document).delegate('.link_add_attrib_value', 'click', function() {
+    var attribId = $(this).data('attrib-id');
+    var attribName = $(this).data('attrib-name');
+    var provAttribId = $(this).data('prov-attrib-id');
+    var provAttribName = $(this).data('prov-attrib-name');
+    var provAttribValueId = $(this).data('prov-attrib-value-id');
+    var provAttribValue = $(this).data('prov-attrib-value');
+    var provName = $(this).data('prov-name');
+    var provId = $(this).data('prov-id');
+    var rowId = '#' + $(this).data('row-id');
+    var oper = 'add_attrib_value_from_prov';
+    $.ajax({
+        url: 'price/oper.php',
+        type: 'POST',
+        data: {
+            operation: oper,
+            attrib_id: attribId,
+            attrib_name: attribName,
+            prov_attrib_id: provAttribId,
+            prov_attrib_name: provAttribName
+        },
+        dataType: 'json',
+        success: function(json) {
+            if (json['warning']) {
+                alert(json['warning']);
+            } else {
+                $('#tableMaps tr:last').after('<tr><td></td><td>' + json['map_id'] + '</td><td>' +
+                    attribGroupName + '</td><td>' + json['attrib_group_id'] + '</td><td>' + attribGroupName + '</td><td>'+
+                    provAttribGroupId + '</td><td>' + provName +'</td></tr>');
+                $(rowId).remove();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
