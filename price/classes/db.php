@@ -2611,9 +2611,6 @@ class Db extends Sys {
             return false;
         }
 
-        return true;
-
-
     }
 
     private function checkProductData(&$data) {

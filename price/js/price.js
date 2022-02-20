@@ -259,11 +259,15 @@ $(document).delegate('.link_add_attrib_value', 'click', function() {
         url: 'price/oper.php',
         type: 'POST',
         data: {
-            operation: oper,
             attrib_id: attribId,
             attrib_name: attribName,
             prov_attrib_id: provAttribId,
-            prov_attrib_name: provAttribName
+            prov_attrib_name: provAttribName,
+            prov_attrib_value_id: provAttribValueId,
+            prov_attrib_value: provAttribValue,
+            prov_name: provName,
+            prov_id: provId,
+            operation: oper
         },
         dataType: 'json',
         success: function(json) {
@@ -271,8 +275,8 @@ $(document).delegate('.link_add_attrib_value', 'click', function() {
                 alert(json['warning']);
             } else {
                 $('#tableMaps tr:last').after('<tr><td></td><td>' + json['map_id'] + '</td><td>' +
-                    attribGroupName + '</td><td>' + json['attrib_group_id'] + '</td><td>' + attribGroupName + '</td><td>'+
-                    provAttribGroupId + '</td><td>' + provName +'</td></tr>');
+                    provAttribValue + '</td><td>' + json['attrib_value_id'] + '</td><td>' + provAttribValue + '</td><td>'+
+                    provAttribValueId + '</td><td>' + provName +'</td></tr>');
                 $(rowId).remove();
             }
         },

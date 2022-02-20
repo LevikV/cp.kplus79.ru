@@ -276,5 +276,34 @@ if (isset($_POST['operation'])) {
         }
 
         echo json_encode($json);
+    } elseif ($_POST['operation'] == 'add_attrib_value_from_prov') {
+        //******** Операция добавления значения аттрибута ********
+        $json = array();
+        $db = new Db;
+        if (!isset($_POST['prov_attrib_value_id']) OR !isset($_POST['prov_attrib_value']) OR !isset($_POST['attrib_id'])) {
+            $json['error'][] = 'Ошибка передачи параметров для добавления значения аттрибута!';
+        }
+        if (!isset($json['error'])) {
+            $data = array();
+            $data['value'] = $_POST['prov_attrib_name'];
+            $data['attribute_id'] = $_POST['attrib_id'];
+            $our_attrib_value_id = $db->addAttributeValue($data);
+            if ($our_attrib_value_id) {
+                $db->addDetailLog('OPER', 0, 'ADD_ATTRIBUTE_VALUE', '', $data['value']);
+                //
+                $attrib_value_map_add_id = $db->addMap('attribute_value', $our_attrib_value_id, $_POST['prov_attrib_value_id']);
+                if ($attrib_value_map_add_id) {
+                    $db->addDetailLog('OPER', 0, 'ADD_MAP_ATTRIBUTE_VALUE', $our_attrib_value_id, $_POST['prov_attrib_value_id']);
+                    $json['map_id'] = $attrib_value_map_add_id;
+                    $json['attrib_value_id'] = $our_attrib_value_id;
+                } else {
+                    $json['error'][] = 'Ошибка добавления карты сопоставления для значений аттрибуттов!';
+                }
+            } else {
+                $json['error'][] = 'Ошибка добавления значения аттрибута в эталонную базу!';
+            }
+        }
+
+        echo json_encode($json);
     }
 }
