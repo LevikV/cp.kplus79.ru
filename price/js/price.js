@@ -254,6 +254,7 @@ $(document).delegate('.link_add_attrib_value', 'click', function() {
     var provName = $(this).data('prov-name');
     var provId = $(this).data('prov-id');
     var rowId = '#' + $(this).data('row-id');
+    var rowChildId = '#' + $(this).data('row-id') + '-child';
     var oper = 'add_attrib_value_from_prov';
     $.ajax({
         url: 'price/oper.php',
@@ -278,6 +279,7 @@ $(document).delegate('.link_add_attrib_value', 'click', function() {
                     provAttribValue + '</td><td>' + json['attrib_value_id'] + '</td><td>' + provAttribValue + '</td><td>'+
                     provAttribValueId + '</td><td>' + provName +'</td></tr>');
                 $(rowId).remove();
+                $(rowChildId).remove();
             }
         },
         error: function(xhr, ajaxOptions, thrownError) {

@@ -285,7 +285,7 @@ if (isset($_POST['operation'])) {
         }
         if (!isset($json['error'])) {
             $data = array();
-            $data['value'] = $_POST['prov_attrib_name'];
+            $data['value'] = $_POST['prov_attrib_value'];
             $data['attribute_id'] = $_POST['attrib_id'];
             $our_attrib_value_id = $db->addAttributeValue($data);
             if ($our_attrib_value_id) {

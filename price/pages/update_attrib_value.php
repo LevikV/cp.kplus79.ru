@@ -98,7 +98,7 @@
                                 '">Добавить</a></td>';
                             echo '</tr>';
                             //
-                            echo '<tr>';
+                            echo '<tr id="' . $i . '-child">';
                             echo '<td class="prov-attrib-id">' .$attrib_value_to_add['prov_attrib_id'] . '</td>';
                             echo '<td class="prov-attrib-name">' .$attrib_value_to_add['prov_attrib_name'] . '</td>';
                             echo '</tr>';
