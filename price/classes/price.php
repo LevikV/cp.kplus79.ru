@@ -884,4 +884,115 @@ class Price {
         return $data;
     }
 
+    public function updateCategories() {
+        // Метод обновления категорий
+        // Возвращает массив данных $data с ключами:
+        // - categories_map_adds - массив добавленных автоматически карт сопоставления по вендорам
+        // - categories_to_add - массив вендоров для добавления в эталонную базу
+
+        $db = new Db;
+        $categories_to_add = array();
+        $categories_map_adds = array();
+
+        // Получаем список всех поставщиков
+        $providers = $db->getProviders();
+
+
+        // Получаем карту сопоставлений по категориям
+        $maps = $db->getMaps('category');
+        //Собираем id категорий поставщиков сопоставленных с нашей эталонной базой
+        $map_categories_id = array();
+        if ($maps !== false) {
+            if ($maps !== null) {
+                foreach ($maps as $map) {
+                    $map_categories_id[] = $map['provider_id'];
+                }
+            }
+        }
+
+        foreach ($providers as $provider) {
+            if ($provider['parent_id'] == null) {
+                $provider_categories = $db->getProviderCategories($provider['id']);
+                $categories = $db->getCategories();
+                foreach ($provider_categories as $provider_category) {
+                    if (!in_array($provider_category['id'], $map_categories_id)) {
+                        //
+                        if ($categories != null) {
+                            $flag_name = 0;
+                            $flag_parent = 0;
+                            foreach ($categories as $category) {
+                                if (strcasecmp($category['name'], $provider_category['name']) == 0) {
+                                    // если имя вендора из таблицы поставщиков равно имени эталонного вендора, то
+                                    $flag_name = 1;
+                                    // проверяем родительскую группу
+                                    // получаем id родительской группы
+                                    if (($provider_category['provider_parent_id'] == 0) OR ($provider_category['provider_parent_id'] == '') OR ($provider_category['provider_parent_id'] == null)) {
+                                        $our_category_parent_id = 0;
+                                    } else {
+                                        $our_prov_category_id = $db->getCatIdByProvCatId($provider['id'], $provider_category['provider_parent_id']);
+                                        $our_prov_category_parent_id = $db->getMapByProvItemId('category', $our_prov_category_id);
+                                    }
+
+                                    if ($category['parent_id'] == $our_prov_category_parent_id) {
+                                        $flag_parent = 1;
+                                        // необходимо его сопоставить
+                                        $add_map_id = $db->addMap('category', $category['id'], $our_prov_category_parent_id);
+                                        // Добавляем запись в детальный лог
+                                        $db->addDetailLog('PRICE', '0', 'ADD_MAP_CATEGORY', $category['name'], $provider_category['name']);
+                                        // формируем массив для передачи в отображение
+                                        $categories_map_adds[] = array(
+                                            'id' => $add_map_id,
+                                            'category_id' => $category['id'],
+                                            'category_name' => $category['name'],
+                                            'prov_category_id' => $provider_category['id'],
+                                            'prov_category_name' => $provider_category['name'],
+                                            'provider_name' => $provider['name']
+                                        );
+                                        break;
+                                    }
+                                }
+                            }
+                            // Проверяем, удалось ли найти сопоставление. Если нет, то добавляем новую категорию
+                            // в эталонную базу
+                            if (($flag_name == 0) OR ($flag_parent == 0)) {
+                                // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                // пока будут только вручную
+                                $categories_to_add[] = array(
+                                    'provider_id' => $provider['id'],
+                                    'provider_name' => $provider['name'],
+                                    'prov_category_id' => $provider_category['id'],
+                                    'prov_category_name' => $provider_category['name'],
+                                    'prov_category_description' => $provider_category['description'],
+                                    'prov_category_image' => $provider_category['image'],
+                                    'prov_category_parent_id' => $provider_category['provider_parent_id'],
+                                    'prov_category_parent_name' => $provider_category['provider_parent_cat_name']
+                                );
+                            }
+                        } else {
+                            // формируем массив для передачи в отображение т.к. добавляться новые значения
+                            // пока будут только вручную
+                            $categories_to_add[] = array(
+                                'provider_id' => $provider['id'],
+                                'provider_name' => $provider['name'],
+                                'prov_category_id' => $provider_category['id'],
+                                'prov_category_name' => $provider_category['name'],
+                                'prov_category_description' => $provider_category['description'],
+                                'prov_category_image' => $provider_category['image'],
+                                'prov_category_parent_id' => $provider_category['provider_parent_id'],
+                                'prov_category_parent_name' => $provider_category['provider_parent_cat_name']
+                            );
+                        }
+                    }
+                }
+            }
+
+        }
+
+        // Возвращаем полученные данные
+        $data = array();
+        $data['categories_map_adds'] = $categories_map_adds;
+        $data['categories_to_add'] = $categories_to_add;
+        return $data;
+    }
+
 }

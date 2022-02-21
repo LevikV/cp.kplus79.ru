@@ -103,6 +103,18 @@ if (isset($_GET['route']) AND isset($_GET['code'])) {
             $data['title'] = 'Прайс лист - обновление значений аттрибутов';
             // Указываем страницу отображения
             $content = 'price/pages/update_attrib_value.php';
+        } elseif ($_GET['code'] == 'update_category') {
+            // Подготавливаем данные
+            // Вызываем метод обновления категорий
+            $price = new Price;
+            $update_categories = $price->updateCategories();
+            //
+            $data['categories_to_add'] = $update_categories['categories_to_add'];
+            $data['categories_map_adds'] = $update_categories['categories_map_adds'];
+            // Устанавливаем заголовок
+            $data['title'] = 'Прайс лист - обновление категорий';
+            // Указываем страницу отображения
+            $content = 'price/pages/update_category.php';
         } elseif ($_GET['code'] == 'main') {
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист';

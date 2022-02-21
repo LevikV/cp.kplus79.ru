@@ -6,6 +6,7 @@
                 <li class="breadcrumb-item active">Модуль управления Прайс листом</li>
             </ol>
             <div>
+                <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_category">Обновить категории</a>
                 <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_vendor">Обновить вендоров</a>
                 <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_model">Обновить модели</a>
                 <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_manuf">Обновить производителей</a>
