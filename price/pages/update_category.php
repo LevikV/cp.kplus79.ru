@@ -43,7 +43,7 @@
             </div>
             <div class="col">
                 <p class="mb-0">Список категорий для добавления в эталонную базу</p>
-                <table id="tableAttribGroups" class="table table-sm">
+                <table id="tableCategories" class="table table-sm">
                     <thead>
                     <tr>
                         <th>#</th>

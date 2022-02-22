@@ -115,6 +115,21 @@ if (isset($_GET['route']) AND isset($_GET['code'])) {
             $data['title'] = 'Прайс лист - обновление категорий';
             // Указываем страницу отображения
             $content = 'price/pages/update_category.php';
+        } elseif ($_GET['code'] == 'update_product') {
+            // Подготавливаем данные
+            // Вызываем метод обновления товаров
+            $price = new Price;
+            $update_products = $price->updateProducts();
+            //
+            $data['products_to_add'] = $update_products['products_to_add'];
+            $data['products_map_adds'] = $update_products['products_map_adds'];
+            if (isset($update_products['warning'])) {
+                $data['warning'] = $update_products['warning'];
+            }
+            // Устанавливаем заголовок
+            $data['title'] = 'Прайс лист - обновление товаров';
+            // Указываем страницу отображения
+            $content = 'price/pages/update_product.php';
         } elseif ($_GET['code'] == 'main') {
             // Устанавливаем заголовок
             $data['title'] = 'Прайс лист';

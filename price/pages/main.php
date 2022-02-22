@@ -13,6 +13,7 @@
                 <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_attrib_group">Обновить группы аттрибутов</a>
                 <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_attrib">Обновить аттрибуты</a>
                 <a class="btn btn-primary mb-1 mt-1" href="index.php?route=price&code=update_attrib_values">Обновить значения аттрибутов</a>
+                <a class="btn btn-success mb-1 mt-1" href="index.php?route=price&code=update_product">Обновить продукты</a>
             </div>
             <p class="mb-0 mt-2">Сводная информация о базе данных</p>
             <table class="table table-hover">

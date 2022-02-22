@@ -28,17 +28,7 @@ class Price {
         // Получаем список всех поставщиков
         $providers = $db->getProviders();
 
-        // Получаем карту сопоставлений по товарам
-        $maps = $db->getMaps('product');
-        //Собираем id продуктов поставщиков сопоставленных с нашей эталонной базой
-        $map_products_id = array();
-        if ($maps !== false) {
-            if ($maps !== null) {
-                foreach ($maps as $map) {
-                    $map_products_id[] = $map['provider_id'];
-                }
-            }
-        }
+
 
         // Получаем карту сопоставлений по моделям
         $maps = $db->getMaps('model');
@@ -128,6 +118,18 @@ class Price {
                     continue;
                 }
 
+                // Получаем карту сопоставлений по товарам
+                $maps = $db->getMaps('product');
+                //Собираем id продуктов поставщиков сопоставленных с нашей эталонной базой
+                $map_products_id = array();
+                if ($maps !== false) {
+                    if ($maps !== null) {
+                        foreach ($maps as $map) {
+                            $map_products_id[] = $map['provider_id'];
+                        }
+                    }
+                }
+
                 // Получаем все товары текущего поставщика
                 $provider_products = array();
                 $provider_products = $db->getProviderProducts($provider['id']);
@@ -152,16 +154,22 @@ class Price {
                                     $flag_name = 1;
                                 }
                                 // 2) Пытаемся сопоставить по модели
-                                if ($product['model_id'] == $db->getMapByProvItemId('model', $provider_product['model_id'])) {
+                                if ((int)$product['model_id'] == (int)$db->getMapByProvItemId('model', $provider_product['model_id'])) {
                                     // Найдено соответствие по модели, ставим флаг
                                     $flag_model = 1;
                                 }
                                 // 3) Пытаемся сопоставить по производителю
-                                if ($product['manufacturer_id'] == $db->getMapByProvItemId('manufacturer', $provider_product['manufacturer_id'])) {
+                                if ((int)$product['manufacturer_id'] == (int)$db->getMapByProvItemId('manufacturer', $provider_product['manufacturer_id'])) {
                                     // Найдено соответствие по модели, ставим флаг
                                     $flag_manuf = 1;
                                 }
+
                                 // а здесь дальше надо написать код по сопоставлению или добавлению
+                                if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
+                                    // Если не удалось сопоставить продукт, то переда
+                                }
+
+
                             }
                         } else {
                             // если база пустая, то подготавливаем данные и производим первоначальное заполнение
