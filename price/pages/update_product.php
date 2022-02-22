@@ -75,6 +75,9 @@
                         <th rowspan="2">Дата добавления</th>
                         <th rowspan="2">Дата редактирования</th>
                         <th rowspan="2">Дата обновления</th>
+
+                        <th rowspan="2">id поставщика</th>
+                        <th rowspan="2">Имя поставщика</th>
                     </tr>
                     <tr>
                         <th>Имя категории</th>
@@ -97,20 +100,31 @@
                             echo '<td class="prov-product-model-id">' .$product_to_add['prov_product_model_id'] . '</td>';
                             echo '<td class="prov-product-vendor-id">' .$product_to_add['prov_product_vendor_id'] . '</td>';
                             echo '<td class="prov-product-manuf-id">' .$product_to_add['prov_product_manuf_id'] . '</td>';
-
-                            echo '<td class="prov-id" rowspan="2">' .$attrib_value_to_add['provider_id'] . '</td>';
-                            echo '<td class="prov-name" rowspan="2">' .$attrib_value_to_add['provider_name'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-attribs">';
+                            foreach ($product_to_add['prov_product_attribs'] as $attrib) {
+                                echo $attrib['name'] . ': ' . $attrib['value'] . '<br>';
+                            }
+                            echo '</td>';
+                            echo '<td rowspan="2" class="prov-product-width">' .$product_to_add['prov_product_width'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-height">' .$product_to_add['prov_product_height'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-length">' .$product_to_add['prov_product_length'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-weight">' .$product_to_add['prov_product_weight'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-version">' .$product_to_add['prov_product_version'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-images">';
+                            foreach ($product_to_add['prov_product_images'] as $image) {
+                                echo $image['image'] . '<br>';
+                            }
+                            echo '</td>';
+                            echo '<td rowspan="2" class="prov-product-status">' .$product_to_add['prov_product_status'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-date-add">' .$product_to_add['prov_product_date_add'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-date-edit">' .$product_to_add['prov_product_date_edit'] . '</td>';
+                            echo '<td rowspan="2" class="prov-product-date-update">' .$product_to_add['prov_product_date_update'] . '</td>';
+                            echo '<td rowspan="2" class="prov-id">' .$product_to_add['provider_id'] . '</td>';
+                            echo '<td rowspan="2" class="prov-name">' .$product_to_add['provider_name'] . '</td>';
                             echo '<td rowspan="2">Сопоставить</td>';
-                            echo '<td rowspan="2"><a class="link_add_attrib_value" href="#" ' .
+                            echo '<td rowspan="2"><a class="link_add_product" href="#" ' .
                                 'data-row-id="' . $i .
-                                '" data-attrib-id="' . $attrib_value_to_add['attrib_id'] .
-                                '" data-attrib-name="' . $attrib_value_to_add['attrib_name'] .
-                                '" data-prov-attrib-id="' . $attrib_value_to_add['prov_attrib_id'] .
-                                '" data-prov-attrib-name="' . $attrib_value_to_add['prov_attrib_name'] .
-                                '" data-prov-attrib-value-id="' . $attrib_value_to_add['prov_attrib_value_id'] .
-                                '" data-prov-attrib-value="' . $attrib_value_to_add['prov_attrib_value'] .
-                                '" data-prov-name="' . $attrib_value_to_add['provider_name'] .
-                                '" data-prov-id="' . $attrib_value_to_add['provider_id'] .
+                                '" data-prov-product-id="' . $product_to_add['prov_product_id'] .
                                 '">Добавить</a></td>';
                             echo '</tr>';
                             //
@@ -118,6 +132,7 @@
                             echo '<td class="prov-product-category-name">' .$product_to_add['prov_product_category_name'] . '</td>';
                             echo '<td class="prov-product-model-name">' .$product_to_add['prov_product_model_name'] . '</td>';
                             echo '<td class="prov-product-vendor-name">' .$product_to_add['prov_product_vendor_name'] . '</td>';
+                            echo '<td class="prov-product-manuf-name">' .$product_to_add['prov_product_manuf_name'] . '</td>';
                             echo '</tr>';
 
                             $i++;
@@ -127,8 +142,8 @@
                     </tbody>
                 </table>
                 <?
-                if (!empty($data['attrib_values_to_add'])) {
-                    echo '<p class="text-right m-0"><a class="link_add_attrib_values_all" href="#">Добавить все</a></p>';
+                if (!empty($data['products_to_add'])) {
+                    echo '<p class="text-right m-0"><a class="link_add_products_all" href="#">Добавить все</a></p>';
                 }
                 ?>
             </div>
