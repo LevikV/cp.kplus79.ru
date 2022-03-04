@@ -16,6 +16,7 @@ class Price {
 
     public function updateProducts() {
         $db = new Db;
+        $data = array();
 
         // Устанавливаем счетчики
         $product_add_count = 0;
@@ -70,34 +71,20 @@ class Price {
         foreach ($providers as $provider) {
             if ($provider['parent_id'] == null) {
                 // Перед загрузкой товаров необходимо проверить, сопоставлены ли основные данные
-                // проверяем сопоставлены ли модели по текущему поставщику
-                $provider_models = $db->getProviderModels($provider['id']);
-                foreach ($provider_models as $provider_model) {
-                    if (!in_array($provider_model['id'], $map_models_id, true)) {
-                        // если сопоставления нет, то фиксируем в лог и прерываем обход
-                        $db->addDetailLog('PRICE', 0, 'NEED_UPDATE_MODELS', 'provider_id', $provider['id']);
-                        $flag_model = 0;
-                        break;
-                    }
-                }
-                // проверяем сопоставлены ли производители по текущему поставщику
-                $provider_manufs = $db->getProviderManufs($provider['id']);
-                foreach ($provider_manufs as $provider_manuf) {
-                    if (!in_array($provider_manuf['id'], $map_manufs_id, true)) {
-                        // если сопоставления нет, то фиксируем в лог и прерываем обход
-                        $db->addDetailLog('PRICE', 0, 'NEED_UPDATE_MANUFS', 'provider_id', $provider['id']);
-                        $flag_manuf = 0;
-                        break;
-                    }
-                }
-                // проверяем сопоставлены ли вендоры по текущему поставщику
-                $provider_vendors = $db->getProviderVendors($provider['id']);
-                foreach ($provider_vendors as $provider_vendor) {
-                    if (!in_array($provider_vendor['id'], $map_vendors_id, true)) {
-                        // если сопоставления нет, то фиксируем в лог и прерываем обход
-                        $db->addDetailLog('PRICE', 0, 'NEED_UPDATE_VENDORS', 'provider_id', $provider['id']);
-                        $flag_vendor = 0;
-                        break;
+                $flag_base_data = true;
+                $flag_maps = array();
+                $flag_maps['model'] = $db->checkMapProviderModels($provider['id']);
+                $flag_maps['vendor'] = $db->checkMapProviderVendors($provider['id']);
+                $flag_maps['manufacturer'] = $db->checkMapProviderManufs($provider['id']);
+                $flag_maps['attribute_group'] = $db->checkMapProviderAttributeGroups($provider['id']);
+                $flag_maps['attribute'] = $db->checkMapProviderAttributes($provider['id']);
+                $flag_maps['attribute_value'] = $db->checkMapProviderAttributeValues($provider['id']);
+
+                foreach ($flag_maps as $key => $flag) {
+                    if ($flag) {
+                        continue;
+                    } else {
+                        $data['warning'][] = 'Необходимо обновить ';
                     }
                 }
 
@@ -168,8 +155,6 @@ class Price {
                                 if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
                                     // Если не удалось сопоставить продукт, то переда
                                 }
-
-
                             }
                         } else {
                             // если база пустая, то подготавливаем данные и производим первоначальное заполнение
