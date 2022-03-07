@@ -29,49 +29,10 @@ class Price {
         // Получаем список всех поставщиков
         $providers = $db->getProviders();
 
-
-
-        // Получаем карту сопоставлений по моделям
-        $maps = $db->getMaps('model');
-        //Собираем id моделей поставщиков сопоставленных с нашей эталонной базой
-        $map_models_id = array();
-        if ($maps !== false) {
-            if ($maps !== null) {
-                foreach ($maps as $map) {
-                    $map_models_id[] = $map['provider_id'];
-                }
-            }
-        }
-
-        // Получаем карту сопоставлений по производителям
-        $maps = $db->getMaps('manufacturer');
-        //Собираем id производителей поставщиков сопоставленных с нашей эталонной базой
-        $map_manufs_id = array();
-        if ($maps !== false) {
-            if ($maps !== null) {
-                foreach ($maps as $map) {
-                    $map_manufs_id[] = $map['provider_id'];
-                }
-            }
-        }
-
-        // Получаем карту сопоставлений по вендорам
-        $maps = $db->getMaps('vendor');
-        //Собираем id вендоров поставщиков сопоставленных с нашей эталонной базой
-        $map_vendors_id = array();
-        if ($maps !== false) {
-            if ($maps !== null) {
-                foreach ($maps as $map) {
-                    $map_vendors_id[] = $map['provider_id'];
-                }
-            }
-        }
-
         // Проходимся по всем поставщикам, проверяем каждого и пытаемся обновиться по каждому поставщику
         foreach ($providers as $provider) {
             if ($provider['parent_id'] == null) {
                 // Перед загрузкой товаров необходимо проверить, сопоставлены ли основные данные
-                $flag_base_data = true;
                 $flag_maps = array();
                 $flag_maps['model'] = $db->checkMapProviderModels($provider['id']);
                 $flag_maps['vendor'] = $db->checkMapProviderVendors($provider['id']);
@@ -84,7 +45,7 @@ class Price {
                     if ($flag) {
                         continue;
                     } else {
-                        $data['warning'][] = 'Необходимо обновить ';
+                        $data['warning'][] = 'Необходимо обновить ' . $key . ' у поставщика ' . $provider['id'];
                     }
                 }
 
