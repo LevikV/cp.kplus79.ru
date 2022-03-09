@@ -1130,6 +1130,39 @@ class Db extends Sys {
         }
     }
 
+    public function getProviderAttributeValue($attribute_value_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM attribute WHERE id = ' . $attribute_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения аттрибута из таблицы attribute' . "\r\n";
+                $message .= 'attribute_id: ' . $attribute_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $data = array();
+                while($row = $result->fetch_array()){
+                    $data['id'] = $row["id"];
+                    $data['name'] = $row["name"];
+                    $data['group_id'] = $row["group_id"];
+                }
+                if (empty($data))
+                    return null;
+                else
+                    return $data;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getAttributeValues($attrib_id) {
         //
         global $ERROR;

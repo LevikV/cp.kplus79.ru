@@ -16,6 +16,8 @@ class Price {
 
     public function updateProducts() {
         $db = new Db;
+        $products_map_adds = array();
+        $products_to_add = array();
         $warning = array();
 
         // Устанавливаем счетчики
@@ -57,15 +59,20 @@ class Price {
                     // если сопоставления нет, то фиксируем в лог и прерываем обход
                     //$db->addDetailLog('PRICE', 0, 'SKIP_UPDATE', 'provider_id', $provider['id']);
                     $warning[] = $data['warning'];
+                    $warning[] = 'Обновление по поставщику id = ' . $provider['id'] . ' пропущено.';
                     continue;
                 }
                 // Если на предидущем шаге выполнение не прервалось, то сначала
                 // получаем все продукты из нашего прайса
-                $products = array();
                 $products = $db->getProducts();
-                if ($products == false) {
-                    // Ошибка получения списка продуктов из нашей базы, прерываем работу скрипта
-                    continue;
+                if (($products == null) OR ($products == false)) {
+                    $products = array();
+                }
+
+                // Получаем все товары текущего поставщика
+                $provider_products = $db->getProviderProducts($provider['id']);
+                if (($provider_products == null) OR ($provider_products == false)) {
+                    $provider_products = array();
                 }
 
                 // Получаем карту сопоставлений по товарам
@@ -79,10 +86,6 @@ class Price {
                         }
                     }
                 }
-
-                // Получаем все товары текущего поставщика
-                $provider_products = array();
-                $provider_products = $db->getProviderProducts($provider['id']);
 
                 // Для каждого товара поставщика проверяем, есть ли он в таблице сопоставлений
                 foreach ($provider_products as $provider_product) {
@@ -114,11 +117,48 @@ class Price {
                                     $flag_manuf = 1;
                                 }
 
-                                // а здесь дальше надо написать код по сопоставлению или добавлению
+                                //
                                 if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
-                                    // Если не удалось сопоставить продукт, то переда
+                                    continue;
+                                } else {
+                                    // Если товар удалось сопоставить по имени, модели и производителю, то добавляем
+                                    // карту сопоставления по данному товару
+                                    $add_map_id = $db->addMap('product', $product['id'], $provider_product['id']);
+                                    // формируем массив для передачи в отображение
+                                    $products_map_adds[] = array(
+                                        'id' => $add_map_id,
+                                        'product_id' => $product['id'],
+                                        'product_name' => $product['name'],
+                                        'prov_product_id' => $provider_product['id'],
+                                        'prov_product_name' => $provider_product['name'],
+                                        'provider_name' => $provider['name']
+                                    );
+
+                                    break;
                                 }
                             }
+                            //
+                            if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
+                                // формируем массив для передачи в отображение т.к. добавляться новые значения
+                                // пока будут только вручную
+                                // подготавливаем аттрибуты
+                                $attribs = array();
+                                $products_to_add[] = array(
+                                    'prov_product_id' => $provider_product['id'],
+                                    'prov_product_name' => $provider_product['name'],
+                                    'prov_product_description' => $provider_product['description'],
+                                    'prov_product_category_id' => $provider_product['category_id'],
+                                    'prov_product_model_id' => $provider_product['model_id'],
+                                    'prov_product_vendor_id' => $provider_product['vendor_id'],
+                                    'prov_product_manuf_id' => $provider_product['manufacturer_id'],
+                                    'prov_product_attribs' => $provider_product['name'],
+                                    'prov_product_name' => $provider_product['name'],
+                                    'prov_product_name' => $provider_product['name'],
+                                    'prov_product_name' => $provider_product['name'],
+                                    'prov_model_name' => $provider_model['name']
+                                );
+                            }
+
                         } else {
                             // если база пустая, то подготавливаем данные и производим первоначальное заполнение
                             $data = array();
