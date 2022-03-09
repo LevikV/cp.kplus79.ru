@@ -142,7 +142,8 @@ class Price {
                                 // формируем массив для передачи в отображение т.к. добавляться новые значения
                                 // пока будут только вручную
                                 // подготавливаем аттрибуты
-                                $attribs = array();
+                                $attributes = $db->getProviderProductAttributes($provider['id'], $provider_product['id']);
+                                if (($attributes == null) OR ($attributes == false)) $attributes = array();
                                 $products_to_add[] = array(
                                     'prov_product_id' => $provider_product['id'],
                                     'prov_product_name' => $provider_product['name'],
@@ -151,7 +152,7 @@ class Price {
                                     'prov_product_model_id' => $provider_product['model_id'],
                                     'prov_product_vendor_id' => $provider_product['vendor_id'],
                                     'prov_product_manuf_id' => $provider_product['manufacturer_id'],
-                                    'prov_product_attribs' => $provider_product['name'],
+                                    'prov_product_attribs' => $attributes,
                                     'prov_product_name' => $provider_product['name'],
                                     'prov_product_name' => $provider_product['name'],
                                     'prov_product_name' => $provider_product['name'],

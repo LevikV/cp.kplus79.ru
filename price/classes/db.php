@@ -1135,13 +1135,13 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT * FROM attribute WHERE id = ' . $attribute_id;
+            $sql = 'SELECT * FROM provider_attribute_value WHERE id = ' . $attribute_value_id;
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
-                $message = 'Ошибка получения аттрибута из таблицы attribute' . "\r\n";
-                $message .= 'attribute_id: ' . $attribute_id . "\r\n";
+                $message = 'Ошибка получения значения аттрибута из таблицы provider_attribute_value' . "\r\n";
+                $message .= 'attribute_value_id: ' . $attribute_value_id . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
                 // выходим из функции
                 return false;
@@ -1150,8 +1150,9 @@ class Db extends Sys {
                 $data = array();
                 while($row = $result->fetch_array()){
                     $data['id'] = $row["id"];
-                    $data['name'] = $row["name"];
-                    $data['group_id'] = $row["group_id"];
+                    $data['provider_id'] = $row["provider_id"];
+                    $data['attribute_id'] = $row["attribute_id"];
+                    $data['value'] = $row["value"];
                 }
                 if (empty($data))
                     return null;
@@ -1537,10 +1538,15 @@ class Db extends Sys {
             if ($result != false) {
                 $rows = array();
                 while($row = $result->fetch_array()){
+                    $attribute_value = $this->getProviderAttributeValue($row["attribute_value_id"]);
+                    $attribute = $this->getProviderAttribute($prov_id, $attribute_value['attribute_id']);
                     $rows[] = array(
                         'id' => $row["id"],
                         'product_id' => $row["product_id"],
-                        'attribute_value_id' => $row["attribute_value_id"]
+                        'attribute_value_id' => $row["attribute_value_id"],
+                        'attribute_id' => $attribute_value['attribute_id'],
+                        'attribute_name' => $attribute['name'],
+                        'attribute_value' => $attribute_value['value']
                     );
                 }
                 if (empty($rows))
