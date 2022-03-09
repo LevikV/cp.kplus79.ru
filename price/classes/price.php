@@ -16,7 +16,7 @@ class Price {
 
     public function updateProducts() {
         $db = new Db;
-        $data = array();
+        $warning = array();
 
         // Устанавливаем счетчики
         $product_add_count = 0;
@@ -34,6 +34,7 @@ class Price {
             if ($provider['parent_id'] == null) {
                 // Перед загрузкой товаров необходимо проверить, сопоставлены ли основные данные
                 $flag_maps = array();
+                $data = array();
                 $flag_maps['model'] = $db->checkMapProviderModels($provider['id']);
                 $flag_maps['vendor'] = $db->checkMapProviderVendors($provider['id']);
                 $flag_maps['manufacturer'] = $db->checkMapProviderManufs($provider['id']);
@@ -52,9 +53,10 @@ class Price {
                 // Смотрим результат проверки основных данных
                 // если какие либо из основных данных не сопоставлены, то пропускаем текущего поставщика
                 // и переходим к следующему
-                if (($flag_model == 0) OR ($flag_manuf == 0) OR ($flag_vendor == 0)) {
+                if (isset($data['warning'])) {
                     // если сопоставления нет, то фиксируем в лог и прерываем обход
-                    $db->addDetailLog('PRICE', 0, 'SKIP_UPDATE', 'provider_id', $provider['id']);
+                    //$db->addDetailLog('PRICE', 0, 'SKIP_UPDATE', 'provider_id', $provider['id']);
+                    $warning[] = $data['warning'];
                     continue;
                 }
                 // Если на предидущем шаге выполнение не прервалось, то сначала
@@ -196,6 +198,14 @@ class Price {
                 }
             }
         }
+        // Возвращаем полученные данные
+        $data = array();
+        if (!empty($warning)) {
+            $data['warning'] = $warning;
+        }
+        $data['products_map_adds'] = $products_map_adds;
+        $data['products_to_add'] = $products_to_add;
+        return $data;
     }
 
     public function updateModels() {
