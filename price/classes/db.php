@@ -1450,6 +1450,147 @@ class Db extends Sys {
         }
     }
 
+    public function getProviderCategory($category_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_category WHERE id = ' . $category_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения категории поставщика из таблицы provider_category' . "\r\n";
+                $message .= 'category_id: ' . $category_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $data = array();
+                while($row = $result->fetch_array()){
+                    $data['id'] = $row["id"];
+                    $data['provider_id'] = $row["provider_id"];
+                    $data['category_id'] = $row["category_id"];
+                    $data['name'] = $row["name"];
+                    $data['description'] = $row["description"];
+                    $data['image'] = $row["image"];
+                    $data['provider_parent_id'] = $row["provider_parent_id"];
+                    $data['provider_parent_cat_name'] = $row["provider_parent_cat_name"];
+                }
+                if (empty($data))
+                    return null;
+                else
+                    return $data;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProviderModel($model_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_model WHERE id = ' . $model_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения модели поставщика из таблицы provider_model' . "\r\n";
+                $message .= 'model_id: ' . $model_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $data = array();
+                while($row = $result->fetch_array()){
+                    $data['id'] = $row["id"];
+                    $data['provider_id'] = $row["provider_id"];
+                    $data['name'] = $row["name"];
+                }
+                if (empty($data))
+                    return null;
+                else
+                    return $data;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProviderVendor($vendor_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_vendor WHERE id = ' . $vendor_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения вендора поставщика из таблицы provider_vendor' . "\r\n";
+                $message .= 'vendor_id: ' . $vendor_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $data = array();
+                while($row = $result->fetch_array()){
+                    $data['id'] = $row["id"];
+                    $data['provider_id'] = $row["provider_id"];
+                    $data['name'] = $row["name"];
+                    $data['description'] = $row["description"];
+                    $data['image'] = $row["image"];
+                }
+                if (empty($data))
+                    return null;
+                else
+                    return $data;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProviderManufacturer($manufacturer_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_manufacturer WHERE id = ' . $manufacturer_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения производителя поставщика из таблицы provider_manufacturer' . "\r\n";
+                $message .= 'manufacturer_id: ' . $manufacturer_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $data = array();
+                while($row = $result->fetch_array()){
+                    $data['id'] = $row["id"];
+                    $data['provider_id'] = $row["provider_id"];
+                    $data['name'] = $row["name"];
+                    $data['description'] = $row["description"];
+                    $data['image'] = $row["image"];
+                }
+                if (empty($data))
+                    return null;
+                else
+                    return $data;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getProviderAttribute($provider_id, $attribute_id) {
         //
         global $ERROR;

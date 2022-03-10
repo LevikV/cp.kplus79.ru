@@ -141,6 +141,10 @@ class Price {
                             if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
                                 // формируем массив для передачи в отображение т.к. добавляться новые значения
                                 // пока будут только вручную
+                                $category = $db->getProviderModel($provider_product['category_id']);
+                                $model = $db->getProviderModel($provider_product['model_id']);
+                                $vendor = $db->getProviderVendor($provider_product['vendor_id']);
+                                $manufacturer = $db->getProviderManufacturer($provider_product['manufacturer_id']);
                                 $products_to_add[] = array(
                                     'prov_product_id' => $provider_product['id'],
                                     'prov_product_name' => $provider_product['name'],
@@ -160,10 +164,10 @@ class Price {
                                     'prov_product_date_add' => $provider_product['date_add'],
                                     'prov_product_date_edit' => $provider_product['date_edit'],
                                     'prov_product_date_update' => $provider_product['date_update'],
-                                    'prov_product_date_update' => $provider_product['date_update'],
-                                    'prov_product_date_update' => $provider_product['date_update'],
-                                    'prov_product_date_update' => $provider_product['date_update'],
-                                    'prov_product_date_update' => $provider_product['date_update'],
+                                    'prov_product_category_name' => $category['name'],
+                                    'prov_product_model_name' => $model['name'],
+                                    'prov_product_vendor_name' => $vendor['name'],
+                                    'prov_product_manuf_name' => $manufacturer['name'],
                                     'provider_id' => $provider['id'],
                                     'provider_name' => $provider['name']
                                 );
