@@ -890,6 +890,8 @@ class Db extends Sys {
             if ($result != false) {
                 $rows = array();
                 while($row = $result->fetch_array()){
+                    $attributes = $this->getProviderProductAttributes($prov_id, $row["id"]);
+                    $images = $this->getProviderProductImages($prov_id, $row["id"]);
                     $rows[] = array(
                         'id' => $row["id"],
                         'provider_id' => $row["provider_id"],
@@ -908,7 +910,9 @@ class Db extends Sys {
                         'status' => $row["status"],
                         'date_add' => $row["date_add"],
                         'date_edit' => $row["date_edit"],
-                        'date_update' => $row["date_update"]
+                        'date_update' => $row["date_update"],
+                        'attributes' => $attributes,
+                        'images' => $images
                     );
                 }
                 if (empty($rows))

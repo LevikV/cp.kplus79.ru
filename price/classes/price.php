@@ -141,9 +141,6 @@ class Price {
                             if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
                                 // формируем массив для передачи в отображение т.к. добавляться новые значения
                                 // пока будут только вручную
-                                // подготавливаем аттрибуты
-                                $attributes = $db->getProviderProductAttributes($provider['id'], $provider_product['id']);
-                                if (($attributes == null) OR ($attributes == false)) $attributes = array();
                                 $products_to_add[] = array(
                                     'prov_product_id' => $provider_product['id'],
                                     'prov_product_name' => $provider_product['name'],
@@ -152,11 +149,23 @@ class Price {
                                     'prov_product_model_id' => $provider_product['model_id'],
                                     'prov_product_vendor_id' => $provider_product['vendor_id'],
                                     'prov_product_manuf_id' => $provider_product['manufacturer_id'],
-                                    'prov_product_attribs' => $attributes,
-                                    'prov_product_name' => $provider_product['name'],
-                                    'prov_product_name' => $provider_product['name'],
-                                    'prov_product_name' => $provider_product['name'],
-                                    'prov_model_name' => $provider_model['name']
+                                    'prov_product_attribs' => $provider_product['attributes'],
+                                    'prov_product_width' => $provider_product['width'],
+                                    'prov_product_height' => $provider_product['height'],
+                                    'prov_product_length' => $provider_product['length'],
+                                    'prov_product_weight' => $provider_product['weight'],
+                                    'prov_product_version' => $provider_product['version'],
+                                    'prov_product_images' => $provider_product['images'],
+                                    'prov_product_status' => $provider_product['status'],
+                                    'prov_product_date_add' => $provider_product['date_add'],
+                                    'prov_product_date_edit' => $provider_product['date_edit'],
+                                    'prov_product_date_update' => $provider_product['date_update'],
+                                    'prov_product_date_update' => $provider_product['date_update'],
+                                    'prov_product_date_update' => $provider_product['date_update'],
+                                    'prov_product_date_update' => $provider_product['date_update'],
+                                    'prov_product_date_update' => $provider_product['date_update'],
+                                    'provider_id' => $provider['id'],
+                                    'provider_name' => $provider['name']
                                 );
                             }
 
