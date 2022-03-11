@@ -1708,9 +1708,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProductData($data)) {
-            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, date_add) VALUES ("' .
-                (int)$data['provider_id'] . '", "' .
-                mysqli_real_escape_string($this->link, $data['provider_product_id']) . '", "' .
+            $sql = 'INSERT INTO product (name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, date_add) VALUES ("' .
                 mysqli_real_escape_string($this->link, $data['name']) . '", "' .
                 mysqli_real_escape_string($this->link, $data['description']) . '", "' .
                 (int)$data['category_id'] . '", "' .
@@ -1721,15 +1719,14 @@ class Db extends Sys {
                 (float)$data['height'] . '", "' .
                 (float)$data['length'] . '", "' .
                 (float)$data['weight'] . '", "' .
-                $data['version'] . '", 1, NOW())';
+                $data['version'] . '", "'.
+                (int)$data['status'] . '", ' .
+                'NOW())';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
-                $message = 'Ошибка поиска id категории по имени' . "\r\n";
-                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
-                $message .= 'prov_cat_name: ' . $data['provider_product_id'] . "\r\n";
-                $message .= 'prov_root_cat_name: ' . $data['name'] . "\r\n";
+                $message = 'Ошибка добавления продукта в эталонную базу' . "\r\n";
                 $message .= 'description: ' . $data['description'] . "\r\n";
                 $message .= 'category_id: ' . $data['category_id'] . "\r\n";
                 $message .= 'model_id: ' . $data['model_id'] . "\r\n";
@@ -2923,39 +2920,23 @@ class Db extends Sys {
         }
 
         // Проверяем id категории
-        if (isset($data['category_id'])) {
-            if ($data['category_id'] == '' OR $data['category_id'] == 0) {
-                return false;
-            }
-        } else {
+        if (!isset($data['category_id'])) {
             return false;
         }
 
         // Проверяем id модели (оригинальный номер)
-        if (isset($data['model_id'])) {
-            if ($data['model_id'] == '' OR $data['model_id'] == 0) {
-                return false;
-            }
-        } else {
-            return false;
+        if (!isset($data['model_id'])) {
+            $data['model_id'] = 0;
         }
 
         // Проверяем id вендора
-        if (isset($data['vendor_id'])) {
-            if ($data['vendor_id'] == '' OR $data['vendor_id'] == 0) {
-                return false;
-            }
-        } else {
-            return false;
+        if (!isset($data['vendor_id'])) {
+            $data['vendor_id'] = 0;
         }
 
         // Проверяем id производителя (бренда)
-        if (isset($data['manufacturer_id'])) {
-            if ($data['manufacturer_id'] == '' OR $data['manufacturer_id'] == 0) {
-                return false;
-            }
-        } else {
-            return false;
+        if (!isset($data['manufacturer_id'])) {
+            $data['manufacturer_id'] = 0;
         }
 
         return true;
