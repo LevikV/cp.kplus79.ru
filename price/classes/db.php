@@ -1705,8 +1705,55 @@ class Db extends Sys {
     }
 
     public function addProduct($data) {
-        if ($this->status) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status AND $this->checkProductData($data)) {
+            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, date_add) VALUES ("' .
+                (int)$data['provider_id'] . '", "' .
+                mysqli_real_escape_string($this->link, $data['provider_product_id']) . '", "' .
+                mysqli_real_escape_string($this->link, $data['name']) . '", "' .
+                mysqli_real_escape_string($this->link, $data['description']) . '", "' .
+                (int)$data['category_id'] . '", "' .
+                (int)$data['model_id'] . '", "' .
+                (int)$data['vendor_id'] . '", "' .
+                (int)$data['manufacturer_id'] . '", "' .
+                (float)$data['width'] . '", "' .
+                (float)$data['height'] . '", "' .
+                (float)$data['length'] . '", "' .
+                (float)$data['weight'] . '", "' .
+                $data['version'] . '", 1, NOW())';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка поиска id категории по имени' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'prov_cat_name: ' . $data['provider_product_id'] . "\r\n";
+                $message .= 'prov_root_cat_name: ' . $data['name'] . "\r\n";
+                $message .= 'description: ' . $data['description'] . "\r\n";
+                $message .= 'category_id: ' . $data['category_id'] . "\r\n";
+                $message .= 'model_id: ' . $data['model_id'] . "\r\n";
+                $message .= 'vendor_id: ' . $data['vendor_id'] . "\r\n";
+                $message .= 'manufacturer_id: ' . $data['manufacturer_id'] . "\r\n";
+                $message .= 'width: ' . $data['width'] . "\r\n";
+                $message .= 'height: ' . $data['height'] . "\r\n";
+                $message .= 'length: ' . $data['length'] . "\r\n";
+                $message .= 'weight: ' . $data['weight'] . "\r\n";
+                $message .= 'version: ' . $data['version'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
 
+                return false;
+            }
+            if ($result != false) {
+                $product_id = mysqli_insert_id($this->link);
+                return $product_id;
+            }
+        } else {
+            $ERROR['Db'][] = 'Нет соединения или ошибка при проверке данных.' .
+                '<br>provider_product_id: ' . $data['provider_product_id'] .
+                '<br>name: ' . $data['name'];
+
+            return false;
         }
     }
 

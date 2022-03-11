@@ -196,10 +196,11 @@ class Price {
                                 // Увеличиваем счетчик добавленных товаров
                                 $product_add_count++;
                                 // Добавляем запись в детальный лог
-                                $db->addDetailLog('PRICE', $add_product_id, 'ADD_PRODUCT', $provider['id'], $provider_product['name']);
+                                //$db->addDetailLog('PRICE', $add_product_id, 'ADD_PRODUCT', $provider['id'], $provider_product['name']);
                             } else {
                                 // если произошла ошибка при добавлении товара пишем в лог и пропускаем товар
-                                $db->addDetailLog('PRICE', 0, 'ERROR_ADD_PRODUCT', 'prov_prod_id', $provider_product['id']);
+                                //$db->addDetailLog('PRICE', 0, 'ERROR_ADD_PRODUCT', 'prov_prod_id', $provider_product['id']);
+                                $warning[] = 'Ошибка при добавлении товара в эталонную базу. Поставщик id: ' . $provider['id'] . ' Товар поставщика id: ' . $provider_product['id'];
                                 $product_count_add_error++;
                                 continue;
                             }
@@ -215,10 +216,12 @@ class Price {
                                         // Увеличиваем счетчик добавленных изображений
                                         $image_add_count++;
                                         // Добавляем запись в детальный лог
-                                        $db->addDetailLog('PRICE', $add_product_id, 'ADD_IMAGE', $provider['id'], $data['image']);
+                                        //$db->addDetailLog('PRICE', $add_product_id, 'ADD_IMAGE', $provider['id'], $data['image']);
                                     } else {
                                         // если произошла ошибка при добавлении изображения пишем в лог и пропускаем текущее изобр
-                                        $db->addDetailLog('PRICE', $add_product_id, 'ERROR_ADD_IMAGE', 'prov_prod_id', $provider_product['id']);
+                                        // $db->addDetailLog('PRICE', $add_product_id, 'ERROR_ADD_IMAGE', 'prov_prod_id', $provider_product['id']);
+                                        $warning[] = 'Ошибка при добавлении изображения товара в эталонную базу. Поставщик id: ' . $provider['id'] .
+                                            ' Товар поставщика id: ' . $provider_product['id'] . ' Эталонный товар id: ' . $add_product_id;
                                         $image_count_add_error++;
                                         continue;
                                     }
@@ -236,10 +239,12 @@ class Price {
                                         // Увеличиваем счетчик добавленных аттрибутов
                                         $attrib_add_count++;
                                         // Добавляем запись в детальный лог
-                                        $db->addDetailLog('PRICE', $add_product_id, 'ADD_ATTRIB_PRODUCT', '', $data['attribute_value_id']);
+                                        //$db->addDetailLog('PRICE', $add_product_id, 'ADD_ATTRIB_PRODUCT', '', $data['attribute_value_id']);
                                     } else {
                                         // если произошла ошибка при добавлении аттрибута пишем в лог и пропускаем текущий аттриб
-                                        $db->addDetailLog('PRICE', $add_product_id, 'ERROR_ADD_ATTRIB_PROD', 'prov_prod_id', $provider_product['id']);
+                                        //$db->addDetailLog('PRICE', $add_product_id, 'ERROR_ADD_ATTRIB_PROD', 'prov_prod_id', $provider_product['id']);
+                                        $warning[] = 'Ошибка при добавлении аттрибута товара в эталонную базу. Поставщик id: ' . $provider['id'] .
+                                            ' Товар поставщика id: ' . $provider_product['id'] . ' Эталонный товар id: ' . $add_product_id;
                                         $attrib_count_add_error++;
                                         continue;
                                     }
