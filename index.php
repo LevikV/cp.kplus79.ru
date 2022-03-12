@@ -13,6 +13,7 @@ spl_autoload_register(function ($class) {
 require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
 // Объявляем глобальный массив ошибок
 $ERROR = array();
+$data = array();
 //
 if (isset($_GET['route']) AND isset($_GET['code'])) {
     if ($_GET['route'] == 'price') {

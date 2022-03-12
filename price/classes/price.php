@@ -202,8 +202,8 @@ class Price {
                                 //
                                 $products_map_adds[] = array(
                                     'id' => $map_id,
-                                    'product_id' => $add_product['id'],
-                                    'product_name' => $product['name'],
+                                    'product_id' => $add_product_id,
+                                    'product_name' => $provider_product['name'],
                                     'prov_product_id' => $provider_product['id'],
                                     'prov_product_name' => $provider_product['name'],
                                     'provider_name' => $provider['name']
