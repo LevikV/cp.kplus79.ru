@@ -1747,7 +1747,6 @@ class Db extends Sys {
             }
         } else {
             $ERROR['Db'][] = 'Нет соединения или ошибка при проверке данных.' .
-                '<br>provider_product_id: ' . $data['provider_product_id'] .
                 '<br>name: ' . $data['name'];
 
             return false;
