@@ -99,7 +99,7 @@ class Price {
                         // Пропускаем отключенные товары и товары на проверке
                         if ($provider_product['status'] != 1) continue;
 
-                        if ($products != null) {
+                        if (!empty($products)) {
                             foreach ($products as $product) {
                                 // обнуляем флаги соответствия
                                 $flag_name = 0;
@@ -199,6 +199,15 @@ class Price {
                                 $map_id = $db->addMap('product', $add_product_id, $provider_product['id']);
                                 // Увеличиваем счетчик добавленных товаров
                                 $product_add_count++;
+                                //
+                                $products_map_adds[] = array(
+                                    'id' => $map_id,
+                                    'product_id' => $add_product['id'],
+                                    'product_name' => $product['name'],
+                                    'prov_product_id' => $provider_product['id'],
+                                    'prov_product_name' => $provider_product['name'],
+                                    'provider_name' => $provider['name']
+                                );
                                 // Добавляем запись в детальный лог
                                 //$db->addDetailLog('PRICE', $add_product_id, 'ADD_PRODUCT', $provider['id'], $provider_product['name']);
                             } else {
@@ -265,6 +274,11 @@ class Price {
         $data = array();
         if (!empty($warning)) {
             $data['warning'] = $warning;
+        }
+        //
+        if ($product_add_count != 0) {
+            $data['warning'][] = 'Произведено первоначальное заполнение эталонной базы.';
+            $data['warning'][] = 'Добавлено новых товаров: ' . $product_add_count . '. К ним добавлено изображений: ' . $image_add_count . ' и аттрибутов: ' . $attrib_add_count;
         }
         $data['products_map_adds'] = $products_map_adds;
         $data['products_to_add'] = $products_to_add;
