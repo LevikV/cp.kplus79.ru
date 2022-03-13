@@ -103,7 +103,7 @@
                             echo '<td rowspan="2" class="prov-product-attribs">';
                             if ($product_to_add['prov_product_attribs']) {
                                 foreach ($product_to_add['prov_product_attribs'] as $attrib) {
-                                    echo $attrib['name'] . ': ' . $attrib['value'] . '<br>';
+                                    echo $attrib['attribute_name'] . ': ' . $attrib['attribute_value'] . '<br>';
                                 }
                             }
                             echo '</td>';

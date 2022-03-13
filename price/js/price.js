@@ -287,3 +287,33 @@ $(document).delegate('.link_add_attrib_value', 'click', function() {
         }
     });
 });
+
+$(document).delegate('.link_add_product', 'click', function() {
+    var provProductId = $(this).data('prov-product-id');
+    var rowId = '#' + $(this).data('row-id');
+    var oper = 'add_product_from_prov';
+    $.ajax({
+        url: 'price/oper.php',
+        type: 'POST',
+        data: {
+            operation: oper,
+            prov_attrib_name: provAttribName,
+            prov_attrib_id: provAttribId,
+            prov_attrib_group_id: provAttribGroupId
+        },
+        dataType: 'json',
+        success: function(json) {
+            if (json['warning']) {
+                alert(json['warning']);
+            } else {
+                $('#tableMaps tr:last').after('<tr><td></td><td>' + json['map_id'] + '</td><td>' +
+                    provAttribName + '</td><td>' + json['attrib_id'] + '</td><td>' + provAttribName + '</td><td>'+
+                    provAttribId + '</td><td>' + provName +'</td></tr>');
+                $(rowId).remove();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
