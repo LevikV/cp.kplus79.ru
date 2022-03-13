@@ -129,6 +129,7 @@
                             echo '<td rowspan="2"><a class="link_add_product" href="#" ' .
                                 'data-row-id="' . $i .
                                 '" data-prov-product-id="' . $product_to_add['prov_product_id'] .
+                                '" data-prov-id="' . $product_to_add['provider_id'] .
                                 '">Добавить</a></td>';
                             echo '</tr>';
                             //

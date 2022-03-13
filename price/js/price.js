@@ -290,26 +290,28 @@ $(document).delegate('.link_add_attrib_value', 'click', function() {
 
 $(document).delegate('.link_add_product', 'click', function() {
     var provProductId = $(this).data('prov-product-id');
+    var provId = $(this).data('prov-id');
     var rowId = '#' + $(this).data('row-id');
+    var rowChildId = '#' + $(this).data('row-id') + '-child';
     var oper = 'add_product_from_prov';
     $.ajax({
         url: 'price/oper.php',
         type: 'POST',
         data: {
             operation: oper,
-            prov_attrib_name: provAttribName,
-            prov_attrib_id: provAttribId,
-            prov_attrib_group_id: provAttribGroupId
+            prov_id: provId,
+            prov_product_id: provProductId
         },
         dataType: 'json',
         success: function(json) {
-            if (json['warning']) {
-                alert(json['warning']);
+            if (json['error']) {
+                alert(json['error']);
             } else {
                 $('#tableMaps tr:last').after('<tr><td></td><td>' + json['map_id'] + '</td><td>' +
-                    provAttribName + '</td><td>' + json['attrib_id'] + '</td><td>' + provAttribName + '</td><td>'+
-                    provAttribId + '</td><td>' + provName +'</td></tr>');
+                    json['product_name'] + '</td><td>' + json['product_id'] + '</td><td>' + json['prov_product_name'] + '</td><td>'+
+                    json['prov_product_id'] + '</td><td>' + json['provider_name'] +'</td></tr>');
                 $(rowId).remove();
+                $(rowChildId).remove();
             }
         },
         error: function(xhr, ajaxOptions, thrownError) {

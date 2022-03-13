@@ -305,5 +305,76 @@ if (isset($_POST['operation'])) {
         }
 
         echo json_encode($json);
+    } elseif ($_POST['operation'] == 'add_product_from_prov') {
+        //******** Операция добавления товара в эталонную базу по товару поставщика ********
+        $json = array();
+        $db = new Db;
+        if ((!isset($_POST['prov_product_id'])) OR (!isset($_POST['prov_id']))) {
+            $json['error'][] = 'Ошибка передачи параметров!';
+        }
+        if (!isset($json['error'])) {
+            $provider_product = $db->getProviderProduct($_POST['prov_id'], $_POST['prov_product_id']);
+            if ($provider_product) {
+                $data = array();
+                $data['name'] = $provider_product['name'];
+                $data['description'] = $provider_product['description'];
+                $data['category_id'] = $db->getMapByProvItemId('category', $provider_product['category_id']);
+                $data['model_id'] = $db->getMapByProvItemId('model', $provider_product['model_id']);
+                $data['vendor_id'] = $db->getMapByProvItemId('vendor', $provider_product['vendor_id']);
+                $data['manufacturer_id'] = $db->getMapByProvItemId('manufacturer', $provider_product['manufacturer_id']);
+                $data['width'] = $provider_product['width'];
+                $data['height'] = $provider_product['height'];
+                $data['length'] = $provider_product['length'];
+                $data['weight'] = $provider_product['weight'];
+                $data['version'] = $provider_product['version'];
+                $data['status'] = $provider_product['status'];
+                // Добавляем продукт в эталонную базу
+                $add_product_id = $db->addProduct($data);
+                if ($add_product_id) {
+                    // Добавляем запись в карту сопоставлений
+                    $map_id = $db->addMap('product', $add_product_id, $provider_product['id']);
+                    if ($map_id == false) $json['error'][] = 'Ошибка добавления карты сопоставления для продукта!';
+                    //
+                    $json['map_id'] = $map_id;
+                    $json['product_id'] = $add_product_id;
+                    $json['product_name'] = $provider_product['name'];
+                    $json['prov_product_id'] = $provider_product['id'];
+                    $json['prov_product_name'] = $provider_product['name'];
+                    //
+                    $provider = $db->getProvider($_POST['prov_id']);
+                    $json['provider_name'] = $provider['name'];
+                    // Добавляем изображения и аттрибуты к добавленному товару
+                    if ($provider_product['images']) {
+                        foreach ($provider_product['images'] as $image) {
+                            $data = array();
+                            $data['product_id'] = $add_product_id;
+                            $data['image'] = $image['image'];
+                            $add_image_id = $db->addProductImage($data);
+                            if ($add_image_id == false) $json['error'][] = 'Ошибка добавления изображения для продукта!';
+                        }
+                    }
+                    if ($provider_product['attributes']) {
+                        foreach ($provider_product['attributes'] as $product_attribute) {
+                            $data = array();
+                            $data['product_id'] = $add_product_id;
+                            $data['attribute_value_id'] = $db->getMapByProvItemId('attribute_value', $product_attribute['attribute_value_id']);
+                            $add_product_attribute_id = $db->addProductAttribute($data);
+                            if ($add_product_attribute_id == false) $json['error'][] = 'Ошибка добавления аттрибута для продукта!';
+                        }
+                    }
+
+                } else {
+                    // если произошла ошибка при добавлении товара пишем в лог и пропускаем товар
+                    $json['error'][] = 'Ошибка при добавлении товара в эталонную базу. Поставщик id: ' . $_POST['prov_id'] . ' Товар поставщика id: ' . $_POST['prov_product_id'];
+                }
+
+
+            } else {
+                $json['error'][] = 'Ошибка получения продукта поставщика!';
+            }
+
+        }
+
+        echo json_encode($json);
     }
 }
