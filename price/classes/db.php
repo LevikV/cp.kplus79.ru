@@ -1756,7 +1756,7 @@ class Db extends Sys {
     public function addProductImage($data) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
-        if ($this->status AND $this->checkProviderProductImageData($data)) {
+        if ($this->status AND $this->checkProductImageData($data)) {
             $sql = 'INSERT INTO image (product_id, image) VALUES (' .
                 (int)$data['product_id'] . ', "' .
                 mysqli_real_escape_string($this->link, $data['image']) . '")';
@@ -1782,7 +1782,7 @@ class Db extends Sys {
     public function addProductAttribute($data) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
-        if ($this->status AND $this->checkProviderAttributeProductData($data)) {
+        if ($this->status AND $this->checkAttributeProductData($data)) {
             $sql = 'INSERT INTO attribute_product (product_id, attribute_value_id) VALUES (' .
                 (int)$data['product_id'] . ', ' .
                 (int)$data['attribute_value_id'] . ')';
@@ -3148,6 +3148,26 @@ class Db extends Sys {
         return true;
     }
 
+    private function checkAttributeProductData(&$data) {
+        if (isset($data['product_id'])) {
+            if ($data['product_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (isset($data['attribute_value_id'])) {
+            if ($data['attribute_value_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
     private function checkProviderProductData(&$data) {
         // Проверяем id поставщика
         if (isset($data['provider_id'])) {
@@ -3254,6 +3274,27 @@ class Db extends Sys {
         } else {
             return false;
         }
+
+        if (isset($data['image'])) {
+            if ($data['image'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function checkProductImageData(&$data) {
+        if (isset($data['product_id'])) {
+            if ($data['product_id'] == '') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
 
         if (isset($data['image'])) {
             if ($data['image'] == '') {

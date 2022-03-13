@@ -101,8 +101,10 @@
                             echo '<td class="prov-product-vendor-id">' .$product_to_add['prov_product_vendor_id'] . '</td>';
                             echo '<td class="prov-product-manuf-id">' .$product_to_add['prov_product_manuf_id'] . '</td>';
                             echo '<td rowspan="2" class="prov-product-attribs">';
-                            foreach ($product_to_add['prov_product_attribs'] as $attrib) {
-                                echo $attrib['name'] . ': ' . $attrib['value'] . '<br>';
+                            if ($product_to_add['prov_product_attribs']) {
+                                foreach ($product_to_add['prov_product_attribs'] as $attrib) {
+                                    echo $attrib['name'] . ': ' . $attrib['value'] . '<br>';
+                                }
                             }
                             echo '</td>';
                             echo '<td rowspan="2" class="prov-product-width">' .$product_to_add['prov_product_width'] . '</td>';
@@ -111,8 +113,10 @@
                             echo '<td rowspan="2" class="prov-product-weight">' .$product_to_add['prov_product_weight'] . '</td>';
                             echo '<td rowspan="2" class="prov-product-version">' .$product_to_add['prov_product_version'] . '</td>';
                             echo '<td rowspan="2" class="prov-product-images">';
-                            foreach ($product_to_add['prov_product_images'] as $image) {
-                                echo $image['image'] . '<br>';
+                            if ($product_to_add['prov_product_images']) {
+                                foreach ($product_to_add['prov_product_images'] as $image) {
+                                    echo $image['image'] . '<br>';
+                                }
                             }
                             echo '</td>';
                             echo '<td rowspan="2" class="prov-product-status">' .$product_to_add['prov_product_status'] . '</td>';

@@ -58,7 +58,9 @@ class Price {
                 if (isset($data['warning'])) {
                     // если сопоставления нет, то фиксируем в лог и прерываем обход
                     //$db->addDetailLog('PRICE', 0, 'SKIP_UPDATE', 'provider_id', $provider['id']);
-                    $warning[] = $data['warning'];
+                    foreach ($data['warning'] as $warning_message) {
+                        $warning[] = $warning_message;
+                    }
                     $warning[] = 'Обновление по поставщику id = ' . $provider['id'] . ' пропущено.';
                     continue;
                 }
