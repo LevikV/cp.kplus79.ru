@@ -901,7 +901,7 @@ class Db extends Sys {
                         'category_id' => $row["category_id"],
                         'model_id' => $row["model_id"],
                         'vendor_id' => $row["vendor_id"],
-                        'manufacturer_id	' => $row["manufacturer_id	"],
+                        'manufacturer_id' => $row["manufacturer_id"],
                         'width' => $row["width"],
                         'height' => $row["height"],
                         'length' => $row["length"],
@@ -3317,20 +3317,30 @@ class Db extends Sys {
         // Метод проверки на сопоставление значений аттрибутов поставщика
         // значениям аттрибутов эталонной базы
         // Возвращает true или false
-        $provider_attribute_values = $this->getProviderAttributeValues($provider_id);
-        if ($provider_attribute_values) {
-            foreach ($provider_attribute_values as $provider_attribute_value) {
-                $our_attribute_value_id = $this->getMapByProvItemId('attribute_value', $provider_attribute_value['id']);
-                if ($our_attribute_value_id) {
-                    continue;
+        $provider_attributes = $this->getProviderAttributes($provider_id);
+        if ($provider_attributes) {
+            foreach ($provider_attributes as $provider_attribute) {
+                $provider_attribute_values = $this->getProviderAttributeValues($provider_id, $provider_attribute['id']);
+                if ($provider_attribute_values) {
+                    foreach ($provider_attribute_values as $provider_attribute_value) {
+                        $our_attribute_value_id = $this->getMapByProvItemId('attribute_value', $provider_attribute_value['id']);
+                        if ($our_attribute_value_id) {
+                            continue;
+                        } else {
+                            return false;
+                        }
+                    }
+                    return true;
                 } else {
                     return false;
                 }
             }
-            return true;
         } else {
             return false;
         }
+
+
+
     }
 
     public function checkMapProviderAttributeGroups($provider_id) {
