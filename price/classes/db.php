@@ -805,8 +805,6 @@ class Db extends Sys {
                         'price_rub' => $row["price_rub"],
                         'transit' => $row["transit"],
                         'transit_date' => $row["transit_date"],
-                        'date_add' => $row["date_add"],
-                        'date_edit' => $row["date_edit"],
                         'date_update' => $row["date_update"]
                     );
                 }
@@ -2321,8 +2319,11 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductTotalData($data)) {
+            //
+            $this->deleteProviderProductTotal($data['provider_id'], $data['product_id']);
+            //
             if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
-            $sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price_usd, price_rub, transit, transit_date, date_add) VALUES (' .
+            $sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price_usd, price_rub, transit, transit_date, date_update) VALUES (' .
                 (int)$data['provider_id'] . ', ' .
                 (int)$data['product_id'] . ', ' .
                 (int)$data['total'] . ', ' .
@@ -2337,7 +2338,7 @@ class Db extends Sys {
                 // Записываем в лог данные об ошибке
                 $message = 'Ошибка добавления provider_product_total для продукта поставщика' . "\r\n";
                 $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
-                $message .= 'prov_cat_name: ' . $data['product_id'] . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
                 $message .= 'total: ' . $data['total'] . "\r\n";
                 $message .= 'price_usd: ' . $data['price_usd'] . "\r\n";
                 $message .= 'price_rub: ' . $data['price_rub'] . "\r\n";
@@ -3499,6 +3500,29 @@ class Db extends Sys {
                 // Записываем в лог данные об ошибке
                 $message = 'Ошибка удаления изображения товара в таблице provider_image' . "\r\n";
                 $message .= 'id_prov_product_image: ' . $id_prov_product_image . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function deleteProviderProductTotal($prov_id, $product_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DELETE FROM provider_product_total WHERE provider_id = ' . $prov_id . ' AND product_id = ' . $product_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления total товара в таблице provider_product_total' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
 
                 return false;

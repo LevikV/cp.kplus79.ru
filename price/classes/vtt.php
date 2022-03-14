@@ -893,7 +893,8 @@ class Vtt {
             $db->addLog('INFO', 'VTT', $message);
 
             $prov_id = 1; // устанавливаем id поставщика
-
+            // ВАЖНО!!!!! Устанавливаем id хабаровского ВТТ
+            $prov_khv_id = 2;
             // Получаем товары с портала поставщика
             $products_vtt = $this->getAllProductByCategory();
 
@@ -1972,6 +1973,24 @@ class Vtt {
                         $product_count_add_error++;
                 }
                 // Сразу же надо обновить total по продукту
+                $provider_product_id = $db->getOurProviderProductIdByProviderProductId($prov_id, $product_vtt['id']);
+                $data = array();
+                $data['provider_id'] = $prov_id;
+                $data['product_id'] = $provider_product_id;
+                $data['total'] = $product_vtt['main_office_quantity'];
+                $data['price_usd'] = $product_vtt['price'];
+                $prov_total_add = $db->addProviderProductTotal($data);
+                //
+                $data = array();
+                $data['provider_id'] = $prov_khv_id;
+                $data['product_id'] = $provider_product_id;
+                $data['total'] = $product_vtt['available_quantity'];
+                $data['price_usd'] = $product_vtt['price'];
+                $data['transit'] = intval($product_vtt['transit_quantity']);
+                $data['transit_date'] = $product_vtt['transit_date'];
+                $prov_khv_total_add = $db->addProviderProductTotal($data);
+                //
+                // Далее нужно написать проверку на добавление totals по Московскому и Хабаровскому поставщикам (складам)
 
             }
 
