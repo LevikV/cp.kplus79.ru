@@ -753,7 +753,7 @@ class Db extends Sys {
         if ($this->status) {
             $sql = 'SELECT id FROM provider_product WHERE provider_id = ' . (int)$prov_id . ' AND provider_product_id = "' . $prov_product_id . '"';
             try {
-                $result = array();
+                //$result = array();
 -               $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
@@ -764,12 +764,15 @@ class Db extends Sys {
 
                 return false;
             }
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_row();
-                if (empty($row))
-                    return null;
-                else
-                    return $row[0];
+
+            if ($result) {
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_row();
+                    if (empty($row))
+                        return null;
+                    else
+                        return $row[0];
+                }
             }
         } else {
             return false;
