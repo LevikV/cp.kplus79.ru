@@ -753,8 +753,7 @@ class Db extends Sys {
         if ($this->status) {
             $sql = 'SELECT id FROM provider_product WHERE provider_id = ' . (int)$prov_id . ' AND provider_product_id = "' . $prov_product_id . '"';
             try {
-                //$result = array();
--               $result = mysqli_query($this->link, $sql);
+                $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
                 $message = 'Ошибка поиска товара поставщика в таблице поставщиков по provider_id и provider_product_id' . "\r\n";
@@ -764,7 +763,19 @@ class Db extends Sys {
 
                 return false;
             }
+            //
+            /*if ($result != false) {
+                while($row = $result->fetch_array()){
+                    $data = 0;
+                    $data = $row["id"];
+                }
+                if ($data == 0)
+                    return null;
+                else
+                    return $data;
+            }*/
 
+            //
             if ($result) {
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_row();
