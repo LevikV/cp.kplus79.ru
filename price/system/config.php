@@ -16,4 +16,9 @@ define('VTT_CATEGORY_ID_EXCEPT', array(
     'PARTSPC'
 ));
 
+// Параметры наценки для формирования цен
+define('PRICE_COMPATIBLE', 30);
+define('PRICE_ORIGINAL', 10);
+define('KURS_DOLLAR_RUB', 140);
+
 ?>

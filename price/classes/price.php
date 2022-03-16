@@ -270,6 +270,15 @@ class Price {
                         }
                     }
                     // Здесь необходимо обновить totals по продукту
+                    $our_product_id = $db->getMapByProvItemId('product', $provider_product['id']);
+                    if ($provider_product['status'] == 1) {
+                        $provider_product_total = $db->getProviderProductTotal($provider['id'], $provider_product['id']);
+
+                    } else {
+                        // Если продукт отключен, то необходимо очистить totals по этому продукту и провайдеру в эталонной базе
+
+                    }
+
 
                 }
             }

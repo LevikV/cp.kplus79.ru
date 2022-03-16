@@ -1887,6 +1887,8 @@ class Vtt {
                             continue;
                         }
                     }
+                    //
+
 
                     // Добавляем товар в таблицу поставщиков
                     $id_prov_product = $db->addProviderProduct($data);
@@ -2018,6 +2020,8 @@ class Vtt {
                             $db->setStatusProviderProduct($product_id, 0);
                             $product_count_off++;
                             $db->addProvDetailLog('VTT', $product_id, 'CHANGE_STATUS', $product_our_base['status'], 0);
+                            // так же очищаем totals по текущему товару
+                            $db->deleteProviderProductTotal($prov_id, $product_id);
                         }
                     } else {
                         $message = 'Ошибка получения товара с нашей базы поставщиков при отключении товара' . "\r\n";
