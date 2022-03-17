@@ -870,6 +870,7 @@ class Db extends Sys {
                         'weight' => $row["weight"],
                         'version' => $row["version"],
                         'status' => $row["status"],
+                        'price_group_id' => $row["price_group_id"],
                         'date_add' => $row["date_add"],
                         'date_edit' => $row["date_edit"],
                         'date_update' => $row["date_update"],
@@ -924,6 +925,7 @@ class Db extends Sys {
                         'weight' => $row["weight"],
                         'version' => $row["version"],
                         'status' => $row["status"],
+                        'price_group_id' => $row["price_group_id"],
                         'date_add' => $row["date_add"],
                         'date_edit' => $row["date_edit"],
                         'date_update' => $row["date_update"],
@@ -2252,7 +2254,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductData($data)) {
-            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, date_add) VALUES ("' .
+            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, price_group_id date_add) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
                 mysqli_real_escape_string($this->link, $data['provider_product_id']) . '", "' .
                 mysqli_real_escape_string($this->link, $data['name']) . '", "' .
@@ -2265,7 +2267,9 @@ class Db extends Sys {
                 (float)$data['height'] . '", "' .
                 (float)$data['length'] . '", "' .
                 (float)$data['weight'] . '", "' .
-                $data['version'] . '", 1, NOW())';
+                $data['version'] . '", 1,' .
+                $data['price_group_id'] .
+                ', NOW())';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {

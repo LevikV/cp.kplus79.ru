@@ -22,6 +22,19 @@ class Vtt {
 
     }
 
+    private function getPriceGroupIdByProductName($product_name) {
+        //
+        if (stripos($product_name, '(O)') === false) {
+            if (stripos($product_name, '(О)') === false) {
+                return 1; // id ценовой группы, заданное и созданное вручную
+            } else {
+                return 2;
+            }
+        } else {
+            return 2;
+        }
+    }
+
     public function getTotalProductByCategoryId($cat_id) {
         // Функция получения количества товаров по Id категории с портала ВТТ
 
@@ -1887,8 +1900,8 @@ class Vtt {
                             continue;
                         }
                     }
-                    //
-
+                    // Определяем ценовую группу для продукта
+                    $data['price_group_id'] = $this->getPriceGroupIdByProductName($product_vtt['name']);
 
                     // Добавляем товар в таблицу поставщиков
                     $id_prov_product = $db->addProviderProduct($data);
@@ -1900,6 +1913,21 @@ class Vtt {
                         $db->addProvDetailLog('VTT', $id_prov_product, 'ADD_PRODUCT', '', $data['name']);
 
                         // Производим запись аттрибутов для добавленного товара
+                        //
+                        // аттрибут "Тип РМ (расходного материала)
+                        $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Тип РМ', 'Расходные материалы');
+                        if ($attrib_id) {
+                            if ($data['price_group_id'] == 1) {
+                                $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, 'Совместимый');
+                            } elseif ($data['price_group_id'] == 2) {
+                                $attrib_value_id = $db->getOurProviderAttributeValueIdByValue($prov_id, $attrib_id, 'Оригинал');
+                            }
+                        }
+                        $data = array();
+                        $data['product_id'] = $id_prov_product;
+                        $data['attribute_value_id'] = $attrib_value_id;
+                        $id_attrib_product = $db->addProviderAttributeProduct($data);
+                        //
                         // аттрибут "Цвет"
                         if ((string)$product_vtt['color_name'] != '') {
                             $attrib_id = $db->getOurProviderAttributeIdByName($prov_id, 'Цвет', 'Основные');
