@@ -275,7 +275,11 @@ class Price {
                         // Получаем total по продукту поставщика
                         $provider_product_total = $db->getProviderProductTotal($provider['id'], $provider_product['id']);
                         // Вычисляем розничную цену для товара
-                        $provider_product_price_group = $db->getProviderProductPriceGroup($provider_product['price_group_id']);
+                        $provider_product_price_group = $db->getProviderPriceGroup($provider_product['price_group_id']);
+                        $provider_currency = $db->getProviderCurrency($provider['id']);
+                        $price =
+
+                        //
                         $data = array();
                         $data['total'] = $provider_product_total['total'];
                         $data['transit'] = $provider_product_total['transit'];
