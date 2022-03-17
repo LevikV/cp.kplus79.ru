@@ -272,8 +272,16 @@ class Price {
                     // Здесь необходимо обновить totals по продукту
                     $our_product_id = $db->getMapByProvItemId('product', $provider_product['id']);
                     if ($provider_product['status'] == 1) {
+                        // Получаем total по продукту поставщика
                         $provider_product_total = $db->getProviderProductTotal($provider['id'], $provider_product['id']);
+                        // Вычисляем розничную цену для товара
+                        $provider_product_price_group = $db->getProviderProductPriceGroup($provider_product['price_group_id']);
+                        $data = array();
+                        $data['total'] = $provider_product_total['total'];
+                        $data['transit'] = $provider_product_total['transit'];
+                        $data['transit_date'] = $provider_product_total['transit_date'];
 
+                        $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
                     } else {
                         // Если продукт отключен, то необходимо очистить totals по этому продукту и провайдеру в эталонной базе
 
