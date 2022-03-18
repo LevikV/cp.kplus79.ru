@@ -2008,7 +2008,7 @@ class Vtt {
                 $data['provider_id'] = $prov_id;
                 $data['product_id'] = $provider_product_id;
                 $data['total'] = $product_vtt['main_office_quantity'];
-                $data['price_usd'] = $product_vtt['price'];
+                $data['price'] = $product_vtt['price'];
                 $prov_total_add = $db->addProviderProductTotal($data);
                 if ($prov_total_add == false) {
                     $message .= 'Ошибка добавления totals' . "\r\n";
@@ -2022,7 +2022,7 @@ class Vtt {
                 $data['provider_id'] = $prov_khv_id;
                 $data['product_id'] = $provider_product_id;
                 $data['total'] = $product_vtt['available_quantity'];
-                $data['price_usd'] = $product_vtt['price'];
+                $data['price'] = $product_vtt['price'];
                 $data['transit'] = intval($product_vtt['transit_quantity']);
                 $data['transit_date'] = $product_vtt['transit_date'];
                 $prov_khv_total_add = $db->addProviderProductTotal($data);
@@ -2050,6 +2050,7 @@ class Vtt {
                             $db->addProvDetailLog('VTT', $product_id, 'CHANGE_STATUS', $product_our_base['status'], 0);
                             // так же очищаем totals по текущему товару
                             $db->deleteProviderProductTotal($prov_id, $product_id);
+                            $db->deleteProviderProductTotal($prov_khv_id, $product_id);
                         }
                     } else {
                         $message = 'Ошибка получения товара с нашей базы поставщиков при отключении товара' . "\r\n";
@@ -2120,6 +2121,7 @@ class Vtt {
     }
 
     public function updateProductsTotal() {
+    // Устаревшая функция, не работает, необходимо переписывать
         if ($this->status) {
             //
             $prov_id = 1; // устанавливаем id поставщика

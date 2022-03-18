@@ -300,6 +300,44 @@ class Price {
                 }
             }
         }
+
+        // После того, как обновлены родительские поставщики, необходимо
+        // обновить total у дочерних поставщиков (филиалов)
+        foreach ($providers as $provider) {
+            if ($provider['parent_id'] != null) {
+                // Сначала очищаем все totals по текущему поставщику-филиалу
+                $db->deleteTotalsByProv($provider['id']);
+                //
+                $provider_products_totals = $db->getProviderProductsTotals($provider['id']);
+                if ($provider_products_totals) {
+                    foreach ($provider_products_totals as $provider_product_total) {
+                        $our_product_id = $db->getMapByProvItemId('product', $provider_product_total['product_id']);
+                        $provider_product = $db->getProviderProduct($provider['id'], $provider_product_total['product_id']);
+                        // Получаем ценовую группу товара
+                        $provider_product_price_group = $db->getProviderPriceGroup($provider_product['price_group_id']);
+                        // Получаем валюту поставщика
+                        $provider_currency = $db->getProviderCurrency($provider['id']);
+                        // Вычисляем розничную цену для товара
+                        $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                        $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
+                        $price = round($price);
+
+                        //
+                        $data = array();
+                        $data['total'] = $provider_product_total['total'];
+                        $data['price_rub'] = $price;
+                        $data['transit'] = $provider_product_total['transit'];
+                        $data['transit_date'] = $provider_product_total['transit_date'];
+
+                        $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
+
+                    }
+                }
+            }
+        }
+
+
+
         // Возвращаем полученные данные
         $data = array();
         if (!empty($warning)) {
