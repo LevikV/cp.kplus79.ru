@@ -3528,23 +3528,6 @@ class Db extends Sys {
     }
 
     private function checkProductTotalData(&$data) {
-        // Проверяем id товара
-        if (isset($data['product_id'])) {
-            if ($data['product_id'] == '') {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        // Проверяем provider_id товара
-        if (isset($data['provider_id'])) {
-            if ($data['provider_id'] == '') {
-                return false;
-            }
-        } else {
-            return false;
-        }
 
         // Проверяем total товара
         if (!isset($data['total'])) {
