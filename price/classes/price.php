@@ -293,7 +293,7 @@ class Price {
                         $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
                     } else {
                         // Если продукт отключен, то необходимо очистить totals по этому продукту и провайдеру в эталонной базе
-
+                        $db->deleteProductTotal($our_product_id, $provider['id']);
                     }
 
 
