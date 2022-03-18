@@ -1186,6 +1186,42 @@ class Db extends Sys {
         }
     }
 
+    public function getProviderCurrency($provider_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM provider_currency WHERE id = ' . $provider_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения валюты поставщика из таблицы provider_currency' . "\r\n";
+                $message .= 'provider_id: ' . $provider_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $data = array();
+                while($row = $result->fetch_array()){
+                    $data['id'] = $row["id"];
+                    $data['provider_id'] = $row["provider_id"];
+                    $data['name'] = $row["name"];
+                    $data['code'] = $row["code"];
+                    $data['exchange'] = $row["exchange"];
+                    $data['image'] = $row["image"];
+                }
+                if (empty($data))
+                    return null;
+                else
+                    return $data;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getProviderAttributeValue($attribute_value_id) {
         //
         global $ERROR;

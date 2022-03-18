@@ -274,14 +274,19 @@ class Price {
                     if ($provider_product['status'] == 1) {
                         // Получаем total по продукту поставщика
                         $provider_product_total = $db->getProviderProductTotal($provider['id'], $provider_product['id']);
-                        // Вычисляем розничную цену для товара
+                        // Получаем ценовую группу товара
                         $provider_product_price_group = $db->getProviderPriceGroup($provider_product['price_group_id']);
+                        // Получаем валюту поставщика
                         $provider_currency = $db->getProviderCurrency($provider['id']);
-                        $price =
+                        // Вычисляем розничную цену для товара
+                        $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                        $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
+                        $price = round($price);
 
                         //
                         $data = array();
                         $data['total'] = $provider_product_total['total'];
+                        $data['price_rub'] = $price;
                         $data['transit'] = $provider_product_total['transit'];
                         $data['transit_date'] = $provider_product_total['transit_date'];
 
