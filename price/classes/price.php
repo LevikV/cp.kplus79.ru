@@ -279,7 +279,11 @@ class Price {
                         // Получаем валюту поставщика
                         $provider_currency = $db->getProviderCurrency($provider['id']);
                         // Вычисляем розничную цену для товара
-                        $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                        if ((float)$provider_product_total['price'] < 0) {
+                            $price = 0;
+                        } else {
+                            $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                        }
                         $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
                         $price = round($price);
 
@@ -318,7 +322,12 @@ class Price {
                         // Получаем валюту поставщика
                         $provider_currency = $db->getProviderCurrency($provider['id']);
                         // Вычисляем розничную цену для товара
-                        $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                        if ((float)$provider_product_total['price'] < 0) {
+                            $price = 0;
+                        } else {
+                            $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                        }
+                        //
                         $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
                         $price = round($price);
 
