@@ -1238,7 +1238,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT * FROM provider_currency WHERE id = ' . $provider_id;
+            $sql = 'SELECT * FROM provider_currency WHERE provider_id = ' . $provider_id;
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -2371,7 +2371,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductData($data)) {
-            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, price_group_id date_add) VALUES ("' .
+            $sql = 'INSERT INTO provider_product (provider_id, provider_product_id, name, description, category_id, model_id, vendor_id, manufacturer_id, width, height, length, weight, version, status, price_group_id, date_add) VALUES ("' .
                 (int)$data['provider_id'] . '", "' .
                 mysqli_real_escape_string($this->link, $data['provider_product_id']) . '", "' .
                 mysqli_real_escape_string($this->link, $data['name']) . '", "' .
@@ -2491,6 +2491,7 @@ class Db extends Sys {
     }
 
     public function addProductTotal($product_id, $provider_id, $data) {
+        //
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProductTotalData($data)) {
@@ -2499,8 +2500,8 @@ class Db extends Sys {
             //
             if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
             $sql = 'INSERT INTO product_total (provider_id, product_id, total, price_rub, transit, transit_date, date_update) VALUES (' .
-                (int)$data['provider_id'] . ', ' .
-                (int)$data['product_id'] . ', ' .
+                (int)$provider_id . ', ' .
+                (int)$product_id . ', ' .
                 (int)$data['total'] . ', ' .
                 (float)$data['price_rub'] . ', ' .
                 (int)$data['transit'] . ', ' .
