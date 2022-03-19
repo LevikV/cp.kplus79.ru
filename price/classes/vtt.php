@@ -26,7 +26,11 @@ class Vtt {
         //
         if (stripos($product_name, '(O)') === false) {
             if (stripos($product_name, '(О)') === false) {
-                return 1; // id ценовой группы, заданное и созданное вручную
+                if (stripos($product_name, '(о)') === false) {
+                    return 1; // id ценовой группы, заданное и созданное вручную
+                } else {
+                    return 2;
+                }
             } else {
                 return 2;
             }
