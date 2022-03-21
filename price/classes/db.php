@@ -3558,29 +3558,50 @@ class Db extends Sys {
         // Метод проверки на сопоставление значений аттрибутов поставщика
         // значениям аттрибутов эталонной базы
         // Возвращает true или false
+//        $provider_attributes = $this->getProviderAttributes($provider_id);
+//        if ($provider_attributes) {
+//            foreach ($provider_attributes as $provider_attribute) {
+//                $provider_attribute_values = $this->getProviderAttributeValues($provider_id, $provider_attribute['id']);
+//                if ($provider_attribute_values) {
+//                    foreach ($provider_attribute_values as $provider_attribute_value) {
+//                        $our_attribute_value_id = $this->getMapByProvItemId('attribute_value', $provider_attribute_value['id']);
+//                        if ($our_attribute_value_id) {
+//                            continue;
+//                        } else {
+//                            return false;
+//                        }
+//                    }
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            }
+//        } else {
+//            return false;
+//        }
+        // Новый метод
         $provider_attributes = $this->getProviderAttributes($provider_id);
+        $map_attribute_values = $this->getMaps('attribute_value');
+        if ($map_attribute_values) {
+            foreach ($map_attribute_values as $map_attribute_value) {
+                $prov_attribute_values_id_from_map[] = $map_attribute_value['provider_id'];
+            }
+        }
+
         if ($provider_attributes) {
             foreach ($provider_attributes as $provider_attribute) {
                 $provider_attribute_values = $this->getProviderAttributeValues($provider_id, $provider_attribute['id']);
                 if ($provider_attribute_values) {
                     foreach ($provider_attribute_values as $provider_attribute_value) {
-                        $our_attribute_value_id = $this->getMapByProvItemId('attribute_value', $provider_attribute_value['id']);
-                        if ($our_attribute_value_id) {
-                            continue;
-                        } else {
+                        if (!in_array($provider_attribute_value['id'], $prov_attribute_values_id_from_map, true)) {
                             return false;
                         }
                     }
-                    return true;
-                } else {
-                    return false;
                 }
             }
-        } else {
-            return false;
         }
 
-
+        return true;
 
     }
 
@@ -3588,20 +3609,37 @@ class Db extends Sys {
         // Метод проверки на сопоставление групп аттрибутов поставщика
         // группам аттрибутов эталонной базы
         // Возвращает true или false
+//        $provider_attribute_groups = $this->getProviderAttributeGroups($provider_id);
+//        if ($provider_attribute_groups) {
+//            foreach ($provider_attribute_groups as $provider_attribute_group) {
+//                $our_attribute_group_id = $this->getMapByProvItemId('attribute_group', $provider_attribute_group['id']);
+//                if ($our_attribute_group_id) {
+//                    continue;
+//                } else {
+//                    return false;
+//                }
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+        // Новый метод
         $provider_attribute_groups = $this->getProviderAttributeGroups($provider_id);
+        $map_attribute_groups = $this->getMaps('attribute_group');
+        if ($map_attribute_groups) {
+            $prov_attribute_groups_id_from_map = array();
+            foreach ($map_attribute_groups as $map_attribute_group) {
+                $prov_attribute_groups_id_from_map[] = $map_attribute_group['provider_id'];
+            }
+        }
         if ($provider_attribute_groups) {
             foreach ($provider_attribute_groups as $provider_attribute_group) {
-                $our_attribute_group_id = $this->getMapByProvItemId('attribute_group', $provider_attribute_group['id']);
-                if ($our_attribute_group_id) {
-                    continue;
-                } else {
+                if (!in_array($provider_attribute_group['id'], $prov_attribute_groups_id_from_map, true)) {
                     return false;
                 }
             }
-            return true;
-        } else {
-            return false;
         }
+        return true;
     }
 
     public function checkMapProviderAttributes($provider_id) {
