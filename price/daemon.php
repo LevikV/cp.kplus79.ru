@@ -26,6 +26,16 @@ if (isset($_GET['operation'])) {
             echo '<br>Обновление товаров завершено.';
         }
 
+    } elseif ($_GET['operation'] == 'update_vtt_products_runtimes') {
+        global $ERROR;
+        $vtt = new Vtt;
+        $updates_vtt = $vtt->updateProducts();
+        if ($updates_vtt == false) {
+            echo '<br>Не удалось обновить товары с портала ВТТ.';
+        } else {
+            echo '<br>Обновление товаров завершено.';
+        }
+
     } elseif ($_GET['operation'] == 'temp') {
         $db = new Db;
         $prov_attrib_values = $db->getProviderAttributeValues(1, 4);
