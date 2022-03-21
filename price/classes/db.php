@@ -3661,72 +3661,135 @@ class Db extends Sys {
 //        } else {
 //            return false;
 //        }
+        // Новый метод проверки, более быстрый
         $provider_attributes = $this->getProviderAttributes($provider_id);
         $map_attributes = $this->getMaps('attribute');
         $prov_attributes_id_from_map = array();
-
-
-
+        if ($map_attributes) {
+            foreach ($map_attributes as $map_attribute) {
+                $prov_attributes_id_from_map[] = $map_attribute['provider_id'];
+            }
+        }
+        if ($provider_attributes) {
+            foreach ($provider_attributes as $provider_attribute) {
+                if (!in_array($provider_attribute['id'], $prov_attributes_id_from_map)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public function checkMapProviderModels($provider_id) {
         // Метод проверки на сопоставление моделей поставщика
         // моделям эталонной базы
         // Возвращает true или false
+//        $provider_models = $this->getProviderModels($provider_id);
+//        if ($provider_models) {
+//            foreach ($provider_models as $provider_model) {
+//                $our_model_id = $this->getMapByProvItemId('model', $provider_model['id']);
+//                if ($our_model_id) {
+//                    continue;
+//                } else {
+//                    return false;
+//                }
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+        // Новый метод проверки, более быстрый
         $provider_models = $this->getProviderModels($provider_id);
+        $map_models = $this->getMaps('model');
+        $prov_models_id_from_map = array();
+        if ($map_models) {
+            foreach ($map_models as $map_model) {
+                $prov_models_id_from_map[] = $map_model['provider_id'];
+            }
+        }
         if ($provider_models) {
             foreach ($provider_models as $provider_model) {
-                $our_model_id = $this->getMapByProvItemId('model', $provider_model['id']);
-                if ($our_model_id) {
-                    continue;
-                } else {
+                if (!in_array($provider_model['id'], $prov_models_id_from_map)) {
                     return false;
                 }
             }
-            return true;
-        } else {
-            return false;
         }
+        return true;
+
     }
 
     public function checkMapProviderVendors($provider_id) {
         // Метод проверки на сопоставление вендоров поставщика
         // вендорам эталонной базы
         // Возвращает true или false
+//        $provider_vendors = $this->getProviderVendors($provider_id);
+//        if ($provider_vendors) {
+//            foreach ($provider_vendors as $provider_vendor) {
+//                $our_vendor_id = $this->getMapByProvItemId('vendor', $provider_vendor['id']);
+//                if ($our_vendor_id) {
+//                    continue;
+//                } else {
+//                    return false;
+//                }
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+        // Новый метод проверки, более быстрый
         $provider_vendors = $this->getProviderVendors($provider_id);
+        $map_vendors = $this->getMaps('vendor');
+        $prov_vendors_id_from_map = array();
+        if ($map_vendors) {
+            foreach ($map_vendors as $map_vendor) {
+                $prov_vendors_id_from_map[] = $map_vendor['provider_id'];
+            }
+        }
         if ($provider_vendors) {
             foreach ($provider_vendors as $provider_vendor) {
-                $our_vendor_id = $this->getMapByProvItemId('vendor', $provider_vendor['id']);
-                if ($our_vendor_id) {
-                    continue;
-                } else {
+                if (!in_array($provider_vendor['id'], $prov_vendors_id_from_map)) {
                     return false;
                 }
             }
-            return true;
-        } else {
-            return false;
         }
+        return true;
     }
 
     public function checkMapProviderManufs($provider_id) {
         // Метод проверки на сопоставление производителей поставщика
         // производителям эталонной базы
         // Возвращает true или false
+//        $provider_manufs = $this->getProviderManufs($provider_id);
+//        if ($provider_manufs) {
+//            foreach ($provider_manufs as $provider_manuf) {
+//                $our_manuf_id = $this->getMapByProvItemId('manufacturer', $provider_manuf['id']);
+//                if ($our_manuf_id) {
+//                    continue;
+//                } else {
+//                    return false;
+//                }
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+        // Новый метод проверки, более быстрый
         $provider_manufs = $this->getProviderManufs($provider_id);
+        $map_manufs = $this->getMaps('manufacturer');
+        $prov_manufs_id_from_map = array();
+        if ($map_manufs) {
+            foreach ($map_manufs as $map_manuf) {
+                $prov_manufs_id_from_map[] = $map_manuf['provider_id'];
+            }
+        }
         if ($provider_manufs) {
             foreach ($provider_manufs as $provider_manuf) {
-                $our_manuf_id = $this->getMapByProvItemId('manufacturer', $provider_manuf['id']);
-                if ($our_manuf_id) {
-                    continue;
-                } else {
+                if (!in_array($provider_manuf['id'], $prov_manufs_id_from_map)) {
                     return false;
                 }
             }
-            return true;
-        } else {
-            return false;
         }
+        return true;
     }
 
     public function deleteProviderProductImage($id_prov_product_image) {
