@@ -26,29 +26,52 @@ if (isset($_GET['operation'])) {
             echo '<br>Обновление товаров завершено.';
         }
 
-    } elseif ($_GET['operation'] == 'update_vtt_products_runtimes') {
+    } elseif ($_GET['operation'] == 'update_price_runtime') {
         global $ERROR;
-        $vtt = new Vtt;
-        $updates_vtt = $vtt->updateProducts();
-        if ($updates_vtt == false) {
-            echo '<br>Не удалось обновить товары с портала ВТТ.';
-        } else {
-            echo '<br>Обновление товаров завершено.';
+        $db = new Db;
+        $update_price_runtime = $db->getSystemTask('update_price_runtime');
+        if ($update_price_runtime) {
+            switch ($update_price_runtime['status']) {
+                case 'working':
+                    // Если статус в работе, то необходимо запустить еще один поток для ускорения
+                    // либо для возобновления работы скрипта, если его работа была внезапно прекращена
+
+                    echo '';
+                    break;
+                case 'updated':
+                    //
+                    $update_provider_runtime = $db->getSystemTask('update_provider_runtime');
+                    if ($update_provider_runtime['status'] == 'updated') {
+                        $delta = time() - strtotime($update_price_runtime['date']);
+                        if ($delta >= 1800) {
+                            // Здесь необходимо запустить внешний скрипт обновления price_runtime
+                            passthru("(php -f price/update_price_runtime.php 4 2 & ) >> /dev/null 2>&1");
+                            echo 'ThinkDo';
+
+                        }
+                    }
+
+
+                    break;
+                case 'error':
+                    //
+                    echo 'sdsdsddsd';
+                    break;
+            }
+
         }
+
+
+
+
 
     } elseif ($_GET['operation'] == 'temp') {
         $db = new Db;
-        $prov_attrib_values = $db->getProviderAttributeValues(1, 4);
-        foreach ($prov_attrib_values as $prov_attrib_value) {
-            $id = $prov_attrib_value['id'];
-            $prod_vtt_life_time = $prov_attrib_value['value'];
+        $temp = '2022-03-22 15:51:52';
+        $date_now = time();
+        echo strtotime($temp);
+        echo '<br>';
+        echo date('d-m-Y H:i:s');
 
-            $prod_vtt_life_time = rtrim($prod_vtt_life_time, 'K');
-            $prod_vtt_life_time = str_replace(',','.', $prod_vtt_life_time);
-            $prod_vtt_life_time = (float)$prod_vtt_life_time * 1000;
-
-            $attrib_value_edit = $db->editProviderAttributeValue($id, (int)$prod_vtt_life_time);
-
-        }
     }
 }

@@ -1,0 +1,4 @@
+  DATE     CODE  MODULE        MESSAGE
+22.03.2022-09:04:26 ERROR  DB  Ошибка получения системной задачи из таблицы system_task
+task: update_price_runtime
+

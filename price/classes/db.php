@@ -13,6 +13,9 @@ class Db extends Sys {
             $this->link = mysqli_connect(DB_SERVER, DB_USER, DB_PSWD, DB_NAME);
             if ($this->link != false) {
                 $this->status = true;
+                // После соединения устанавливаем часовой пояс для MySQL
+                $sql = "SET time_zone = 'Asia/Vladivostok'";
+                mysqli_query($this->link, $sql);
             }
         } catch (Exception $e) {
             $ERROR['Db'][] = 'Ошибка создания подключения к БД';
@@ -3909,6 +3912,66 @@ class Db extends Sys {
             return false;
         }
     }
+
+    public function getSystemTask($task) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM system_task WHERE task LIKE "' . $task . '"';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения системной задачи из таблицы system_task' . "\r\n";
+                $message .= 'task: ' . $task . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $data = array();
+                while($row = $result->fetch_array()){
+                    $data['id'] = $row["id"];
+                    $data['task'] = $row["task"];
+                    $data['status'] = $row["status"];
+                    $data['date'] = $row["date"];
+                }
+                if (empty($data))
+                    return null;
+                else
+                    return $data;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function editSystemTask($task, $status) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'UPDATE system_task SET status = "'. $status .
+                '" WHERE task LIKE "' . $task . '"';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения статуса задачи в таблице system_task' . "\r\n";
+                $message .= 'task: ' . $task . "\r\n";
+                $message .= 'status: ' . $status . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
 }
 
 ?>
