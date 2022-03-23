@@ -3972,6 +3972,66 @@ class Db extends Sys {
         }
     }
 
+    public function createPullPriceRuntime() {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SHOW TABLES LIKE "pull_price_runtime"';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка определения таблицы pull_price_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                return false;
+            }
+            if ($result->num_rows > 0) {
+                // Если таблица есть то ее надо удалить
+                $sql = 'DROP TABLE pull_price_runtime';
+                try {
+                    $result = mysqli_query($this->link, $sql);
+                } catch (Exception $e) {
+                    // Записываем в лог данные об ошибке
+                    $message = 'Ошибка удаления таблицы pull_price_runtime' . "\r\n";
+                    $this->addLog('ERROR', 'DB', $message);
+                    return false;
+                }
+            }
+            //
+            $sql = 'CREATE TABLE pull_price_runtime SELECT * FROM product_total';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка создания таблицы pull_price_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                return false;
+            }
+            if ($result) {
+                $sql = 'ALTER TABLE pull_price_runtime ADD COLUMN status INT 0 AFTER date_update';
+                try {
+                    $result = mysqli_query($this->link, $sql);
+                } catch (Exception $e) {
+                    // Записываем в лог данные об ошибке
+                    $message = 'Ошибка добавления колонки в таблицу pull_price_runtime' . "\r\n";
+                    $this->addLog('ERROR', 'DB', $message);
+                    return false;
+                }
+                if ($result) {
+                    return true;
+                } else {
+                    return false;
+                }
+
+            } else {
+                return false;
+            }
+
+        } else {
+            return false;
+        }
+    }
+
 }
 
 ?>
