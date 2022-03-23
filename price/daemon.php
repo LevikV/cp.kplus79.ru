@@ -45,7 +45,11 @@ if (isset($_GET['operation'])) {
                         $delta = time() - strtotime($update_price_runtime['date']);
                         if ($delta >= 1800) {
                             // Здесь необходимо запустить внешний скрипт обновления price_runtime
-                            passthru("(php -f price/update_price_runtime.php 4 2 & ) >> /dev/null 2>&1");
+                            //passthru("(php -f price/update_price_runtime.php 4 2 & ) >> /dev/null 2>&1");
+                            //passthru("(php -f update_price_runtime.php 4 2 & ) > NULL 2>&1");
+                            //passthru("(php -f update_price_runtime.php 4 2) > NULL 2>&1 &");
+                            $cmd = 'php -f update_price_runtime.php 4 2';
+                            $db->execInBackground($cmd);
                             echo 'ThinkDo';
 
                         }
