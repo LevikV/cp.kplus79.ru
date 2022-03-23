@@ -4008,7 +4008,7 @@ class Db extends Sys {
                 return false;
             }
             if ($result) {
-                $sql = 'ALTER TABLE pull_price_runtime ADD COLUMN status INT 0 AFTER date_update';
+                $sql = 'ALTER TABLE pull_price_runtime ADD COLUMN status INT DEFAULT 0 AFTER date_update';
                 try {
                     $result = mysqli_query($this->link, $sql);
                 } catch (Exception $e) {

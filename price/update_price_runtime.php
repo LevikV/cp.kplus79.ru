@@ -28,7 +28,9 @@ if ($update_price_runtime) {
     if ($update_price_runtime['status'] == 'updated') {
         // запуск первый, надо сгенерировать пул
         $pull_price_runtime = $db->createPullPriceRuntime();
-
+        if ($pull_price_runtime) {
+            // необходимо изменить статус задачи и запустить процессы для выполнения обновления
+        }
 
         //$cmd = 'php -f update_price_runtime.php 4 2';
         //$db->execInBackground($cmd);
