@@ -3952,7 +3952,7 @@ class Db extends Sys {
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'UPDATE system_task SET status = "'. $status .
-                '" WHERE task LIKE "' . $task . '"';
+                '", date = NOW() WHERE task LIKE "' . $task . '"';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
