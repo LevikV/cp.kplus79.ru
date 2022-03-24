@@ -3998,7 +3998,7 @@ class Db extends Sys {
                 }
             }
             //
-            $sql = 'CREATE TABLE pull_price_runtime SELECT * FROM product_total';
+            $sql = 'CREATE TABLE pull_price_runtime LIKE product_total';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -4008,24 +4008,40 @@ class Db extends Sys {
                 return false;
             }
             if ($result) {
-                $sql = 'ALTER TABLE pull_price_runtime ADD COLUMN status INT DEFAULT 0 AFTER date_update';
+                $sql = 'INSERT INTO pull_price_runtime SELECT * FROM product_total';
                 try {
                     $result = mysqli_query($this->link, $sql);
                 } catch (Exception $e) {
                     // Записываем в лог данные об ошибке
-                    $message = 'Ошибка добавления колонки в таблицу pull_price_runtime' . "\r\n";
+                    $message = 'Ошибка копирования таблицы product_total в таблицу pull_price_runtime' . "\r\n";
                     $this->addLog('ERROR', 'DB', $message);
                     return false;
                 }
                 if ($result) {
-                    return true;
+                    $sql = 'ALTER TABLE pull_price_runtime ADD COLUMN status INT DEFAULT 0 AFTER date_update';
+                    try {
+                        $result = mysqli_query($this->link, $sql);
+                    } catch (Exception $e) {
+                        // Записываем в лог данные об ошибке
+                        $message = 'Ошибка добавления колонки в таблицу pull_price_runtime' . "\r\n";
+                        $this->addLog('ERROR', 'DB', $message);
+                        return false;
+                    }
+                    if ($result) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
                 } else {
                     return false;
                 }
-
             } else {
                 return false;
             }
+            //
+            //
+
 
         } else {
             return false;
