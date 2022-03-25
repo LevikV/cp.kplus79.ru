@@ -31,6 +31,12 @@ if ($update_price_runtime) {
         if ($pull_price_runtime) {
             // необходимо изменить статус задачи и запустить процессы для выполнения обновления
             $db->editSystemTask('update_price_runtime', 'working');
+            //
+            $id_totals_for_update = $db->getPullIdPriceRunTime();
+
+
+
+
         }
 
         //$cmd = 'php -f update_price_runtime.php 4 2';
