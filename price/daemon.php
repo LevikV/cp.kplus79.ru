@@ -26,11 +26,12 @@ if (isset($_GET['operation'])) {
             echo '<br>Обновление товаров завершено.';
         }
 
-    } elseif ($_GET['operation'] == 'update_price_runtime') {
+    } elseif ($_GET['operation'] == 'update_runtime') {
         global $ERROR;
         $db = new Db;
         $update_price_runtime = $db->getSystemTask('update_price_runtime');
-        if ($update_price_runtime) {
+        $update_provider_runtime = $db->getSystemTask('update_provider_runtime');
+        if ($update_price_runtime AND $update_provider_runtime) {
             switch ($update_price_runtime['status']) {
                 case 'working':
                     // Если статус в работе, то необходимо запустить еще один поток для ускорения
@@ -40,7 +41,6 @@ if (isset($_GET['operation'])) {
                     break;
                 case 'updated':
                     //
-                    $update_provider_runtime = $db->getSystemTask('update_provider_runtime');
                     if ($update_provider_runtime['status'] == 'updated') {
                         $delta = time() - strtotime($update_price_runtime['date']);
                         if ($delta >= 1800) {
@@ -62,6 +62,8 @@ if (isset($_GET['operation'])) {
                     echo 'sdsdsddsd';
                     break;
             }
+
+            // Далее нужно проверить обновление runtime totals у поставщиков
 
         }
 
