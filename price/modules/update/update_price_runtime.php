@@ -7,7 +7,7 @@
 ignore_user_abort(true);
 // Включаем автоподгрузку классов
 spl_autoload_register(function ($class) {
-    include 'classes/' . $class . '.php';
+    include $_SERVER['DOCUMENT_ROOT'] . '/price/classes/' . $class . '.php';
 });
 // Загружаем глобальные настройки
 require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
@@ -32,11 +32,11 @@ if ($update_price_runtime) {
             // необходимо изменить статус задачи и запустить процессы для выполнения обновления
             $db->editSystemTask('update_price_runtime', 'working');
             //
-            $id_totals_for_update = $db->getPullIdPriceRunTime();
-            if ($id_totals_for_update) {
-                $threads = 4;
-                $count_works_thread = ceil(count($id_totals_for_update) / $threads);
-            }
+//            $id_totals_for_update = $db->getPullIdPriceRunTime();
+//            if ($id_totals_for_update) {
+//                $threads = 4;
+//                $count_works_thread = ceil(count($id_totals_for_update) / $threads);
+//            }
 
 
 
