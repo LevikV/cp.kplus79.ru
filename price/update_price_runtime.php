@@ -33,6 +33,10 @@ if ($update_price_runtime) {
             $db->editSystemTask('update_price_runtime', 'working');
             //
             $id_totals_for_update = $db->getPullIdPriceRunTime();
+            if ($id_totals_for_update) {
+                $threads = 4;
+                $count_works_thread = ceil(count($id_totals_for_update) / $threads);
+            }
 
 
 
