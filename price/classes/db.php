@@ -4048,6 +4048,66 @@ class Db extends Sys {
         }
     }
 
+    public function getPullIdPriceRunTime() {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT id FROM pull_price_runtime WHERE status = 0';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения списка id из таблицы pull_price_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = $row["id"];
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function addSystemTask($task, $status, $pid = 0, $arg_1 = 0, $arg_2 =0) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'INSERT INTO system_task (task, pid, arg_1, arg_2, status, date) VALUES ("' .
+                $task . '", "' .
+                $pid . '", "' .
+                $arg_1 . '", "' .
+                $arg_2 . '", "' .
+                $status . '", NOW())';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления системной задачи' . "\r\n";
+                $message .= 'task: ' . $task . "\r\n";
+                $message .= 'status: ' . $status . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $system_task_id = mysqli_insert_id($this->link);
+                return $system_task_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
 }
 
 ?>

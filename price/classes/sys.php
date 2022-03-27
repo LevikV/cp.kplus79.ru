@@ -14,9 +14,9 @@ class Sys {
         }
     }
 
-    public function execInBackground($cmd) {
+    public function execInBackground($cmd, $from = 0, $to = 0) {
         if (substr(php_uname(), 0, 7) == "Windows"){
-            pclose(popen("start /B ". $cmd, "r"));
+            pclose(popen("start /B ". $cmd . " " . $from . " " . $to, "r"));
             //$temp = popen("start /B ". $cmd, "r");
             //echo 'Think';
         }

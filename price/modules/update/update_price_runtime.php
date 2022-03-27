@@ -8,11 +8,13 @@ ignore_user_abort(true);
 // Включаем автоподгрузку классов
 spl_autoload_register(function ($class) {
     //include $_SERVER['DOCUMENT_ROOT'] . '/price/classes/' . $class . '.php';
-    include 'price\classes\\' . $class . '.php';
+    //include 'price\classes\\' . $class . '.php';
+    include 'classes\\' . $class . '.php';
 });
 // Загружаем глобальные настройки
 //require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
-require_once('price\system\config.php');
+//require_once('price\system\config.php');
+require_once('system\config.php');
 // Объявляем глобальный массив ошибок
 $ERROR = array();
 
@@ -34,11 +36,19 @@ if ($update_price_runtime) {
             // необходимо изменить статус задачи и запустить процессы для выполнения обновления
             $db->editSystemTask('update_price_runtime', 'working');
             //
-//            $id_totals_for_update = $db->getPullIdPriceRunTime();
-//            if ($id_totals_for_update) {
-//                $threads = 4;
-//                $count_works_thread = ceil(count($id_totals_for_update) / $threads);
-//            }
+            $id_totals_for_update = $db->getPullIdPriceRunTime();
+            if ($id_totals_for_update) {
+                $threads = 4;
+                $count_works_thread = ceil(count($id_totals_for_update) / $threads);
+                for ($i = 0; $i < $threads; $i++) {
+                    $from = $i * $count_works_thread;
+                    $to = $from + $count_works_thread - 1;
+                    $cmd = 'php -f modules\update\worker_price_runtime.php';
+                    $db->execInBackground($cmd, $from, $to);
+                }
+
+
+            }
 
 
 

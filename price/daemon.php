@@ -49,8 +49,9 @@ if (isset($_GET['operation'])) {
                             //passthru("(php -f update_price_runtime.php 4 2 & ) > NULL 2>&1");
                             //passthru("(php -f update_price_runtime.php 4 2) > NULL 2>&1 &");
                             //$cmd = 'php -f ' . $_SERVER['DOCUMENT_ROOT'] . '\price\modules\update\update_price_runtime.php';
-                            $cmd = 'php -f price\modules\update\update_price_runtime.php';
-                            $db->execInBackground($cmd);
+                            //$cmd = 'php -f price\modules\update\update_price_runtime.php';
+                            $cmd = 'php -f modules\update\update_price_runtime.php';
+                            $db->execInBackground($cmd, 11);
                             echo 'ThinkDo';
 
                         }
