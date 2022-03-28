@@ -31,8 +31,9 @@ if ($update_price_runtime) {
     // Смотрим статус задания, чтобы определить первый это запуск скрипта или нет
     if ($update_price_runtime['status'] == 'updated') {
         // запуск первый, надо сгенерировать пул
-        $pull_price_runtime = $db->createPullPriceRuntime();
-        if ($pull_price_runtime) {
+        $pull_price_runtime = $db->createPullPriceRunTime();
+        $pull_provider_runtime = $db->createPullProviderRunTime();
+        if ($pull_price_runtime AND $pull_provider_runtime) {
             // необходимо изменить статус задачи и запустить процессы для выполнения обновления
             $db->editSystemTask('update_price_runtime', 'working');
             //

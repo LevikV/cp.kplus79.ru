@@ -3972,7 +3972,7 @@ class Db extends Sys {
         }
     }
 
-    public function createPullPriceRuntime() {
+    public function createPullPriceRunTime() {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
@@ -4118,7 +4118,7 @@ class Db extends Sys {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
-                $message = 'Ошибка получения списка id из таблицы pull_price_runtime' . "\r\n";
+                $message = 'Ошибка получения порции пула таблицы pull_price_runtime' . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
                 // выходим из функции
                 return false;
@@ -4126,9 +4126,266 @@ class Db extends Sys {
             if ($result != false) {
                 $rows = array();
                 while($row = $result->fetch_array()){
-                    $rows[] = $row["id"];
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'product_id' => $row["product_id"]
+                    );
                 }
                 if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function createPullProviderRunTime() {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SHOW TABLES LIKE "pull_provider_runtime"';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка определения таблицы pull_price_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                return false;
+            }
+            if ($result->num_rows > 0) {
+                // Если таблица есть то ее надо удалить
+                $sql = 'DROP TABLE pull_provider_runtime';
+                try {
+                    $result = mysqli_query($this->link, $sql);
+                } catch (Exception $e) {
+                    // Записываем в лог данные об ошибке
+                    $message = 'Ошибка удаления таблицы pull_provider_runtime' . "\r\n";
+                    $this->addLog('ERROR', 'DB', $message);
+                    return false;
+                }
+            }
+            //
+            $sql = 'CREATE TABLE pull_provider_runtime LIKE provider_product_total';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка создания таблицы pull_provider_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                return false;
+            }
+            if ($result) {
+                $sql = 'INSERT INTO pull_provider_runtime SELECT * FROM provider_product_total';
+                try {
+                    $result = mysqli_query($this->link, $sql);
+                } catch (Exception $e) {
+                    // Записываем в лог данные об ошибке
+                    $message = 'Ошибка копирования таблицы provider_product_total в таблицу pull_provider_runtime' . "\r\n";
+                    $this->addLog('ERROR', 'DB', $message);
+                    return false;
+                }
+                if ($result) {
+                    $sql = 'ALTER TABLE pull_provider_runtime ADD COLUMN status INT DEFAULT 0 AFTER date_update';
+                    try {
+                        $result = mysqli_query($this->link, $sql);
+                    } catch (Exception $e) {
+                        // Записываем в лог данные об ошибке
+                        $message = 'Ошибка добавления колонки в таблицу pull_provider_runtime' . "\r\n";
+                        $this->addLog('ERROR', 'DB', $message);
+                        return false;
+                    }
+                    if ($result) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+            //
+            //
+
+
+        } else {
+            return false;
+        }
+    }
+
+    public function getPullProviderRunTime() {
+        // Возвращает ассоциативный массив
+        // первый индекс которого - provider_id
+        // второй индекс - product_id
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM pull_provider_runtime WHERE status = 0 ORDER BY id ASC';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения данных из таблицы pull_provider_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[$row["provider_id"]][$row["product_id"]] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'product_id' => $row["product_id"],
+                        'total' => $row["total"],
+                        'price' => $row["price"],
+                        'transit' => $row["transit"],
+                        'transit_date' => $row["transit_date"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getMapPullIdByProvIndex($code) {
+        //
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT our_id, provider_id FROM map WHERE code = "'. $code . '"';
+
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения пула id сущностей карт сопоставления' . "\r\n";
+                $message .= 'code: ' . $code . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[$row["provider_id"]] = $row["our_id"];
+                }
+
+
+                if (empty($row))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getPullProviderProductsPriceGroups() {
+        // Возвращает ассоциативный массив
+        // первый индекс которого - product_id
+        // второй индекс - price_group_id
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT id, price_group_id FROM provider_product';
+
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения пула id ценовых групп для всех продуктов поставщиков' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[$row["id"]] = $row["price_group_id"];
+                }
+
+                if (empty($row))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getPullProviderPriceGroups() {
+        // Возвращает ассоциативный массив
+        // первый индекс которого - price_group_id
+        // значение - percent
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT id, percent FROM provider_price_group';
+
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения пула ценовых групп' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[$row["id"]] = $row["percent"];
+                }
+
+                if (empty($row))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getPullProvidersCurrencies() {
+        // Возвращает ассоциативный массив
+        // первый индекс которого - provider_id
+        // значение - exchange
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT provider_id, exchange FROM provider_currency';
+
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения пула валют поставщиков' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[$row["provider_id"]] = $row["exchange"];
+                }
+
+                if (empty($row))
                     return null;
                 else
                     return $rows;
