@@ -4053,7 +4053,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT id FROM pull_price_runtime WHERE status = 0';
+            $sql = 'SELECT id FROM pull_price_runtime WHERE status = 0 ORDER BY id ASC';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
@@ -4102,6 +4102,36 @@ class Db extends Sys {
             if ($result != false) {
                 $system_task_id = mysqli_insert_id($this->link);
                 return $system_task_id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getPullPriceRunTimePortion($from, $to) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT id, provider_id, product_id FROM pull_price_runtime WHERE id >= ' . $from . ' AND id <= ' . $to .' ORDER BY id ASC';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения списка id из таблицы pull_price_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = $row["id"];
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
             }
         } else {
             return false;

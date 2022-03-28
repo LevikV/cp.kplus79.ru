@@ -51,7 +51,7 @@ if (isset($_GET['operation'])) {
                             //$cmd = 'php -f ' . $_SERVER['DOCUMENT_ROOT'] . '\price\modules\update\update_price_runtime.php';
                             //$cmd = 'php -f price\modules\update\update_price_runtime.php';
                             $cmd = 'php -f modules\update\update_price_runtime.php';
-                            $db->execInBackground($cmd, 11);
+                            $db->execInBackground($cmd);
                             echo 'ThinkDo';
 
                         }

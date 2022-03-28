@@ -43,8 +43,18 @@ if ($update_price_runtime) {
                 for ($i = 0; $i < $threads; $i++) {
                     $from = $i * $count_works_thread;
                     $to = $from + $count_works_thread - 1;
+                    $from_id_total = $id_totals_for_update[$from];
+                    if ($i === $threads - 1) {
+                        while (!isset($id_totals_for_update[$to])) {
+                            $to--;
+                        }
+                        $to_id_total = $id_totals_for_update[$to];
+                    } else {
+                        $to_id_total = $id_totals_for_update[$to];
+                    }
+                    //
                     $cmd = 'php -f modules\update\worker_price_runtime.php';
-                    $db->execInBackground($cmd, $from, $to);
+                    $db->execInBackground($cmd, $from_id_total, $to_id_total);
                 }
 
 

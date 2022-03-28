@@ -19,4 +19,6 @@ $ERROR = array();
 
 $db = new Db;
 $db->addSystemTask('worker_price_runtime', 'working', getmypid(), $argv[1], $argv[2]);
+//$pull_price_runtime_portion = $db->getPullPriceRunTimePortion($argv[1], $argv[2]);
+
 
