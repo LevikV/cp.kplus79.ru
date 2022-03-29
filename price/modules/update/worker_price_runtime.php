@@ -1,6 +1,8 @@
 <?php
 //
 //
+set_time_limit(900);
+//
 ignore_user_abort(true);
 // Включаем автоподгрузку классов
 spl_autoload_register(function ($class) {

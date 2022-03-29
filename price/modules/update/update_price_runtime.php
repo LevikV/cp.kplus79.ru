@@ -61,8 +61,30 @@ if ($update_price_runtime) {
         }
     } elseif ($update_price_runtime['status'] == 'working') {
         // Обновление прайса в работе
+        // Проверяем есть ли активный воркер
+        $active_worker = false;
         $system_tasks = $db->getSystemTasks();
+        foreach ($system_tasks as $system_task) {
+            if ($system_task['task'] === 'worker_price_runtime') {
+                $delta = time() - strtotime($system_task['date']);
+                if (($delta > 900) AND ($delta > 0)) {
+                    $del_old_worker = $db->deleteSystemTask($system_task['id']);
+                } elseif (($delta < 900) AND ($delta > 0)) {
+                    $active_worker = true;
+                }
+            }
+        }
+        if ($active_worker) {
+            exit();
+        } else {
+            // Если активного воркера нет, то надо проверить пул и запустить воркеров
+            $id_totals_for_update = $db->getPullIdProviderRunTime();
+            if ($id_totals_for_update) {
 
+            } elseif ($id_totals_for_update === null) {
+
+            }
+        }
     }
 
 }
