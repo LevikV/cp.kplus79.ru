@@ -37,7 +37,7 @@ if ($update_price_runtime) {
             // необходимо изменить статус задачи и запустить процессы для выполнения обновления
             $db->editSystemTask('update_price_runtime', 'working');
             //
-            $id_totals_for_update = $db->getPullIdPriceRunTime();
+            $id_totals_for_update = $db->getPullIdProviderRunTime();
             if ($id_totals_for_update) {
                 $threads = 4;
                 $count_works_thread = ceil(count($id_totals_for_update) / $threads);
