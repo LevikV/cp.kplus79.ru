@@ -57,20 +57,14 @@ if ($update_price_runtime) {
                     $cmd = 'php -f modules\update\worker_price_runtime.php';
                     $db->execInBackground($cmd, $from_id_total, $to_id_total);
                 }
-
-
             }
-
-
-
-
         }
-
-        //$cmd = 'php -f update_price_runtime.php 4 2';
-        //$db->execInBackground($cmd);
-
+    } elseif ($update_price_runtime['status'] == 'working') {
+        // Обновление прайса в работе
+        $system_tasks = $db->getSystemTasks();
 
     }
+
 }
 
 ?>
