@@ -6,12 +6,12 @@ ignore_user_abort(true);
 spl_autoload_register(function ($class) {
     //include $_SERVER['DOCUMENT_ROOT'] . '/price/classes/' . $class . '.php';
     //include 'price\classes\\' . $class . '.php';
-    include 'classes\\' . $class . '.php';
+    include 'classes\\' . $class . '.php'; // Путь для запуска из под винды сервисом через скрипт
 });
 // Загружаем глобальные настройки
 //require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
 //require_once('price\system\config.php');
-require_once('system\config.php');
+require_once('system\config.php'); // Путь для запуска из под винды сервисом через скрипт
 
 // Объявляем глобальный массив ошибок
 $ERROR = array();
@@ -86,3 +86,21 @@ foreach ($pull_provider_runtime_portion as $provider_product_total) {
 
 // После обработки всех данных воркер должен проверить есть ли еще id в пуле id для обновления
 // для этого получаем пул и смотрим
+$id_totals_for_update = $db->getPullIdProviderRunTime();
+if ($id_totals_for_update === null) {
+    // Если пул пустой, то надо удалить неактуальные total из эталонной базы
+    // это те записи из pull_price_total после обновления всех заданий, status остался равен 0,
+    // т.е. их не было в pull_provider_total
+    $del_not_actual_price_total = $db->deleteNotActualProductTotal();
+    if ($del_not_actual_price_total) {
+        // Если успешно удалили неактуальные total
+        // то можно удалить запись из таблицы задач о текущем воркере.
+        $kill_worker = $db->killWorker(getmygid());
+        if ($kill_worker) {
+            // Если успешно удалили воркера меняем статус системной задачи на ВЫПОЛНЕНО!
+            $db->editSystemTask('update_price_runtime', 'updated');
+        }
+    }
+} else {
+    $db->killWorker(getmygid());
+}

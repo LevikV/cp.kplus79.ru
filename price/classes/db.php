@@ -3935,6 +3935,8 @@ class Db extends Sys {
                     $data['id'] = $row["id"];
                     $data['task'] = $row["task"];
                     $data['status'] = $row["status"];
+                    $data['arg_1'] = $row["arg_1"];
+                    $data['arg_2'] = $row["arg_2"];
                     $data['date'] = $row["date"];
                 }
                 if (empty($data))
@@ -4457,6 +4459,96 @@ class Db extends Sys {
                     return null;
                 else
                     return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function finishWorkerPriceRunTimeTransact($product_id, $provider_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'UPDATE pull_price_runtime SET status = 1 WHERE product_id = ' . $product_id . ' AND provider_id = ' . $provider_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения статуса транзакции в таблице pull_price_runtime' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'provider_id: ' . $provider_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function finishWorkerProviderRunTimeTransact($product_id, $provider_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'UPDATE pull_provider_runtime SET status = 1 WHERE product_id = ' . $product_id . ' AND provider_id = ' . $provider_id;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка изменения статуса транзакции в таблице pull_provider_runtime' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $message .= 'provider_id: ' . $provider_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function deleteNotActualProductTotal() {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DELETE FROM product_total WHERE id IN (SELECT id FROM pull_price_runtime WHERE status = 0)';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления не актуальных total товаров в таблице product_total' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function killWorker($pid) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DELETE FROM system_task WHERE pid = '. $pid;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления воркера в таблице system_task' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
             }
         } else {
             return false;
