@@ -34,10 +34,11 @@ if (isset($_GET['operation'])) {
         if ($update_price_runtime AND $update_provider_runtime) {
             switch ($update_price_runtime['status']) {
                 case 'working':
-                    // Если статус в работе, то необходимо запустить еще один поток для ускорения
-                    // либо для возобновления работы скрипта, если его работа была внезапно прекращена
-
-                    echo '';
+                    // Если статус в работе, то необходимо запустить мастер процесс обновления runTime эталонной базы
+                    // для завершения работы надо обновлением
+                    $cmd = 'php -f modules\update\update_price_runtime.php';
+                    $db->execInBackground($cmd);
+                    echo 'ThinkDo working';
                     break;
                 case 'updated':
                     //
@@ -52,12 +53,10 @@ if (isset($_GET['operation'])) {
                             //$cmd = 'php -f price\modules\update\update_price_runtime.php';
                             $cmd = 'php -f modules\update\update_price_runtime.php';
                             $db->execInBackground($cmd);
-                            echo 'ThinkDo';
+                            echo 'ThinkDo updated';
 
                         }
                     }
-
-
                     break;
                 case 'error':
                     //

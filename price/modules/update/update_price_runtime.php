@@ -9,12 +9,12 @@ ignore_user_abort(true);
 spl_autoload_register(function ($class) {
     //include $_SERVER['DOCUMENT_ROOT'] . '/price/classes/' . $class . '.php';
     //include 'price\classes\\' . $class . '.php';
-    include 'classes\\' . $class . '.php';
+    include 'classes\\' . $class . '.php'; // Путь когда скрипт вызывается командой как сервис в Windows
 });
 // Загружаем глобальные настройки
 //require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
 //require_once('price\system\config.php');
-require_once('system\config.php');
+require_once('system\config.php'); // Путь когда скрипт вызывается командой как сервис в Windows
 // Объявляем глобальный массив ошибок
 $ERROR = array();
 
@@ -80,9 +80,36 @@ if ($update_price_runtime) {
             // Если активного воркера нет, то надо проверить пул и запустить воркеров
             $id_totals_for_update = $db->getPullIdProviderRunTime();
             if ($id_totals_for_update) {
-
+                if (count($id_totals_for_update) > 100) {
+                    $threads = 4;
+                    $count_works_thread = ceil(count($id_totals_for_update) / $threads);
+                    for ($i = 0; $i < $threads; $i++) {
+                        $from = $i * $count_works_thread;
+                        $to = $from + $count_works_thread - 1;
+                        $from_id_total = $id_totals_for_update[$from];
+                        if ($i === $threads - 1) {
+                            while (!isset($id_totals_for_update[$to])) {
+                                $to--;
+                            }
+                            $to_id_total = $id_totals_for_update[$to];
+                        } else {
+                            $to_id_total = $id_totals_for_update[$to];
+                        }
+                        //
+                        $cmd = 'php -f modules\update\worker_price_runtime.php';
+                        $db->execInBackground($cmd, $from_id_total, $to_id_total);
+                    }
+                } else {
+                    $from_id_total = $id_totals_for_update[0];
+                    $to_id_total = $id_totals_for_update[count($id_totals_for_update) - 1];
+                    $cmd = 'php -f modules\update\worker_price_runtime.php';
+                    $db->execInBackground($cmd, $from_id_total, $to_id_total);
+                }
             } elseif ($id_totals_for_update === null) {
-
+                $del_not_actual_price_total = $db->deleteNotActualProductTotal();
+                if ($del_not_actual_price_total) {
+                    $db->editSystemTask('update_price_runtime', 'updated');
+                }
             }
         }
     }
