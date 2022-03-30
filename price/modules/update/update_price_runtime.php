@@ -39,7 +39,7 @@ if ($update_price_runtime) {
             //
             $id_totals_for_update = $db->getPullIdProviderRunTime();
             if ($id_totals_for_update) {
-                $threads = 4;
+                $threads = 10;
                 $count_works_thread = ceil(count($id_totals_for_update) / $threads);
                 for ($i = 0; $i < $threads; $i++) {
                     $from = $i * $count_works_thread;
@@ -81,7 +81,7 @@ if ($update_price_runtime) {
             $id_totals_for_update = $db->getPullIdProviderRunTime();
             if ($id_totals_for_update) {
                 if (count($id_totals_for_update) > 100) {
-                    $threads = 4;
+                    $threads = 10;
                     $count_works_thread = ceil(count($id_totals_for_update) / $threads);
                     for ($i = 0; $i < $threads; $i++) {
                         $from = $i * $count_works_thread;
@@ -108,7 +108,11 @@ if ($update_price_runtime) {
             } elseif ($id_totals_for_update === null) {
                 $del_not_actual_price_total = $db->deleteNotActualProductTotal();
                 if ($del_not_actual_price_total) {
+                    // меняем статус системной задачи на ВЫПОЛНЕНО!
                     $db->editSystemTask('update_price_runtime', 'updated');
+                    // Удаляем пулы тоталов для обновлений
+                    $db->deletePullProviderRunTimeTable();
+                    $db->deletePullPriceRunTimeTable();
                 }
             }
         }

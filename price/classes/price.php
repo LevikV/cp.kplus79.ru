@@ -285,7 +285,7 @@ class Price {
                             $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
                         }
                         $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
-                        $price = round($price);
+                        $price = ceil($price);
 
                         //
                         $data = array();
@@ -329,7 +329,7 @@ class Price {
                         }
                         //
                         $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
-                        $price = round($price);
+                        $price = ceil($price);
 
                         //
                         $data = array();

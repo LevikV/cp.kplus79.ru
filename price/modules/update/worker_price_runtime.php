@@ -8,18 +8,22 @@ ignore_user_abort(true);
 spl_autoload_register(function ($class) {
     //include $_SERVER['DOCUMENT_ROOT'] . '/price/classes/' . $class . '.php';
     //include 'price\classes\\' . $class . '.php';
-    include 'classes\\' . $class . '.php'; // Путь для запуска из под винды сервисом через скрипт
+    include 'classes\\' . $class . '.php'; // Путь для запуска командой из под винды сервисом через скрипт
 });
 // Загружаем глобальные настройки
 //require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
 //require_once('price\system\config.php');
-require_once('system\config.php'); // Путь для запуска из под винды сервисом через скрипт
+require_once('system\config.php'); // Путь для запуска командой из под винды сервисом через скрипт
 
 // Объявляем глобальный массив ошибок
 $ERROR = array();
 // Инициализируем объект для доступа к БД  и переменные
 $db = new Db;
 $flag_error = false;
+//
+//$argv[1] = 1;
+//$argv[2] = 10;
+//
 
 // Записываем системную задачу-воркера в таблицу системных задач
 // чтобы потом была возможность отследить по наличию записи в таблице и времени создания,
@@ -60,7 +64,7 @@ foreach ($pull_provider_runtime_portion as $provider_product_total) {
         $price = (float)$provider_product_total['price'] * (float)$providers_currencies[$provider_product_total['provider_id']];
     }
     $price = (((int)$provider_price_groups[$provider_products_price_groups[$provider_product_total['product_id']]] / 100) * $price) + $price;
-    $price = round($price);
+    $price = ceil($price);
     $data = array();
     $data['total'] = $provider_product_total['total'];
     $data['price_rub'] = $price;
@@ -97,12 +101,15 @@ if ($id_totals_for_update === null) {
     if ($del_not_actual_price_total) {
         // Если успешно удалили неактуальные total
         // то можно удалить запись из таблицы задач о текущем воркере.
-        $kill_worker = $db->killWorker(getmygid());
+        $kill_worker = $db->killWorker(getmypid());
         if ($kill_worker) {
             // Если успешно удалили воркера меняем статус системной задачи на ВЫПОЛНЕНО!
             $db->editSystemTask('update_price_runtime', 'updated');
+            // Удаляем пулы тоталов для обновлений
+            $db->deletePullProviderRunTimeTable();
+            $db->deletePullPriceRunTimeTable();
         }
     }
 } else {
-    $db->killWorker(getmygid());
+    $db->killWorker(getmypid());
 }

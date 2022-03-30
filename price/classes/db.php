@@ -4353,7 +4353,7 @@ class Db extends Sys {
                 }
 
 
-                if (empty($row))
+                if (empty($rows))
                     return null;
                 else
                     return $rows;
@@ -4387,7 +4387,7 @@ class Db extends Sys {
                     $rows[$row["id"]] = $row["price_group_id"];
                 }
 
-                if (empty($row))
+                if (empty($rows))
                     return null;
                 else
                     return $rows;
@@ -4421,7 +4421,7 @@ class Db extends Sys {
                     $rows[$row["id"]] = $row["percent"];
                 }
 
-                if (empty($row))
+                if (empty($rows))
                     return null;
                 else
                     return $rows;
@@ -4455,7 +4455,7 @@ class Db extends Sys {
                     $rows[$row["provider_id"]] = $row["exchange"];
                 }
 
-                if (empty($row))
+                if (empty($rows))
                     return null;
                 else
                     return $rows;
@@ -4605,6 +4605,50 @@ class Db extends Sys {
                 // Записываем в лог данные об ошибке
                 $message = 'Ошибка удаления системной задачи в таблице system_task' . "\r\n";
                 $message .= 'id: ' . $id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function deletePullProviderRunTimeTable() {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DROP TABLE pull_provider_runtime';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления таблицы pull_provider_runtime' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function deletePullPriceRunTimeTable() {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DROP TABLE pull_price_runtime';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления таблицы pull_price_runtime' . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
 
                 return false;
