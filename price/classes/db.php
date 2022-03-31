@@ -2502,11 +2502,12 @@ class Db extends Sys {
             $this->deleteProductTotal($product_id, $provider_id);
             //
             if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
-            $sql = 'INSERT INTO product_total (provider_id, product_id, total, price_rub, transit, transit_date, date_update) VALUES (' .
+            $sql = 'INSERT INTO product_total (provider_id, product_id, total, price_rub, price_sc, transit, transit_date, date_update) VALUES (' .
                 (int)$provider_id . ', ' .
                 (int)$product_id . ', ' .
                 (int)$data['total'] . ', ' .
                 (float)$data['price_rub'] . ', ' .
+                (float)$data['price_sc'] . ', ' .
                 (int)$data['transit'] . ', ' .
                 $data['transit_date'] . ',' .
                 ' NOW())';
@@ -4404,7 +4405,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT id, percent FROM provider_price_group';
+            $sql = 'SELECT id, percent, percent_sc FROM provider_price_group';
 
             try {
                 $result = mysqli_query($this->link, $sql);
@@ -4418,7 +4419,8 @@ class Db extends Sys {
             if ($result != false) {
                 $rows = array();
                 while($row = $result->fetch_array()){
-                    $rows[$row["id"]] = $row["percent"];
+                    $rows[$row["id"]]['percent'] = $row["percent"];
+                    $rows[$row["id"]]['percent_sc'] = $row["percent_sc"];
                 }
 
                 if (empty($rows))
@@ -4438,7 +4440,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'SELECT provider_id, exchange FROM provider_currency';
+            $sql = 'SELECT provider_id, exchange, exchange_sc FROM provider_currency';
 
             try {
                 $result = mysqli_query($this->link, $sql);
@@ -4452,7 +4454,8 @@ class Db extends Sys {
             if ($result != false) {
                 $rows = array();
                 while($row = $result->fetch_array()){
-                    $rows[$row["provider_id"]] = $row["exchange"];
+                    $rows[$row["provider_id"]]['exchange'] = $row["exchange"];
+                    $rows[$row["provider_id"]]['exchange_sc'] = $row["exchange_sc"];
                 }
 
                 if (empty($rows))

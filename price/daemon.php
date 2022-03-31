@@ -30,8 +30,9 @@ if (isset($_GET['operation'])) {
         global $ERROR;
         $db = new Db;
         $update_price_runtime = $db->getSystemTask('update_price_runtime');
+        $update_sc_runtime = $db->getSystemTask('update_sc_runtime');
         $update_provider_runtime = $db->getSystemTask('update_provider_runtime');
-        if ($update_price_runtime AND $update_provider_runtime) {
+        if ($update_price_runtime AND $update_provider_runtime AND $update_sc_runtime) {
             switch ($update_price_runtime['status']) {
                 case 'working':
                     // Если статус в работе, то необходимо запустить мастер процесс обновления runTime эталонной базы

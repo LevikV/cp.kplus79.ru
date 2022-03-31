@@ -60,14 +60,20 @@ foreach ($pull_provider_runtime_portion as $provider_product_total) {
     // Вычисляем розничную цену для товара
     if ((float)$provider_product_total['price'] < 0) {
         $price = 0;
+        $price_sc = 0;
     } else {
-        $price = (float)$provider_product_total['price'] * (float)$providers_currencies[$provider_product_total['provider_id']];
+        $price = (float)$provider_product_total['price'] * (float)$providers_currencies[$provider_product_total['provider_id']]['exchange'];
+        $price_sc = (float)$provider_product_total['price'] * (float)$providers_currencies[$provider_product_total['provider_id']]['exchange_sc'];
     }
-    $price = (((int)$provider_price_groups[$provider_products_price_groups[$provider_product_total['product_id']]] / 100) * $price) + $price;
+    $price = (((int)$provider_price_groups[$provider_products_price_groups[$provider_product_total['product_id']]]['percent'] / 100) * $price) + $price;
+    $price_sc = (((int)$provider_price_groups[$provider_products_price_groups[$provider_product_total['product_id']]]['percent_sc'] / 100) * $price_sc) + $price_sc;
     $price = ceil($price);
+    $price_sc = ceil($price_sc / 10) * 10;
+    //
     $data = array();
     $data['total'] = $provider_product_total['total'];
     $data['price_rub'] = $price;
+    $data['price_sc'] = $price_sc;
     $data['transit'] = $provider_product_total['transit'];
     $data['transit_date'] = $provider_product_total['transit_date'];
     // Проверяем есть ли в эталонной базе товар сопоставленный с товаром поставщика
