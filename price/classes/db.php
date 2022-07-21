@@ -197,6 +197,147 @@ class Db extends Sys {
         }
     }
 
+    public function getProductsByName($name) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM product WHERE name LIKE "' . $name . '"';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения товара по имени из таблицы product' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'category_id' => $row["category_id"],
+                        'model_id' => $row["model_id"],
+                        'vendor_id' => $row["vendor_id"],
+                        'manufacturer_id' => $row["manufacturer_id"],
+                        'width' => $row["width"],
+                        'height' => $row["height"],
+                        'length' => $row["length"],
+                        'weight' => $row["weight"],
+                        'version' => $row["version"],
+                        'status' => $row["status"],
+                        'date_add' => $row["date_add"],
+                        'date_edit' => $row["date_edit"],
+                        'date_update' => $row["date_update"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProductsByModelId($model_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM product WHERE model_id = ' . $model_id ;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения товара по id модели из таблицы product' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'category_id' => $row["category_id"],
+                        'model_id' => $row["model_id"],
+                        'vendor_id' => $row["vendor_id"],
+                        'manufacturer_id' => $row["manufacturer_id"],
+                        'width' => $row["width"],
+                        'height' => $row["height"],
+                        'length' => $row["length"],
+                        'weight' => $row["weight"],
+                        'version' => $row["version"],
+                        'status' => $row["status"],
+                        'date_add' => $row["date_add"],
+                        'date_edit' => $row["date_edit"],
+                        'date_update' => $row["date_update"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getProductsByManufId($manuf_id) {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT * FROM product WHERE manufacturer_id = ' . $manuf_id ;
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения товара по id производителя из таблицы product' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'name' => $row["name"],
+                        'description' => $row["description"],
+                        'category_id' => $row["category_id"],
+                        'model_id' => $row["model_id"],
+                        'vendor_id' => $row["vendor_id"],
+                        'manufacturer_id' => $row["manufacturer_id"],
+                        'width' => $row["width"],
+                        'height' => $row["height"],
+                        'length' => $row["length"],
+                        'weight' => $row["weight"],
+                        'version' => $row["version"],
+                        'status' => $row["status"],
+                        'date_add' => $row["date_add"],
+                        'date_edit' => $row["date_edit"],
+                        'date_update' => $row["date_update"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getModels() {
         //
         global $ERROR;

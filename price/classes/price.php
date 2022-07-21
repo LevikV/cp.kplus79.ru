@@ -102,6 +102,54 @@ class Price {
                         if ($provider_product['status'] != 1) continue;
 
                         if (!empty($products)) {
+                            // Попытка убрать перебор каждого товара из нашей таблицы путем sql запросов
+                            // обнуляем флаги соответствия
+                            $flag_name = 0;
+                            $flag_model = 0;
+                            $flag_manuf = 0;
+
+                            // 1) Ищем по имени
+                            $flag_name = $db->getProductsByName($provider_product['name']);
+
+                            // 2) Ищем по модели
+                            $flag_model = $db->getProductsByModelId((int)$db->getMapByProvItemId('model', $provider_product['model_id']));
+
+                            // 3) Ищем по производителю
+                            $flag_manuf = $db->getProductsByManufId((int)$db->getMapByProvItemId('manufacturer', $provider_product['manufacturer_id']));
+
+                            //Проверяем удалось ли найти точное совпадение
+                            if (($flag_name != null) AND ($flag_model != null) AND ($flag_manuf != null)) {
+                                if (is_array($flag_name)) {
+                                    if (count($flag_name) == 1) {
+                                        if (is_array($flag_model)) {
+                                            if (count($flag_model) == 1) {
+                                                if (is_array($flag_manuf)) {
+                                                    if (count($flag_manuf) == 1) {
+                                                        // Проверяем, во всех ли случаях мы нашли один и тот же товар
+                                                        if (($flag_name[0]['id'] == $flag_model[0]['id']) AND ($flag_manuf[0]['id'] == $flag_model[0]['id'])) {
+                                                            // Если товар удалось сопоставить по имени, модели и производителю, то добавляем
+                                                            // карту сопоставления по данному товару
+                                                            $add_map_id = $db->addMap('product', $flag_name[0]['id'], $provider_product['id']);
+                                                            // формируем массив для передачи в отображение
+                                                            $products_map_adds[] = array(
+                                                                'id' => $add_map_id,
+                                                                'product_id' => $flag_name[0]['id'],
+                                                                'product_name' => $flag_name[0]['name'],
+                                                                'prov_product_id' => $provider_product['id'],
+                                                                'prov_product_name' => $provider_product['name'],
+                                                                'provider_name' => $provider['name']
+                                                            );
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Старая версия сопоставления
+                            /*
                             foreach ($products as $product) {
                                 // обнуляем флаги соответствия
                                 $flag_name = 0;
@@ -143,8 +191,10 @@ class Price {
                                     break;
                                 }
                             }
+                            */
                             //
-                            if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
+                            //if (($flag_name == 0) OR ($flag_model == 0) OR ($flag_manuf == 0)) {
+                            if (($flag_name == null) OR ($flag_model == null) OR ($flag_manuf == null)) {
                                 // формируем массив для передачи в отображение т.к. добавляться новые значения
                                 // пока будут только вручную
                                 $category = $db->getProviderModel($provider_product['category_id']);
@@ -271,36 +321,36 @@ class Price {
                     }
                     // Здесь необходимо обновить totals по продукту
                     $our_product_id = $db->getMapByProvItemId('product', $provider_product['id']);
-                    if ($provider_product['status'] == 1) {
-                        // Получаем total по продукту поставщика
-                        $provider_product_total = $db->getProviderProductTotal($provider['id'], $provider_product['id']);
-                        // Получаем ценовую группу товара
-                        $provider_product_price_group = $db->getProviderPriceGroup($provider_product['price_group_id']);
-                        // Получаем валюту поставщика
-                        $provider_currency = $db->getProviderCurrency($provider['id']);
-                        // Вычисляем розничную цену для товара
-                        if ((float)$provider_product_total['price'] < 0) {
-                            $price = 0;
+                    if ($our_product_id != null) {
+                        if ($provider_product['status'] == 1) {
+                            // Получаем total по продукту поставщика
+                            $provider_product_total = $db->getProviderProductTotal($provider['id'], $provider_product['id']);
+                            // Получаем ценовую группу товара
+                            $provider_product_price_group = $db->getProviderPriceGroup($provider_product['price_group_id']);
+                            // Получаем валюту поставщика
+                            $provider_currency = $db->getProviderCurrency($provider['id']);
+                            // Вычисляем розничную цену для товара
+                            if ((float)$provider_product_total['price'] < 0) {
+                                $price = 0;
+                            } else {
+                                $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                            }
+                            $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
+                            $price = ceil($price);
+
+                            //
+                            $data = array();
+                            $data['total'] = $provider_product_total['total'];
+                            $data['price_rub'] = $price;
+                            $data['transit'] = $provider_product_total['transit'];
+                            $data['transit_date'] = $provider_product_total['transit_date'];
+
+                            $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
                         } else {
-                            $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                            // Если продукт отключен, то необходимо очистить totals по этому продукту и провайдеру в эталонной базе
+                            $db->deleteProductTotal($our_product_id, $provider['id']);
                         }
-                        $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
-                        $price = ceil($price);
-
-                        //
-                        $data = array();
-                        $data['total'] = $provider_product_total['total'];
-                        $data['price_rub'] = $price;
-                        $data['transit'] = $provider_product_total['transit'];
-                        $data['transit_date'] = $provider_product_total['transit_date'];
-
-                        $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
-                    } else {
-                        // Если продукт отключен, то необходимо очистить totals по этому продукту и провайдеру в эталонной базе
-                        $db->deleteProductTotal($our_product_id, $provider['id']);
                     }
-
-
                 }
             }
         }
