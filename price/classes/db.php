@@ -1366,6 +1366,7 @@ class Db extends Sys {
                     $data['name'] = $row["name"];
                     $data['description'] = $row["description"];
                     $data['percent'] = $row["percent"];
+                    $data['percent_sc'] = $row["percent_sc"];
                 }
                 if (empty($data))
                     return null;
@@ -1401,6 +1402,7 @@ class Db extends Sys {
                     $data['name'] = $row["name"];
                     $data['code'] = $row["code"];
                     $data['exchange'] = $row["exchange"];
+                    $data['exchange_sc'] = $row["exchange_sc"];
                     $data['image'] = $row["image"];
                 }
                 if (empty($data))
