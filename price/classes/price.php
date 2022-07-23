@@ -332,16 +332,24 @@ class Price {
                             // Вычисляем розничную цену для товара
                             if ((float)$provider_product_total['price'] < 0) {
                                 $price = 0;
+                                $price_sc = 0;
                             } else {
                                 $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                                $price_sc = (float)$provider_product_total['price'] * (float)$provider_currency['exchange_sc'];
                             }
+                            //
                             $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
                             $price = ceil($price);
+                            //
+                            $price_sc = (((int)$provider_product_price_group['percent_sc'] / 100) * $price_sc) + $price_sc;
+                            $price_sc = ceil($price_sc / 10) * 10;
+                            //
 
                             //
                             $data = array();
                             $data['total'] = $provider_product_total['total'];
                             $data['price_rub'] = $price;
+                            $data['price_sc'] = $price_sc;
                             $data['transit'] = $provider_product_total['transit'];
                             $data['transit_date'] = $provider_product_total['transit_date'];
 
@@ -374,21 +382,28 @@ class Price {
                         // Вычисляем розничную цену для товара
                         if ((float)$provider_product_total['price'] < 0) {
                             $price = 0;
+                            $price_sc = 0;
                         } else {
                             $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
+                            $price_sc = (float)$provider_product_total['price'] * (float)$provider_currency['exchange_sc'];
                         }
                         //
                         $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
                         $price = ceil($price);
-
+                        //
+                        $price_sc = (((int)$provider_product_price_group['percent_sc'] / 100) * $price_sc) + $price_sc;
+                        $price_sc = ceil($price_sc / 10) * 10;
                         //
                         $data = array();
                         $data['total'] = $provider_product_total['total'];
                         $data['price_rub'] = $price;
+                        $data['price_sc'] = $price_sc;
                         $data['transit'] = $provider_product_total['transit'];
                         $data['transit_date'] = $provider_product_total['transit_date'];
 
-                        $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
+                        if ($our_product_id != null) {
+                            $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
+                        }
 
                     }
                 }
