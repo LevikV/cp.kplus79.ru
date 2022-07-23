@@ -129,3 +129,15 @@ provider_id: 2
 code: product
 id сущн. пост.: 11971
 
+21.07.2022-19:50:55 ERROR  DB  Ошибка удаления total товара в таблице product_total
+product_id: 4584
+provider_id: 1
+
+21.07.2022-19:50:55 ERROR  DB  Ошибка добавления provider_product_total для продукта поставщика
+prov_id: 1
+product_id: 4584
+total: 500
+price_rub: 134
+transit: 0
+transit_date: null
+
