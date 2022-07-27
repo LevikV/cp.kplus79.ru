@@ -342,51 +342,46 @@ class Price {
 
 
                         }
-                    } elseif ($provider_product['status'] != 1) {
-                        $db->deleteProductTotal($map_products_pull_id_by_prov_index[$provider_product['id']], $provider['id']);
                     }
-                }
-                // После проверки продукта новый или нет и попыток сопопставления, можно обновить тоталы
-                // Здесь необходимо обновить totals по продукту
-                $our_product_id = $db->getMapByProvItemId('product', $provider_product['id']);
-                if (isset($map_products_pull_id_by_prov_index[$provider_product['id']])) {
-                    if ($provider_product['status'] == 1) {
-                        // Получаем total по продукту поставщика
-                        $provider_product_total = $db->getProviderProductTotal($provider['id'], $provider_product['id']);
-                        // Получаем ценовую группу товара
-                        $provider_product_price_group = $db->getProviderPriceGroup($provider_product['price_group_id']);
-                        // Получаем валюту поставщика
-                        $provider_currency = $db->getProviderCurrency($provider['id']);
-                        // Вычисляем розничную цену для товара
-                        if ((float)$provider_product_total['price'] < 0) {
-                            $price = 0;
-                            $price_sc = 0;
+                    // После проверки продукта новый или нет и попыток сопопставления, можно обновить тоталы
+                    // Здесь необходимо обновить totals по продукту
+                    if (isset($map_products_pull_id_by_prov_index[$provider_product['id']])) {
+                        if ($provider_product['status'] == 1) {
+                            if (!$flag_error_total) {
+                                $provider_product_total = $provider_products_totals[$provider_product['id']];
+                                //
+                                // Вычисляем розничную цену для товара
+                                if ((float)$provider_product_total['price'] < 0) {
+                                    $price = 0;
+                                    $price_sc = 0;
+                                } else {
+                                    $price = (float)$provider_product_total['price'] * (float)$providers_currencies[$provider_product_total['provider_id']]['exchange'];
+                                    $price_sc = (float)$provider_product_total['price'] * (float)$providers_currencies[$provider_product_total['provider_id']]['exchange_sc'];
+                                }
+                                $price = (((int)$provider_price_groups[$provider_products_price_groups[$provider_product_total['product_id']]]['percent'] / 100) * $price) + $price;
+                                $price_sc = (((int)$provider_price_groups[$provider_products_price_groups[$provider_product_total['product_id']]]['percent_sc'] / 100) * $price_sc) + $price_sc;
+                                $price = ceil($price);
+                                $price_sc = ceil($price_sc / 10) * 10;
+
+                                //
+                                $data = array();
+                                $data['total'] = $provider_product_total['total'];
+                                $data['price_rub'] = $price;
+                                $data['price_sc'] = $price_sc;
+                                $data['transit'] = $provider_product_total['transit'];
+                                $data['transit_date'] = $provider_product_total['transit_date'];
+
+                                $add_product_total_id = $db->addProductTotal($map_products_pull_id_by_prov_index[$provider_product['id']], $provider['id'], $data);
+                            }
+
                         } else {
-                            $price = (float)$provider_product_total['price'] * (float)$provider_currency['exchange'];
-                            $price_sc = (float)$provider_product_total['price'] * (float)$provider_currency['exchange_sc'];
+                            // Если продукт отключен, то необходимо очистить totals по этому продукту и провайдеру в эталонной базе
+                            $db->deleteProductTotal($map_products_pull_id_by_prov_index[$provider_product['id']], $provider['id']);
                         }
-                        //
-                        $price = (((int)$provider_product_price_group['percent'] / 100) * $price) + $price;
-                        $price = ceil($price);
-                        //
-                        $price_sc = (((int)$provider_product_price_group['percent_sc'] / 100) * $price_sc) + $price_sc;
-                        $price_sc = ceil($price_sc / 10) * 10;
-                        //
-
-                        //
-                        $data = array();
-                        $data['total'] = $provider_product_total['total'];
-                        $data['price_rub'] = $price;
-                        $data['price_sc'] = $price_sc;
-                        $data['transit'] = $provider_product_total['transit'];
-                        $data['transit_date'] = $provider_product_total['transit_date'];
-
-                        $add_product_total_id = $db->addProductTotal($our_product_id, $provider['id'], $data);
-                    } else {
-                        // Если продукт отключен, то необходимо очистить totals по этому продукту и провайдеру в эталонной базе
-                        $db->deleteProductTotal($our_product_id, $provider['id']);
                     }
+
                 }
+
 
 
             } elseif ($provider['parent_id'] != null) {

@@ -994,7 +994,7 @@ class Db extends Sys {
             if ($result != false) {
                 $rows = array();
                 while($row = $result->fetch_array()){
-                    $rows[] = array(
+                    $rows[$row["product_id"]] = array(
                         'id' => $row["id"],
                         'provider_id' => $row["provider_id"],
                         'product_id' => $row["product_id"],
