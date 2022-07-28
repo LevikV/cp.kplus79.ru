@@ -348,7 +348,22 @@ class Price {
                     if (isset($map_products_pull_id_by_prov_index[$provider_product['id']])) {
                         if ($provider_product['status'] == 1) {
                             if (!$flag_error_total) {
-                                $provider_product_total = $provider_products_totals[$provider_product['id']];
+                                // Проверка на существование тотал продукта
+                                if (isset($provider_products_totals[$provider_product['id']])) {
+                                    $provider_product_total = $provider_products_totals[$provider_product['id']];
+                                } else {
+                                    //
+                                    $warning[] = 'В таблице provider_product_total отсутствует запись по товару provider_product[id] = ' . $provider_product['id'];
+                                    //
+                                    $provider_product_total = array(
+                                        'price' => 0,
+                                        'total' => 0,
+                                        'transit' => 0,
+                                        'transit_date' => 0,
+                                        'provider_id' => $provider['id'],
+                                        'product_id' => $provider_product['id']
+                                    );
+                                }
                                 //
                                 // Вычисляем розничную цену для товара
                                 if ((float)$provider_product_total['price'] < 0) {
