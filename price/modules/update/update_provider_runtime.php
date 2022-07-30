@@ -30,38 +30,32 @@ $update_provider_runtime = $db->getSystemTask('update_provider_runtime');
 if ($update_provider_runtime) {
     // Смотрим статус задания, чтобы определить первый это запуск скрипта или нет
     if ($update_provider_runtime['status'] == 'updated') {
-        // запуск первый, надо сгенерировать пул
-        $pull_price_runtime = $db->createPullPriceRunTime();
-        $pull_provider_runtime = $db->createPullProviderRunTime();
-        if ($pull_price_runtime AND $pull_provider_runtime) {
-            // необходимо изменить статус задачи и запустить процессы для выполнения обновления
-            $db->editSystemTask('update_price_runtime', 'working');
-            //
-            $id_totals_for_update = $db->getPullIdProviderRunTime();
-            if ($id_totals_for_update) {
-                $threads = 10;
-                $count_works_thread = ceil(count($id_totals_for_update) / $threads);
-                for ($i = 0; $i < $threads; $i++) {
-                    $from = $i * $count_works_thread;
-                    $to = $from + $count_works_thread - 1;
-                    $from_id_total = $id_totals_for_update[$from];
-                    if ($i === $threads - 1) {
-                        while (!isset($id_totals_for_update[$to])) {
-                            $to--;
-                        }
-                        $to_id_total = $id_totals_for_update[$to];
-                    } else {
-                        $to_id_total = $id_totals_for_update[$to];
-                    }
-                    //
-                    $cmd = 'php -f modules\update\worker_price_runtime.php';
-                    $db->execInBackground($cmd, $from_id_total, $to_id_total);
-                }
-            }
-        }
-    } elseif ($update_price_runtime['status'] == 'working') {
+        // запуск первый, надо запустить воркеров обновления по поставщикам
+        // меняем статус задачи обновления на В работе
+        $db->editSystemTask('update_provider_runtime', 'working');
+        // Воркер обновления ВТТ
+        $cmd = 'php -f modules\update\worker_vtt_runtime.php';
+        $db->execInBackground($cmd, 0, 0);
+        sleep(30);
+        // Воркер обновления Булат
+        $cmd = 'php -f modules\update\worker_bulat_runtime.php';
+        $db->execInBackground($cmd, 0, 0);
+    } elseif ($update_provider_runtime['status'] == 'working') {
         // Обновление прайса в работе
         // Проверяем есть ли активный воркер
+        $worker_vtt_runtime = $db->getSystemTask('worker_vtt_runtime');
+        $worker_bulat_runtime = $db->getSystemTask('worker_bulat_runtime');
+        if ($worker_vtt_runtime['status'] == 'working') {
+            // Воркер обновления ВТТ
+            $cmd = 'php -f modules\update\worker_vtt_runtime.php';
+            $db->execInBackground($cmd, 0, 0);
+        }
+        if ($worker_vtt_runtime['status'] == 'working') {
+            // Воркер обновления ВТТ
+            $cmd = 'php -f modules\update\worker_vtt_runtime.php';
+            $db->execInBackground($cmd, 0, 0);
+        }
+
         $active_worker = false;
         $system_tasks = $db->getSystemTasks();
         foreach ($system_tasks as $system_task) {

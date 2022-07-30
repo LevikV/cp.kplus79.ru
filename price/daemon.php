@@ -80,7 +80,7 @@ if (isset($_GET['operation'])) {
             echo '<br>Обновление товаров завершено.';
         }
 
-    } elseif ($_GET['operation'] == 'update_runtime') {
+    } elseif ($_GET['operation'] == 'update_price_runtime') {
         // ОПИСАНИЕ ОПЕРАЦИИ
         //
         global $ERROR;
