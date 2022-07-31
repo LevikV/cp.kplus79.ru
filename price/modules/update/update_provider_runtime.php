@@ -46,15 +46,32 @@ if ($update_provider_runtime) {
         $worker_vtt_runtime = $db->getSystemTask('worker_vtt_runtime');
         $worker_bulat_runtime = $db->getSystemTask('worker_bulat_runtime');
         if ($worker_vtt_runtime['status'] == 'working') {
-            // Воркер обновления ВТТ
-            $cmd = 'php -f modules\update\worker_vtt_runtime.php';
-            $db->execInBackground($cmd, 0, 0);
+            $delta = time() - strtotime($worker_vtt_runtime['date']);
+            if ($delta > 1800) {
+                // Если время выполнения задачи больше 30 минут, то надо запустить Воркер обновления ВТТ
+                //с параметром 1, чтобы воркер проверил пул и завершил задачу
+                $cmd = 'php -f modules\update\worker_vtt_runtime.php';
+                $db->execInBackground($cmd, 1, 0);
+            }
+        } elseif ($worker_vtt_runtime['status'] == 'updated') {
+            $delta_vtt = $update_provider_runtime['date'] - $worker_vtt_runtime['date'];
+            if ($delta_vtt > 0) {
+                // Если по каким то причинам Воркер обновления ВТТ не запустился сразу, пробуем запустить еще раз
+                $cmd = 'php -f modules\update\worker_vtt_runtime.php';
+                $db->execInBackground($cmd, 0, 0);
+            }
         }
-        if ($worker_vtt_runtime['status'] == 'working') {
-            // Воркер обновления ВТТ
-            $cmd = 'php -f modules\update\worker_vtt_runtime.php';
-            $db->execInBackground($cmd, 0, 0);
+        //
+        if ($worker_bulat_runtime['status'] == 'working') {
+            $delta = time() - strtotime($worker_bulat_runtime['date']);
+            if ($delta > 1800) {
+                // Если время выполнения задачи больше 30 минут, то надо запустить Воркер обновления ВТТ
+                //с параметром 1, чтобы воркер проверил пул и завершил задачу
+                $cmd = 'php -f modules\update\worker_bulat_runtime.php';
+                $db->execInBackground($cmd, 1, 0);
+            }
         }
+
 
         $active_worker = false;
         $system_tasks = $db->getSystemTasks();
