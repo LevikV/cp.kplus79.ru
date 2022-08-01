@@ -70,61 +70,20 @@ if ($update_provider_runtime) {
                 $cmd = 'php -f modules\update\worker_bulat_runtime.php';
                 $db->execInBackground($cmd, 1, 0);
             }
-        }
-
-
-        $active_worker = false;
-        $system_tasks = $db->getSystemTasks();
-        foreach ($system_tasks as $system_task) {
-            if ($system_task['task'] === 'worker_price_runtime') {
-                $delta = time() - strtotime($system_task['date']);
-                if (($delta > 900) AND ($delta > 0)) {
-                    $del_old_worker = $db->deleteSystemTask($system_task['id']);
-                } elseif (($delta < 900) AND ($delta > 0)) {
-                    $active_worker = true;
-                }
+        } elseif ($worker_bulat_runtime['status'] == 'updated') {
+            $delta_bulat = $update_provider_runtime['date'] - $worker_bulat_runtime['date'];
+            if ($delta_bulat > 0) {
+                // Если по каким то причинам Воркер обновления Булат не запустился сразу, пробуем запустить еще раз
+                $cmd = 'php -f modules\update\worker_bulat_runtime.php';
+                $db->execInBackground($cmd, 0, 0);
             }
         }
-        if ($active_worker) {
-            exit();
-        } else {
-            // Если активного воркера нет, то надо проверить пул и запустить воркеров
-            $id_totals_for_update = $db->getPullIdProviderRunTime();
-            if ($id_totals_for_update) {
-                if (count($id_totals_for_update) > 100) {
-                    $threads = 10;
-                    $count_works_thread = ceil(count($id_totals_for_update) / $threads);
-                    for ($i = 0; $i < $threads; $i++) {
-                        $from = $i * $count_works_thread;
-                        $to = $from + $count_works_thread - 1;
-                        $from_id_total = $id_totals_for_update[$from];
-                        if ($i === $threads - 1) {
-                            while (!isset($id_totals_for_update[$to])) {
-                                $to--;
-                            }
-                            $to_id_total = $id_totals_for_update[$to];
-                        } else {
-                            $to_id_total = $id_totals_for_update[$to];
-                        }
-                        //
-                        $cmd = 'php -f modules\update\worker_price_runtime.php';
-                        $db->execInBackground($cmd, $from_id_total, $to_id_total);
-                    }
-                } else {
-                    $from_id_total = $id_totals_for_update[0];
-                    $to_id_total = $id_totals_for_update[count($id_totals_for_update) - 1];
-                    $cmd = 'php -f modules\update\worker_price_runtime.php';
-                    $db->execInBackground($cmd, $from_id_total, $to_id_total);
-                }
-            } elseif ($id_totals_for_update === null) {
-                $del_not_actual_price_total = $db->deleteNotActualProductTotal();
-                if ($del_not_actual_price_total) {
-                    // меняем статус системной задачи на ВЫПОЛНЕНО!
-                    $db->editSystemTask('update_price_runtime', 'updated');
-                    // Удаляем пулы тоталов для обновлений
-                    $db->deletePullProviderRunTimeTable();
-                    $db->deletePullPriceRunTimeTable();
-                }
+        //
+        // Проверяем, выполнены ли обновления по поставщикам и если выполнены
+        // меняем статус обновления тоталов по поставщикам в обновлен
+        if (isset($delta_vtt) AND isset($delta_bulat)) {
+            if (($delta_vtt < 0) AND ($delta_bulat < 0)) {
+                $db->editSystemTask('update_provider_runtime', 'updated');
             }
         }
     }
