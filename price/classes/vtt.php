@@ -146,6 +146,35 @@ class Vtt {
         }
     }
 
+    public function getProductsTotal () {
+        if ($this->status) {
+            $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD);
+
+            try {
+                $result = $this->client->GetRuntimeItems($params);
+            } catch (SoapFault $E) {
+                //echo $E->faultstring;
+                $ERROR['VTT'][] = 'Ошибка получения totals с портала VTT <br>' . $E->faultstring;
+                return false;
+            }
+
+            $items = is_array($result->GetCategoriesResult->CategoryDto)
+                ? $result->GetCategoriesResult->CategoryDto
+                : array($result->GetCategoriesResult->CategoryDto);
+            foreach ($items as $category) {
+                if ($category->ParentId == null) {
+                    $main_categories[] = array(
+                        'name' => $category->Name,
+                        'id' => $category->Id
+                    );
+                }
+            }
+            return $main_categories;
+        } else {
+            return false;
+        }
+    }
+
     public function getProductPortion($from, $to) {
         // Функция получения порции товаров с портала ВТТ
 
