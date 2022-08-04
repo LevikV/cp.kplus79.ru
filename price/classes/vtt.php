@@ -158,14 +158,14 @@ class Vtt {
                 return false;
             }
 
-            $items = is_array($result->GetCategoriesResult->CategoryDto)
+            $totals = is_array($result->GetCategoriesResult->CategoryDto)
                 ? $result->GetCategoriesResult->CategoryDto
                 : array($result->GetCategoriesResult->CategoryDto);
-            foreach ($items as $category) {
-                if ($category->ParentId == null) {
+            foreach ($totals as $total) {
+                if ($total->ParentId == null) {
                     $main_categories[] = array(
-                        'name' => $category->Name,
-                        'id' => $category->Id
+                        'name' => $total->Name,
+                        'id' => $total->Id
                     );
                 }
             }
