@@ -24,8 +24,9 @@ $vtt = new Vtt;
 $flag_error = false;
 //
 $prov_id_vtt_msk = 1;
+$prov_id_vtt_khv = 1;
 
-//$argv[1] = 1;
+$argv[1] = 0;
 //$argv[2] = 10;
 
 //
@@ -38,6 +39,61 @@ if ($argv[1] == 1) {
     $db->editSystemTask('worker_vtt_runtime', 'working');
     // Создаем временную пул-таблицу тоталов по поставщику
     $db->createPullProviderRunTime($prov_id_vtt_msk);
+    //
+    // Получаем все необходимые данные для работы обновления остатков
+    // Получаем ассоциативный массив тоталов поставщика из
+    // нашей базы первым ключом которого является id поставщика, а вторым ключом id товара из нашей базы
+    $pull_provider_runtime = $db->getPullProviderRunTime();
+    if ($pull_provider_runtime === false OR $pull_provider_runtime === null) $flag_error = true;
+    // Получаем тоталы с портала ВТТ в виде ассоциативного массива, где ключи id товара, как у поставщика
+    $pull_vtt_runtime = $vtt->getProductsTotal();
+    // Нужно сформировать таблицу сопоставления наших id товаров поставщика с id товара как у поставщика
+    // Получаем ассоциативный массив ключами которого id товаров как у поставщика, а значения id из нашей базы
+    $map_our_prod_id_by_prov_prod_id_index = $db->getMapPullProductIdByProviderProductIndex($prov_id_vtt_msk);
+    if ($map_our_prod_id_by_prov_prod_id_index === false OR $map_our_prod_id_by_prov_prod_id_index === null) $flag_error = true;
+    //
+    if ($flag_error) {
+        //$db->sendErrorMessageToMail($message);
+        exit();
+    }
+    //
+    foreach ($pull_vtt_runtime as $vtt_runtime) {
+        if (isset($map_our_prod_id_by_prov_prod_id_index[$vtt_runtime['id']])) {
+            // Если в базе есть товар с этим id то его надо обновить
+            $data = array();
+            $data['provider_id'] = $prov_id_vtt_msk;
+            $data['product_id'] = $map_our_prod_id_by_prov_prod_id_index[$vtt_runtime['id']];
+            $data['total'] = $vtt_runtime['main_office_quantity'];
+            $data['price'] = $vtt_runtime['price'];
+            $prov_total_add = $db->edit2ProviderProductTotal($data);
+            if ($prov_total_add == false) {
+                $message .= 'Ошибка добавления totals' . "\r\n";
+                $message .= 'provider_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
+                $db->addLog('ERROR', 'VTT', $message);
+                //$count_error++;
+            }
+            //
+            $data = array();
+            $data['provider_id'] = $prov_id_vtt_khv;
+            $data['product_id'] = $map_our_prod_id_by_prov_prod_id_index[$vtt_runtime['id']];
+            $data['total'] = $vtt_runtime['available_quantity'];
+            $data['transit'] = $vtt_runtime['transit_quantity'];
+            $data['price'] = $vtt_runtime['price'];
+            $prov_total_add = $db->edit2ProviderProductTotal($data);
+            if ($prov_total_add == false) {
+                $message .= 'Ошибка добавления totals' . "\r\n";
+                $message .= 'provider_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
+                $db->addLog('ERROR', 'VTT', $message);
+                //$count_error++;
+            }
+        }
+    }
+
+
+
+//
 }
 
 /*

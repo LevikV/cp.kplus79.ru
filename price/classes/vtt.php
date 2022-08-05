@@ -147,6 +147,8 @@ class Vtt {
     }
 
     public function getProductsTotal () {
+        // Возвращает ассоциативный массив, ключами которого являются
+        // id товаров поставщика (id как у поставщика, а не наш!)
         if ($this->status) {
             $params = array("login" => VTT_LOGIN , "password" => VTT_PASSWORD);
 
@@ -158,18 +160,19 @@ class Vtt {
                 return false;
             }
 
-            $totals = is_array($result->GetCategoriesResult->CategoryDto)
-                ? $result->GetCategoriesResult->CategoryDto
-                : array($result->GetCategoriesResult->CategoryDto);
+            $totals = is_array($result->GetRuntimeItemsResult->ItemRuntimeDto)
+                ? $result->GetRuntimeItemsResult->ItemRuntimeDto
+                : array($result->GetRuntimeItemsResult->ItemRuntimeDto);
             foreach ($totals as $total) {
-                if ($total->ParentId == null) {
-                    $main_categories[] = array(
-                        'name' => $total->Name,
-                        'id' => $total->Id
-                    );
-                }
+                $all_totals[$total->Id] = array(
+                    'available_quantity' => $total->AvailableQuantity,
+                    'id' => $total->Id,
+                    'main_office_quantity' => $total->MainOfficeQuantity,
+                    'price' => $total->Price,
+                    'transit_quantity' => $total->TransitQuantity
+                );
             }
-            return $main_categories;
+            return $all_totals;
         } else {
             return false;
         }
