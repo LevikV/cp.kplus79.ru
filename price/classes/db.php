@@ -4356,7 +4356,7 @@ class Db extends Sys {
         }
     }
 
-    public function createPullProviderRunTime() {
+    public function createPullProviderRunTime($provider_id = 0) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
@@ -4392,7 +4392,12 @@ class Db extends Sys {
                 return false;
             }
             if ($result) {
-                $sql = 'INSERT INTO pull_provider_runtime SELECT * FROM provider_product_total';
+                if ($provider_id == 0) {
+                    $sql = 'INSERT INTO pull_provider_runtime SELECT * FROM provider_product_total';
+                } else {
+                    $sql = 'INSERT INTO pull_provider_runtime SELECT * FROM provider_product_total WHERE provider_id = ' . $provider_id . ' OR provider_id IN (SELECT id FROM provider WHERE parent_id = '.$provider_id.')';
+                }
+
                 try {
                     $result = mysqli_query($this->link, $sql);
                 } catch (Exception $e) {

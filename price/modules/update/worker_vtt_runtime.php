@@ -23,6 +23,8 @@ $vtt = new Vtt;
 //
 $flag_error = false;
 //
+$prov_id_vtt_msk = 1;
+
 //$argv[1] = 1;
 //$argv[2] = 10;
 
@@ -34,6 +36,8 @@ if ($argv[1] == 1) {
     // Воркер запускается впервые
     // меняем статус задачи
     $db->editSystemTask('worker_vtt_runtime', 'working');
+    // Создаем временную пул-таблицу тоталов по поставщику
+    $db->createPullProviderRunTime($prov_id_vtt_msk);
 }
 
 /*
