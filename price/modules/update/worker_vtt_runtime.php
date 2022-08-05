@@ -22,6 +22,8 @@ $db = new Db;
 $vtt = new Vtt;
 //
 $flag_error = false;
+$count_vtt_msk = 0;
+$count_vtt_khv = 0;
 //
 $prov_id_vtt_msk = 1;
 $prov_id_vtt_khv = 1;
@@ -72,6 +74,8 @@ if ($argv[1] == 1) {
                 $message .= 'product_id: ' . $data['product_id'] . "\r\n";
                 $db->addLog('ERROR', 'VTT', $message);
                 //$count_error++;
+            } else {
+                $count_vtt_msk++;
             }
             //
             $data = array();
@@ -87,9 +91,14 @@ if ($argv[1] == 1) {
                 $message .= 'product_id: ' . $data['product_id'] . "\r\n";
                 $db->addLog('ERROR', 'VTT', $message);
                 //$count_error++;
+            } else {
+                $count_vtt_khv++;
             }
         }
     }
+    echo $count_vtt_khv;
+    echo '<br>';
+    echo $count_vtt_msk;
 
 
 

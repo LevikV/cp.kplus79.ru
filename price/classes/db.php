@@ -2641,7 +2641,7 @@ class Db extends Sys {
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductTotalData($data)) {
             //
-            $this->deleteProviderProductTotal($data['provider_id'], $data['product_id']);
+            //$this->deleteProviderProductTotal($data['provider_id'], $data['product_id']);
             //
             if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
             /*$sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price, transit, transit_date, date_update) VALUES (' .
