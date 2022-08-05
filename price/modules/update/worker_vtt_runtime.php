@@ -26,7 +26,7 @@ $count_vtt_msk = 0;
 $count_vtt_khv = 0;
 //
 $prov_id_vtt_msk = 1;
-$prov_id_vtt_khv = 1;
+$prov_id_vtt_khv = 2;
 
 $argv[1] = 0;
 //$argv[2] = 10;
