@@ -65,6 +65,9 @@ if ($argv[1] == 1) {
             $data = array();
             $data['provider_id'] = $prov_id_vtt_msk;
             $data['product_id'] = $map_our_prod_id_by_prov_prod_id_index[$vtt_runtime['id']];
+            if ($data['product_id'] == 164) {
+                echo '!';
+            }
             $data['total'] = $vtt_runtime['main_office_quantity'];
             $data['price'] = $vtt_runtime['price'];
             $prov_total_add = $db->edit2ProviderProductTotal($data);
