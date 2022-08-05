@@ -76,6 +76,7 @@ if ($argv[1] == 1) {
                 //$count_error++;
             } else {
                 $count_vtt_msk++;
+                $db->finishWorkerProviderRunTimeTransact($data['product_id'], $data['provider_id']);
             }
             //
             $data = array();
@@ -93,6 +94,7 @@ if ($argv[1] == 1) {
                 //$count_error++;
             } else {
                 $count_vtt_khv++;
+                $db->finishWorkerProviderRunTimeTransact($data['product_id'], $data['provider_id']);
             }
         }
     }
