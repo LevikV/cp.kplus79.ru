@@ -101,9 +101,9 @@ if ($argv[1] == 1) {
             }
         }
     }
-    echo $count_vtt_khv;
-    echo '<br>';
     echo $count_vtt_msk;
+    echo '<br>';
+    echo $count_vtt_khv;
 
 
 

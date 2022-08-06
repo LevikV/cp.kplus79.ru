@@ -4729,7 +4729,7 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'UPDATE pull_provider_runtime SET status = 1 WHERE product_id = ' . $product_id . ' AND provider_id = ' . $provider_id;
+            $sql = 'UPDATE pull_provider_runtime SET status = 1, date_update = NOW() WHERE product_id = ' . $product_id . ' AND provider_id = ' . $provider_id;
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
