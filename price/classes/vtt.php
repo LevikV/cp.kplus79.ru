@@ -1010,6 +1010,10 @@ class Vtt {
                 $product_attrib_life_time_edits = false;
                 $product_image_edits = false;
 
+                if ($product_vtt['id'] == 'TK-1170') {
+                    echo 'ThinkDo your work!';
+                }
+
                 $data = array();
                 // Проверяем, есть ли товар из выгрузки в нашей базе товаров поставщика
                 if (in_array((string)$product_vtt['id'], $id_products_vtt_our_base, true)) {

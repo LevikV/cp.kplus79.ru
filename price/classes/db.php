@@ -4037,6 +4037,32 @@ class Db extends Sys {
         }
     }
 
+    public function deleteProviderProduct($product_id) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DELETE FROM provider_product WHERE id = ' . $product_id;
+            // DELETE FROM provider_attribute_product WHERE product_id = 13012
+            // DELETE FROM provider_image WHERE product_id = 13012
+            // DELETE FROM provider_product_total WHERE product_id = 13012
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления total товара в таблице provider_product_total' . "\r\n";
+                $message .= 'product_id: ' . $product_id . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function deleteProductTotal($product_id, $provider_id) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
@@ -4753,6 +4779,28 @@ class Db extends Sys {
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
             $sql = 'DELETE FROM product_total WHERE id IN (SELECT id FROM pull_price_runtime WHERE status = 0)';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка удаления не актуальных total товаров в таблице product_total' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function deleteNotActualProviderProductTotal() {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'DELETE FROM provider_product_total WHERE id IN (SELECT id FROM pull_provider_runtime WHERE status = 0)';
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {
