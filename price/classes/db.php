@@ -2723,6 +2723,58 @@ class Db extends Sys {
         }
     }
 
+    public function edit2ProductTotal($data) {
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status AND $this->checkProductTotalData($data)) {
+            //
+            //$this->deleteProviderProductTotal($data['provider_id'], $data['product_id']);
+            //
+            if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
+            /*$sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price, transit, transit_date, date_update) VALUES (' .
+                (int)$data['provider_id'] . ', ' .
+                (int)$data['product_id'] . ', ' .
+                (int)$data['total'] . ', ' .
+                (float)$data['price'] . ', ' .
+                (int)$data['transit'] . ', ' .
+                $data['transit_date'] . ',' .
+                ' NOW())';*/
+            $sql = 'INSERT INTO product_total SET ' .
+                'provider_id = ' . $data['provider_id'] . ', ' .
+                'product_id = ' . $data['product_id'] . ', ' .
+                'total = ' . $data['total'] . ', ' .
+                'price = ' . $data['price'] . ', ' .
+                'transit = ' . $data['transit'] . ', ' .
+                'transit_date = ' . $data['transit_date'] . ', ' .
+                'date_update = NOW() ON DUPLICATE KEY UPDATE ' .
+                'total = ' . $data['total'] . ', ' .
+                'price = ' . $data['price'] . ', ' .
+                'transit = ' . $data['transit'] . ', ' .
+                'transit_date = ' . $data['transit_date'] . ', ' .
+                'date_update = NOW()';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка добавления provider_product_total для продукта поставщика' . "\r\n";
+                $message .= 'prov_id: ' . $data['provider_id'] . "\r\n";
+                $message .= 'product_id: ' . $data['product_id'] . "\r\n";
+                $message .= 'total: ' . $data['total'] . "\r\n";
+                $message .= 'price: ' . $data['price'] . "\r\n";
+                $message .= 'transit: ' . $data['transit'] . "\r\n";
+                $message .= 'transit_date: ' . $data['transit_date'] . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+
+                return false;
+            }
+            if ($result != false) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function addProductTotal($product_id, $provider_id, $data) {
         //
         global $ERROR;

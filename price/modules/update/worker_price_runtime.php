@@ -82,8 +82,10 @@ foreach ($pull_provider_runtime_portion as $provider_product_total) {
     } else {
         continue;
     }
+    $data['product_id'] = $our_product_id;
+    $data['provider_id'] = $provider_product_total['provider_id'];
     // Добавляем total в эталонную базу
-    $add_product_total_id = $db->addProductTotal($our_product_id, $provider_product_total['provider_id'], $data);
+    $add_product_total_id = $db->edit2ProductTotal($data);
     if ($add_product_total_id) {
         // Если total успешно добавился, то необходимо установить статус 1 для транзакции в pull_price_runtime
         $finish_price_transact = $db->finishWorkerPriceRunTimeTransact($our_product_id, $provider_product_total['provider_id']);
