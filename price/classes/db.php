@@ -1245,6 +1245,41 @@ class Db extends Sys {
         }
     }
 
+    public function getProvidersProductsDuplicate() {
+        //
+        global $ERROR;
+        if (!mysqli_ping($this->link)) $this->connectDB();
+        if ($this->status) {
+            $sql = 'SELECT `provider_product`.* FROM `provider_product` LEFT OUTER JOIN (SELECT MIN(`id`) AS `id`, `provider_product_id` FROM `provider_product` GROUP BY `provider_product_id`) AS `tmp` ON `provider_product`.`id` = `tmp`.`id` WHERE `tmp`.`id` IS NULL';
+            try {
+                $result = mysqli_query($this->link, $sql);
+            } catch (Exception $e) {
+                // Записываем в лог данные об ошибке
+                $message = 'Ошибка получения списка поставщиков из таблицы provider' . "\r\n";
+                $this->addLog('ERROR', 'DB', $message);
+                // выходим из функции
+                return false;
+            }
+            if ($result != false) {
+                $rows = array();
+                while($row = $result->fetch_array()){
+                    $rows[] = array(
+                        'id' => $row["id"],
+                        'provider_id' => $row["provider_id"],
+                        'provider_product_id' => $row["provider_product_id"],
+                        'name' => $row["name"]
+                    );
+                }
+                if (empty($rows))
+                    return null;
+                else
+                    return $rows;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function getProvider($provider_id) {
         //
         global $ERROR;
@@ -4041,21 +4076,27 @@ class Db extends Sys {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status) {
-            $sql = 'DELETE FROM provider_product WHERE id = ' . $product_id;
+            $sql1 = 'DELETE FROM provider_product WHERE id = ' . $product_id;
+            $sql2 = 'DELETE FROM provider_attribute_product WHERE product_id = ' . $product_id;
+            $sql3 = 'DELETE FROM provider_image WHERE product_id = ' . $product_id;
+            $sql4 = 'DELETE FROM provider_product_total WHERE product_id = ' . $product_id;
             // DELETE FROM provider_attribute_product WHERE product_id = 13012
             // DELETE FROM provider_image WHERE product_id = 13012
             // DELETE FROM provider_product_total WHERE product_id = 13012
             try {
-                $result = mysqli_query($this->link, $sql);
+                $result1 = mysqli_query($this->link, $sql1);
+                $result2= mysqli_query($this->link, $sql2);
+                $result3 = mysqli_query($this->link, $sql3);
+                $result4 = mysqli_query($this->link, $sql4);
             } catch (Exception $e) {
                 // Записываем в лог данные об ошибке
-                $message = 'Ошибка удаления total товара в таблице provider_product_total' . "\r\n";
+                $message = 'Ошибка удаления товара в таблицах поставщика' . "\r\n";
                 $message .= 'product_id: ' . $product_id . "\r\n";
                 $this->addLog('ERROR', 'DB', $message);
 
                 return false;
             }
-            if ($result != false) {
+            if (($result1 != false) AND ($result2 != false) AND ($result4 != false) AND ($result3 != false)) {
                 return true;
             }
         } else {

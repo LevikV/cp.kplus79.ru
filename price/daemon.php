@@ -137,11 +137,14 @@ if (isset($_GET['operation'])) {
 
     } elseif ($_GET['operation'] == 'temp') {
         $db = new Db;
-        $temp = '2022-03-22 15:51:52';
-        $date_now = time();
-        echo strtotime($temp);
-        echo '<br>';
-        echo date('d-m-Y H:i:s');
-
+        //$temp = '2022-03-22 15:51:52';
+        //$date_now = time();
+        //echo strtotime($temp);
+        //echo '<br>';
+        //echo date('d-m-Y H:i:s');
+        $duplicates = $db->getProvidersProductsDuplicate();
+        foreach ($duplicates as $duplicate) {
+            $db->deleteProviderProduct($duplicate['id']);
+        }
     }
 }
