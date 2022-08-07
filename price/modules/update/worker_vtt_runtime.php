@@ -19,6 +19,8 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php'); // Пут�
 $ERROR = array();
 // Инициализируем объект для доступа к БД  и переменные
 $db = new Db;
+//
+$db->addLog('INFO', 'VTT', 'Старт начала обновления остатков ВТТ.');
 $vtt = new Vtt;
 //
 $flag_error = false;
@@ -60,11 +62,11 @@ if ($argv[1] == 1) {
     }
     //
     foreach ($pull_vtt_runtime as $vtt_runtime) {
-        /*
-        if ($vtt_runtime['id'] == 'TK-1170') {
-            echo 'ThinkDo TK-1170';
-        }
-        */
+
+        /*if ($vtt_runtime['id'] == '99112202') {
+            echo 'ThinkDo 99112202';
+        }*/
+
         if (isset($map_our_prod_id_by_prov_prod_id_index[$vtt_runtime['id']])) {
             // Если в базе есть товар с этим id то его надо обновить
             $data = array();
@@ -108,9 +110,12 @@ if ($argv[1] == 1) {
             }
         }
     }
+    $db->deleteNotActualProviderProductTotal();
     echo $count_vtt_msk;
     echo '<br>';
     echo $count_vtt_khv;
+    //
+    $db->addLog('INFO', 'VTT', 'Обновления остатков ВТТ завершено.');
 
 
 
