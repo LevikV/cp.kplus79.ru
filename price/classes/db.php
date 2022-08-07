@@ -2671,7 +2671,7 @@ class Db extends Sys {
         }
     }
 
-    public function edit2ProviderProductTotal($data) {
+    public function edit2ProviderProductTotal($data, $transit_date_scip = 0) {
         global $ERROR;
         if (!mysqli_ping($this->link)) $this->connectDB();
         if ($this->status AND $this->checkProviderProductTotalData($data)) {
@@ -2679,27 +2679,35 @@ class Db extends Sys {
             //$this->deleteProviderProductTotal($data['provider_id'], $data['product_id']);
             //
             if ($data['transit_date'] != 'null') $data['transit_date'] = '"' . $data['transit_date'] . '"';
-            /*$sql = 'INSERT INTO provider_product_total (provider_id, product_id, total, price, transit, transit_date, date_update) VALUES (' .
-                (int)$data['provider_id'] . ', ' .
-                (int)$data['product_id'] . ', ' .
-                (int)$data['total'] . ', ' .
-                (float)$data['price'] . ', ' .
-                (int)$data['transit'] . ', ' .
-                $data['transit_date'] . ',' .
-                ' NOW())';*/
-            $sql = 'INSERT INTO provider_product_total SET ' .
-            'provider_id = ' . $data['provider_id'] . ', ' .
-            'product_id = ' . $data['product_id'] . ', ' .
-            'total = ' . $data['total'] . ', ' .
-            'price = ' . $data['price'] . ', ' .
-            'transit = ' . $data['transit'] . ', ' .
-            'transit_date = ' . $data['transit_date'] . ', ' .
-            'date_update = NOW() ON DUPLICATE KEY UPDATE ' .
-                'total = ' . $data['total'] . ', ' .
-                'price = ' . $data['price'] . ', ' .
-                'transit = ' . $data['transit'] . ', ' .
-                'transit_date = ' . $data['transit_date'] . ', ' .
-                'date_update = NOW()';
+            if ($transit_date_scip == 0) {
+                $sql = 'INSERT INTO provider_product_total SET ' .
+                    'provider_id = ' . $data['provider_id'] . ', ' .
+                    'product_id = ' . $data['product_id'] . ', ' .
+                    'total = ' . $data['total'] . ', ' .
+                    'price = ' . $data['price'] . ', ' .
+                    'transit = ' . $data['transit'] . ', ' .
+                    'transit_date = ' . $data['transit_date'] . ', ' .
+                    'date_update = NOW() ON DUPLICATE KEY UPDATE ' .
+                    'total = ' . $data['total'] . ', ' .
+                    'price = ' . $data['price'] . ', ' .
+                    'transit = ' . $data['transit'] . ', ' .
+                    'transit_date = ' . $data['transit_date'] . ', ' .
+                    'date_update = NOW()';
+            } else {
+                $sql = 'INSERT INTO provider_product_total SET ' .
+                    'provider_id = ' . $data['provider_id'] . ', ' .
+                    'product_id = ' . $data['product_id'] . ', ' .
+                    'total = ' . $data['total'] . ', ' .
+                    'price = ' . $data['price'] . ', ' .
+                    'transit = ' . $data['transit'] . ', ' .
+                    'date_update = NOW() ON DUPLICATE KEY UPDATE ' .
+                    'total = ' . $data['total'] . ', ' .
+                    'price = ' . $data['price'] . ', ' .
+                    'transit = ' . $data['transit'] . ', ' .
+                    'date_update = NOW()';
+            }
+
+
             try {
                 $result = mysqli_query($this->link, $sql);
             } catch (Exception $e) {

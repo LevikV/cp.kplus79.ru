@@ -96,8 +96,9 @@ if ($argv[1] == 1) {
             $data['product_id'] = $map_our_prod_id_by_prov_prod_id_index[$vtt_runtime['id']];
             $data['total'] = $vtt_runtime['available_quantity'];
             $data['transit'] = $vtt_runtime['transit_quantity'];
+            //$data['transit_date'] = $vtt_runtime['transit_date'];
             $data['price'] = $vtt_runtime['price'];
-            $prov_total_add = $db->edit2ProviderProductTotal($data);
+            $prov_total_add = $db->edit2ProviderProductTotal($data, 1);
             if ($prov_total_add == false) {
                 $message .= 'Ошибка добавления totals' . "\r\n";
                 $message .= 'provider_id: ' . $data['provider_id'] . "\r\n";

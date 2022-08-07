@@ -2049,7 +2049,7 @@ class Vtt {
                 $data['product_id'] = $provider_product_id;
                 $data['total'] = $product_vtt['main_office_quantity'];
                 $data['price'] = $product_vtt['price'];
-                $prov_total_add = $db->addProviderProductTotal($data);
+                $prov_total_add = $db->edit2ProviderProductTotal($data);
                 if ($prov_total_add == false) {
                     $message .= 'Ошибка добавления totals' . "\r\n";
                     $message .= 'provider_id: ' . $prov_id . "\r\n";
@@ -2065,7 +2065,7 @@ class Vtt {
                 $data['price'] = $product_vtt['price'];
                 $data['transit'] = intval($product_vtt['transit_quantity']);
                 $data['transit_date'] = $product_vtt['transit_date'];
-                $prov_khv_total_add = $db->addProviderProductTotal($data);
+                $prov_khv_total_add = $db->edit2ProviderProductTotal($data);
                 if ($prov_khv_total_add == false) {
                     $message .= 'Ошибка добавления totals' . "\r\n";
                     $message .= 'provider_id: ' . $prov_khv_id . "\r\n";
