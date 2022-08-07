@@ -2743,12 +2743,14 @@ class Db extends Sys {
                 'provider_id = ' . $data['provider_id'] . ', ' .
                 'product_id = ' . $data['product_id'] . ', ' .
                 'total = ' . $data['total'] . ', ' .
-                'price = ' . $data['price'] . ', ' .
+                'price_rub = ' . $data['price_rub'] . ', ' .
+                'price_sc = ' . $data['price_sc'] . ', ' .
                 'transit = ' . $data['transit'] . ', ' .
                 'transit_date = ' . $data['transit_date'] . ', ' .
                 'date_update = NOW() ON DUPLICATE KEY UPDATE ' .
                 'total = ' . $data['total'] . ', ' .
-                'price = ' . $data['price'] . ', ' .
+                'price_rub = ' . $data['price_rub'] . ', ' .
+                'price_sc = ' . $data['price_sc'] . ', ' .
                 'transit = ' . $data['transit'] . ', ' .
                 'transit_date = ' . $data['transit_date'] . ', ' .
                 'date_update = NOW()';

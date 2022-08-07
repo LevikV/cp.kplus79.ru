@@ -6,12 +6,12 @@ set_time_limit(900);
 ignore_user_abort(true);
 // Включаем автоподгрузку классов
 spl_autoload_register(function ($class) {
-    //include $_SERVER['DOCUMENT_ROOT'] . '/price/classes/' . $class . '.php';
+    //include $_SERVER['DOCUMENT_ROOT'] . '/price/classes/' . $class . '.php'; // Путь для запуска напрямую, при отладке
     //include 'price\classes\\' . $class . '.php';
     include 'classes\\' . $class . '.php'; // Путь для запуска командой из под винды сервисом через скрипт
 });
 // Загружаем глобальные настройки
-//require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php');
+//require_once($_SERVER['DOCUMENT_ROOT'] . '/price/system/config.php'); // Путь для запуска напрямую, при отладке
 //require_once('price\system\config.php');
 require_once('system\config.php'); // Путь для запуска командой из под винды сервисом через скрипт
 
@@ -21,8 +21,8 @@ $ERROR = array();
 $db = new Db;
 $flag_error = false;
 //
-//$argv[1] = 1;
-//$argv[2] = 10;
+//$argv[1] = 305197;
+//$argv[2] = 307737;
 //
 
 // Записываем системную задачу-воркера в таблицу системных задач
@@ -119,5 +119,38 @@ if ($id_totals_for_update === null) {
         }
     }
 } else {
-    $db->killWorker(getmypid());
+    // Проверяем есть ли активный воркер
+    $active_worker = false;
+    $system_tasks = $db->getSystemTasks();
+    foreach ($system_tasks as $system_task) {
+        if ($system_task['task'] === 'worker_price_runtime') {
+            $my_pid = getmypid();
+            if ((int)$system_task['pid'] === $my_pid) {
+                continue;
+            } else {
+                $active_worker = true;
+            }
+        }
+    }
+    //
+    if ($active_worker) {
+        $db->killWorker(getmypid());
+    } else {
+        // Если активных воркеров нет, в теории значит текущий воркер последний, значит он должен
+        // удалить неакутульные тоталы, удалить пулы и изменить статус системной задачи
+        $del_not_actual_price_total = $db->deleteNotActualProductTotal();
+        if ($del_not_actual_price_total) {
+            // Если успешно удалили неактуальные total
+            // то можно удалить запись из таблицы задач о текущем воркере.
+            $kill_worker = $db->killWorker(getmypid());
+            if ($kill_worker) {
+                // Если успешно удалили воркера меняем статус системной задачи на ВЫПОЛНЕНО!
+                $db->editSystemTask('update_price_runtime', 'updated');
+                // Удаляем пулы тоталов для обновлений
+                $db->deletePullProviderRunTimeTable();
+                $db->deletePullPriceRunTimeTable();
+            }
+        }
+    }
+
 }
