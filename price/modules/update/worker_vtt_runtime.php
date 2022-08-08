@@ -111,12 +111,18 @@ if ($argv[1] == 1) {
             }
         }
     }
-    $db->deleteNotActualProviderProductTotal();
-    echo $count_vtt_msk;
-    echo '<br>';
-    echo $count_vtt_khv;
-    //
-    $db->addLog('INFO', 'VTT', 'Обновления остатков ВТТ завершено.');
+    // Удаляем неактуальные тоталы
+    $fihish = $db->deleteNotActualProviderProductTotal();
+    if ($fihish) {
+        // Меняем статус задачи
+        $db->editSystemTask('worker_vtt_runtime', 'updated');
+//        echo $count_vtt_msk;
+//        echo '<br>';
+//        echo $count_vtt_khv;
+        //
+        $db->addLog('INFO', 'VTT', 'Обновления остатков ВТТ завершено.');
+    }
+
 
 
 
